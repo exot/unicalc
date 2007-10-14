@@ -24,12 +24,7 @@
 (defun set-signature (x)
   (setf *signature* x))
 
-; test values
-
-(set-variable-set '(v0 v1 v2 v3 v4 v5))
-(set-signature '((plus 2) (minus 2) (+ 2)))
-
-;
+;;; terms
 
 (defun termp (x)
   "Tests, whether X \in T_{*signature*}(*variables*)"
@@ -96,7 +91,7 @@ on this subterm. Otherwise NIL is returned."
      (t (cons (first term) (mapcar #'(lambda (term)
                                         (apply-matching matching term)) (rest term))))))
 
-; cosmetics
+;;; cosmetics - printing terms in human readable forms
 
 (defun pprint-term (term1)
   "Prints TERM1 in infix notation"
@@ -120,23 +115,10 @@ on this subterm. Otherwise NIL is returned."
     (format t "= ")
     (pprint-term (second pair-of-terms))))
 
-;;; start with algebra
-
-; define interpretation of an operation in *signature*
-; with a values table
-(defparameter *free-algebra*
-  #2A((+ 0 1 2 3 4)
-      (0 0 2 3 3 2)
-      (1 2 1 4 2 4)
-      (2 3 4 2 3 4)
-      (3 3 2 3 3 2)
-      (4 2 4 4 2 4)))
-
-; TODO: deal with more than one table (just make the substitute* and 
-;   find-next-number functions run over all algebras given)
-
 ; TODO: refactor: put the algebra in one object and let variables, signature
 ;   and value tables be properties of this object
+
+; technical helper functions and macros
 
 (defun get-operation-symbol (algebra)
   (aref algebra 0 0))
@@ -150,7 +132,78 @@ on this subterm. Otherwise NIL is returned."
              ((>= ,j ,size) ,array)
            ,@body)))))
 
-; TODO: write function to determine generating variables
+; TODO: iterate-over-values-table
+; TODO: get-first-operand
+; TODO: get-second-operand
+
+;;; calculate generating elements
+
+; TODO: deal with more than one table (just make the substitute* and 
+;   find-next-number functions run over all algebras given)
+
+(defun calculate-generating-elements (algebra)
+  "Returns list of generating elements of ALGEBRA of minimal length."
+  (loop for number-of-elements from 1 
+	do 
+	  (let ((elements (n-elements-generate-algebra algebra 
+						       number-of-elements)))
+	    (when elements
+	      (return elements)))))
+
+(defun n-elemental-subsets (set n)
+  "Returns set of all N elemental subsets of SET."
+  (cond
+    ((= n 0) (list ()))
+    ((null set) nil)
+    (t (let ((subsets ()))
+	 (loop for element in set
+	       do (let ((shorter-subsets (n-elemental-subsets 
+					   (remove element set) (1- n))))
+		    (mapc #'(lambda (x) (push (cons element x) subsets))
+			  shorter-subsets)))
+	 subsets))))
+
+(defun n-elements-generate-algebra (algebra number-of-elements)
+  "Returns list of NUMBER-OF-ELEMENTS if NUMBER-OF-ELEMENTS generate
+the value-tables in the list ALGEBRA"
+  (let ((subsets (n-elemental-subsets (elements-of-algebra algebra) number-of-elements)))
+    (loop for subset in subsets
+	  when (elements-generate-algebra subset algebra)
+	  do (return subset))))
+
+(defun elements-of-algebra (algebras)
+  "Returns list of elements in ALGEBRAS"
+  (let ((algebra (first algebras)))
+    (loop for i from 1 to (1- (array-dimension algebra 1))
+	  collect (aref algebra i 0))))
+
+(defun elements-generate-algebra (elements algebras)
+  "Returns non-NIL if ELEMENTS generate ALGEBRAS given 
+by a list of value-tabels."
+  (let ((reachable-elements elements))
+    (loop 
+      (let ((new-element (get-next-reachable-element algebras reachable-elements)))
+	(if new-element
+	    (push new-element reachable-elements)
+	    (return))))
+    (if (equal (length reachable-elements)
+	       (length (elements-of-algebra algebras)))
+	t
+	nil)))
+
+(defun get-next-reachable-element (algebras reachable-elements)
+  "Returns new element in ALGEBRAS which is reachable by elements
+from REACHABLE-ELEMENTS"
+  (loop for algebra in algebras
+	do (iterate-over-array algebra i j
+	     ; TODO: make this abstract, invent iterate-over-value-table
+	     (when (and (>= i 1) (>= j 1) 
+			(not (member (aref algebra i j) reachable-elements))
+		        (member (aref algebra i 0) reachable-elements)
+			(member (aref algebra 0 j) reachable-elements))
+	       (return-from get-next-reachable-element (aref algebra i j))))))
+  
+;;; substitue numbers (non-terms) in algebra with corresponding terms
 
 (defun substitute-generators-by-variables (algebra generators)
   "Substitues in ALGEBRA all numbers being in GENERATORS with variable symbols."
@@ -201,13 +254,14 @@ GENERATORS should contain all numbers of ALGEBRA generating it."
 
 ; only for testing purpose
 
-(defun print-all-equations-nonreduced (algebra)
+(defun print-all-equations-nonreduced (algebra generating-elements)
   "Prints all equations represented by the free algebra ALGEBRA."
   (mapc #'pprint-term-pair 
-        (extract-all-equations (label-numbers-in-algebra algebra '(0 1)))) ; magic constant!
+        (extract-all-equations (label-numbers-in-algebra algebra 
+							 generating-elements)))
   (values))
 
-;
+;;; eliminating dependent equations
 
 (defun toggle-equation (eqn)
   "If (EQUAL (EQN '(X Y))), then (EQUAL (TOGGLE-EQUATION EQN) '(Y X))."
@@ -314,12 +368,33 @@ steps."
 	    (when (> substitutions (length my-equations)) 
 	      (return my-equations)))))
 
-(defun show-all-equations (algebra n)
-  "Shows all equations represented by the free algebra ALGEBRA being weakly-independent
+(defun show-all-equations (algebra generating-elements n)
+  "Shows all equations represented by the free algebra ALGEBRA 
+generated by GENERATING-ELEMENTS being weakly-independent
 of level n."
   (mapc #'pprint-term-pair
 	(remove-all-weakly-dependent-equations 
 	  (extract-all-equations 
-	    (label-numbers-in-algebra algebra '(0 1))) ; magic constant!
+	    (label-numbers-in-algebra algebra generating-elements)) 
           n))
   (values))
+
+;;; test cases
+
+(set-variable-set '(v0 v1 v2 v3 v4 v5))
+(set-signature '((+ 2)))
+
+; define interpretation of an operation in *signature*
+; with a values table
+(defparameter *free-algebra*
+  #2A((+ 0 1 2 3 4)
+      (0 0 2 3 3 2)
+      (1 2 1 4 2 4)
+      (2 3 4 2 3 4)
+      (3 3 2 3 3 2)
+      (4 2 4 4 2 4)))
+
+(defun test-case-1 ()
+  (show-all-equations *free-algebra* 
+                      (calculate-generating-elements (list *free-algebra*))
+                      2))

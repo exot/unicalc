@@ -204,7 +204,7 @@ GENERATORS should contain all numbers of ALGEBRA generating it."
 (defun print-all-equations-nonreduced (algebra)
   "Prints all equations represented by the free algebra ALGEBRA."
   (mapc #'pprint-term-pair 
-        (extract-all-equations (label-numbers-in-algebra algebra '(0 1))))
+        (extract-all-equations (label-numbers-in-algebra algebra '(0 1)))) ; magic constant!
   (values))
 
 ;
@@ -320,6 +320,6 @@ of level n."
   (mapc #'pprint-term-pair
 	(remove-all-weakly-dependent-equations 
 	  (extract-all-equations 
-	    (label-numbers-in-algebra algebra '(0 1))) 
+	    (label-numbers-in-algebra algebra '(0 1))) ; magic constant!
           n))
   (values))

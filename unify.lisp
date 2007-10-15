@@ -44,9 +44,9 @@
                           (first term2)))) 
            nil)
          (t (reduce #'(lambda (x y)
-			(if (or (not x) (not y)) ; if first-match returns nil
-			    nil                  ; then no matching is possible
-			    (nunion x y :test #'equal)))
+                        (if (or (not x) (not y)) ; if first-match returns nil
+                            nil                  ; then no matching is possible
+                            (nunion x y :test #'equal)))
                     (mapcar #'first-match (rest term1) (rest term2))))))))
 
 (defun valid-match-p (match)
@@ -144,11 +144,11 @@ on this subterm. Otherwise NIL is returned."
 (defun calculate-generating-elements (algebra)
   "Returns list of generating elements of ALGEBRA of minimal length."
   (loop for number-of-elements from 1 
-	do 
-	  (let ((elements (n-elements-generate-algebra algebra 
-						       number-of-elements)))
-	    (when elements
-	      (return elements)))))
+        do 
+          (let ((elements (n-elements-generate-algebra algebra 
+                                                       number-of-elements)))
+            (when elements
+              (return elements)))))
 
 (defun n-elemental-subsets (set n)
   "Returns set of all N elemental subsets of SET."
@@ -156,26 +156,26 @@ on this subterm. Otherwise NIL is returned."
     ((= n 0) (list ()))
     ((null set) nil)
     (t (let ((subsets ()))
-	 (loop for element in set
-	       do (let ((shorter-subsets (n-elemental-subsets 
-					   (remove element set) (1- n))))
-		    (mapc #'(lambda (x) (push (cons element x) subsets))
-			  shorter-subsets)))
-	 subsets))))
+         (loop for element in set
+               do (let ((shorter-subsets (n-elemental-subsets 
+                                           (remove element set) (1- n))))
+                    (mapc #'(lambda (x) (push (cons element x) subsets))
+                          shorter-subsets)))
+         subsets))))
 
 (defun n-elements-generate-algebra (algebra number-of-elements)
   "Returns list of NUMBER-OF-ELEMENTS if NUMBER-OF-ELEMENTS generate
 the value-tables in the list ALGEBRA"
   (let ((subsets (n-elemental-subsets (elements-of-algebra algebra) number-of-elements)))
     (loop for subset in subsets
-	  when (elements-generate-algebra subset algebra)
-	  do (return subset))))
+          when (elements-generate-algebra subset algebra)
+          do (return subset))))
 
 (defun elements-of-algebra (algebras)
   "Returns list of elements in ALGEBRAS"
   (let ((algebra (first algebras)))
     (loop for i from 1 to (1- (array-dimension algebra 1))
-	  collect (aref algebra i 0))))
+          collect (aref algebra i 0))))
 
 (defun elements-generate-algebra (elements algebras)
   "Returns non-NIL if ELEMENTS generate ALGEBRAS given 
@@ -183,25 +183,25 @@ by a list of value-tabels."
   (let ((reachable-elements elements))
     (loop 
       (let ((new-element (get-next-reachable-element algebras reachable-elements)))
-	(if new-element
-	    (push new-element reachable-elements)
-	    (return))))
+        (if new-element
+            (push new-element reachable-elements)
+            (return))))
     (if (equal (length reachable-elements)
-	       (length (elements-of-algebra algebras)))
-	t
-	nil)))
+               (length (elements-of-algebra algebras)))
+        t
+        nil)))
 
 (defun get-next-reachable-element (algebras reachable-elements)
   "Returns new element in ALGEBRAS which is reachable by elements
 from REACHABLE-ELEMENTS"
   (loop for algebra in algebras
-	do (iterate-over-array algebra i j
-	     ; TODO: make this abstract, invent iterate-over-value-table
-	     (when (and (>= i 1) (>= j 1) 
-			(not (member (aref algebra i j) reachable-elements))
-		        (member (aref algebra i 0) reachable-elements)
-			(member (aref algebra 0 j) reachable-elements))
-	       (return-from get-next-reachable-element (aref algebra i j))))))
+        do (iterate-over-array algebra i j
+             ; TODO: make this abstract, invent iterate-over-value-table
+             (when (and (>= i 1) (>= j 1) 
+                        (not (member (aref algebra i j) reachable-elements))
+                        (member (aref algebra i 0) reachable-elements)
+                        (member (aref algebra 0 j) reachable-elements))
+               (return-from get-next-reachable-element (aref algebra i j))))))
   
 ;;; substitue numbers (non-terms) in algebra with corresponding terms
 
@@ -245,11 +245,11 @@ GENERATORS should contain all numbers of ALGEBRA generating it."
   (let ((found-equations ()))
     (iterate-over-array labled-algebra i j
       (when (and (>= i 1) (>= j 1))
-	(push (list (list (get-operation-symbol labled-algebra)
-			  (aref labled-algebra i 0)
-			  (aref labled-algebra 0 j))
-		    (aref labled-algebra i j))
-	      found-equations)))
+        (push (list (list (get-operation-symbol labled-algebra)
+                          (aref labled-algebra i 0)
+                          (aref labled-algebra 0 j))
+                    (aref labled-algebra i j))
+              found-equations)))
     found-equations))
 
 ; only for testing purpose
@@ -258,7 +258,7 @@ GENERATORS should contain all numbers of ALGEBRA generating it."
   "Prints all equations represented by the free algebra ALGEBRA."
   (mapc #'pprint-term-pair 
         (extract-all-equations (label-numbers-in-algebra algebra 
-							 generating-elements)))
+                                                         generating-elements)))
   (values))
 
 ;;; eliminating dependent equations
@@ -297,37 +297,37 @@ RECURSION-DEPTH steps"
   "Returns all possible transformations of EQUATION under use of
 equations in SET-OF-EQUATIONS (one step only)."
   (let ((appliable-equations (find-all-appliable-equations equation set-of-equations))
-	(all-transformation ()))
+        (all-transformation ()))
     (loop for transformation in appliable-equations
-	  do (setf all-transformation
-		   (nconc all-transformation 
-			  (apply-transformation-to-all-matching-subterms transformation
-									 equation)))
-	  finally (return all-transformation))))
+          do (setf all-transformation
+                   (nconc all-transformation 
+                          (apply-transformation-to-all-matching-subterms transformation
+                                                                         equation)))
+          finally (return all-transformation))))
              
 (defun find-all-appliable-equations (equation set-of-equations)
   "Returns a pair of terms (TERM1 TERM2) s.t. TERM1 is subterm of (FIRST EQUATION)
 and there is a equation eqn in SET-OF-EQUATIONS that implies (TERM1 TERM2)."
   (let ((appliable-functions ()))
     (flet ((apply-equation (eqn equation)
-	     (let ((matches (matches-subterm (first eqn) (first equation))))
-	       (dolist (match matches)
-		 (push (list (first match) ; this is the subterm in equation
-			     ; which shall be substitute by the right side of
-			     ; eqn (with actual matching applied on it)
-			     (apply-matching (second match) (second eqn)))
-		       appliable-functions)))))
+             (let ((matches (matches-subterm (first eqn) (first equation))))
+               (dolist (match matches)
+                 (push (list (first match) ; this is the subterm in equation
+                             ; which shall be substitute by the right side of
+                             ; eqn (with actual matching applied on it)
+                             (apply-matching (second match) (second eqn)))
+                       appliable-functions)))))
       (loop for eqn in set-of-equations
             do
-  	      (apply-equation eqn equation)
-	      (apply-equation (toggle-equation eqn) equation)
-	    finally (return appliable-functions)))))
+              (apply-equation eqn equation)
+              (apply-equation (toggle-equation eqn) equation)
+            finally (return appliable-functions)))))
 
 (defun apply-transformation-to-all-matching-subterms (pair equation)
   "Returns a list of equations s.t. every occurence of (FIRST PAIR) in
 (FIRST EQUATION) is substituted by (SECOND PAIR)."
   (mapcar #'(lambda (x) (list x (second equation)))
-	  (remove-duplicates (apply-to-all-subterms pair (first equation)) :test #'equal)))
+          (remove-duplicates (apply-to-all-subterms pair (first equation)) :test #'equal)))
 (defun apply-to-all-subterms (pair term)
   "Returns the list of terms yield from substituting a subterm of TERM
 EQUAL to (FIRST PAIR) by (SECOND PAIR)."
@@ -338,14 +338,14 @@ EQUAL to (FIRST PAIR) by (SECOND PAIR)."
       nil) ; no subterms left
     (t (let ((result ()))
          (loop for i from 1 to (length term)
- 	       do
- 	         (let ((transformed-term (apply-to-all-subterms pair (nth i term))))
- 	 	   (dolist (myterm transformed-term)
-		     (push (append (subseq term 0 i)
-			 	   (list myterm)
-				   (subseq term (1+ i)))
-			   result)))
-	       finally (return result))))))
+               do
+                 (let ((transformed-term (apply-to-all-subterms pair (nth i term))))
+                   (dolist (myterm transformed-term)
+                     (push (append (subseq term 0 i)
+                                   (list myterm)
+                                   (subseq term (1+ i)))
+                           result)))
+               finally (return result))))))
 
 (defun rotate-list (list)
   "Returns left-rotate of LIST."
@@ -356,26 +356,26 @@ EQUAL to (FIRST PAIR) by (SECOND PAIR)."
 steps."
   (let ((my-equations equations))
     (loop with substitutions = 0
-	  do
-  	    (cond
-	      ((null my-equations) nil)
-	      ((weakly-dependent-p (first my-equations) (rest my-equations) 
-				   recursion-depth)
-	         (setf my-equations (rest my-equations))
-	         (setf substitutions 0))
-	      (t (setf my-equations (rotate-list my-equations))
-		 (incf substitutions)))
-	    (when (> substitutions (length my-equations)) 
-	      (return my-equations)))))
+          do
+            (cond
+              ((null my-equations) nil)
+              ((weakly-dependent-p (first my-equations) (rest my-equations) 
+                                   recursion-depth)
+                 (setf my-equations (rest my-equations))
+                 (setf substitutions 0))
+              (t (setf my-equations (rotate-list my-equations))
+                 (incf substitutions)))
+            (when (> substitutions (length my-equations)) 
+              (return my-equations)))))
 
 (defun show-all-equations (algebra generating-elements n)
   "Shows all equations represented by the free algebra ALGEBRA 
 generated by GENERATING-ELEMENTS being weakly-independent
 of level n."
   (mapc #'pprint-term-pair
-	(remove-all-weakly-dependent-equations 
-	  (extract-all-equations 
-	    (label-numbers-in-algebra algebra generating-elements)) 
+        (remove-all-weakly-dependent-equations 
+          (extract-all-equations 
+            (label-numbers-in-algebra algebra generating-elements)) 
           n))
   (values))
 
@@ -398,3 +398,15 @@ of level n."
   (show-all-equations *free-algebra* 
                       (calculate-generating-elements (list *free-algebra*))
                       2))
+(defun show-all-equations (algebra generating-elements n)
+  "Shows all equations represented by the free algebra ALGEBRA 
+generated by GENERATING-ELEMENTS being weakly-independent
+of level n"
+  (mapc #'pprint-term-pair
+        (remove-all-weakly-dependent-equations 
+         (extract-all-equations 
+          (label-numbers-in-algebra algebra generating-elements)) 
+        
+         n))
+  (values))
+

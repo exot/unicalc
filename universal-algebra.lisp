@@ -52,6 +52,10 @@
     (function (create-signature-from-arity-function function-symbols arities))
     (list     (create-signature-from-rank-alphabet  function-symbols arities))))
 
+(defun get-arity-of-function-symbol (func alphabet)
+  "Return arity of FUNC in ALPHABET, NIL if not there"
+  (second (find-if #'(lambda (x) (equal (first x) func)) alphabet)))
+
 ;;; algebras
 
 (defclass algebra ()
@@ -99,19 +103,62 @@ where INTERPRETATION is a value table of the given interpretation."
           (null rank-alphabet)) nil)
     (t (let* ((table (first interpretations))
               (function-symbol (function-symbol-of table))
-              (arity (find-if #'(lambda (x) (equal (first x) function-symbol)) rank-alphabet)))
+              (arity (get-arity-of-function-symbol function-symbol rank-alphabet)))
          (cond
            ((not arity) nil)
            ((and (arity-correct-p arity table)
-                 (defined-on-base-set-p base-set table)
-                 (table-defines-function-p table))
+                 (defines-function-on-set-p base-set table))
             (check-interpretations base-set 
                                    (remove-if #'(lambda (x) (equal (first x) function-symbol)) rank-alphabet)
                                    (rest interpretations)))
            (t nil))))))
 
-           
-                          
-             
+(defun arity-correct-p (arity table)
+  (= arity
+     (length (array-dimensions table))))
 
-  
+(defun defines-function-on-set-p (base-set table)
+  (and (defined-on-all-possible-inputs base-set table)
+       (values-are-in-base-set-p base-set table)))
+
+
+
+;;; iterating over value tables
+
+(defun function-symbol-of (table)
+  (let ((n (get-arity-of-table table)))
+    (apply #'aref (nconc (list table) (numbers n 0)))))
+
+(defun get-arity-of-table (table)
+  (length (array-dimensions table)))
+
+(defun numbers (n number)
+  (cond 
+    ((>= number n) ())
+    (t (cons number (zeros (1- n))))))
+
+(defun next-pos (old-pos dimens)
+  (let ((pos (first old-pos)))
+    (cond
+      ((null old-pos) nil)
+      (t (let ((dimen (first dimens)))
+           (if (= (1+ pos) dimen)
+               (let ((next (next-pos (rest old-pos) (rest dimens))))
+                 (when next
+                   (append (list 0) next)))
+               (append (list (1+ pos)) (rest old-pos))))))))
+
+(defun default-mask (table)
+  (array-dimensions table))
+
+(defmacro iterate-over-value-table (table element &body body)
+  (let ((current-element (gensym "CURRENT-ELEMENT"))
+        (start-element (gensym "START-ELEMENT"))
+        (local-mask (gensym "LOCAL-MASK")))
+    `(let ((,start-element (numbers (get-arity-of-table ,table) 0))
+           (,local-mask (default-mask ,table)))
+       (loop for ,current-element = ,start-element then (next-pos ,current-element ,local-mask)
+             while ,current-element
+             do (let ((,element (append ,current-element 
+                                        (list (apply #'aref (cons ,table ,current-element))))))
+                  ,@body)))))

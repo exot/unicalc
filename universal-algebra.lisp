@@ -28,12 +28,17 @@
                    :function-symbols function-symbols
                    :arities rank-alphabet)))
 
+(defun positive-number-p (x)
+  (and (numberp x)
+       (plusp x)))
+
 (defun rank-alphabet-valid-p (symbols alphabet)
   "Return non-NIL if ALPHABET is valid alphabet for SYMBOLS"
   (if (and (= (length symbols)
               (length alphabet))
            (set-equal symbols (mapcar #'first alphabet))
-           (every #'(lambda (x) (numberp (second x))) alphabet))
+           (every #'(lambda (x) (positive-number-p (second x))) alphabet))
+      t
       (error 'malformed-rank-alphabet :text "Invalid rank-alphabet for given symbol set.")))
 
 (defmacro define-simple-condition (name)
@@ -90,6 +95,12 @@ where INTERPRETATION is a value table of the given interpretation."
 
 (define-simple-condition malformed-interpretation)
 
+; make interpretation out of function, base-set and arity
+
+(defun generate-all-tuples (base-set n)
+  "Returns list of all N-tuples of elements in BASE-SET"
+  nil) ; HERE
+
 (defun valid-interpretations-in-algebra (base-set signature interpretations)
   "Returns non-NIL if INTERPRETATIONS is valid in <BASE-SET,SIGNATURE>"
   (let ((rank-alphabet (arities-of signature)))
@@ -109,56 +120,68 @@ where INTERPRETATION is a value table of the given interpretation."
            ((and (arity-correct-p arity table)
                  (defines-function-on-set-p base-set table))
             (check-interpretations base-set 
-                                   (remove-if #'(lambda (x) (equal (first x) function-symbol)) rank-alphabet)
+                                   (remove-if #'(lambda (x) 
+						  (equal (first x) 
+							 function-symbol)) 
+					      rank-alphabet)
                                    (rest interpretations)))
            (t nil))))))
 
 (defun arity-correct-p (arity table)
-  (= arity
-     (length (array-dimensions table))))
+  (= arity (get-arity-of-table table)))
 
 (defun defines-function-on-set-p (base-set table)
   (and (defined-on-all-possible-inputs base-set table)
-       (values-are-in-base-set-p base-set table)))
+       (values-are-in-base-set base-set table)))
 
+(defun defined-on-all-possible-inputs (base-set table)
+  (let ((arguments (mapcar #'first (rest table)))
+	(arity (get-arity-of-table table)))
+    (labels ((recursive-check (n)
+	       (cond
+		 ((zerop n) t)
+		 (t (let ((used-arguments (mapcar #'(lambda (x) (nth n x)) arguments)))
+		      (cond
+			((not (set-equal used-arguments base-set)) nil)
+			(t (recursive-check (1- n)))))))))
+      (recursive-check (1- arity)))))
 
+(defun values-are-in-base-set (base-set table)
+  (iterate-over-value-table table element
+    (when (not (member (value-of-element element) base-set))
+      (return nil)))
+  t)
 
 ;;; iterating over value tables
 
 (defun function-symbol-of (table)
-  (let ((n (get-arity-of-table table)))
-    (apply #'aref (nconc (list table) (numbers n 0)))))
+  (first table))
 
 (defun get-arity-of-table (table)
-  (length (array-dimensions table)))
+  (length (first (first (rest table)))))
 
 (defun numbers (n number)
   (cond 
     ((>= number n) ())
-    (t (cons number (zeros (1- n))))))
+    (t (cons number (numbers (1- n) number)))))
 
-(defun next-pos (old-pos dimens)
-  (let ((pos (first old-pos)))
-    (cond
-      ((null old-pos) nil)
-      (t (let ((dimen (first dimens)))
-           (if (= (1+ pos) dimen)
-               (let ((next (next-pos (rest old-pos) (rest dimens))))
-                 (when next
-                   (append (list 0) next)))
-               (append (list (1+ pos)) (rest old-pos))))))))
+(defun all-zero-except-n (list n)
+  "Returns LIST with zeros except in position n"
+  (cond
+    ((or (null list) (>= n (length list)))
+     (numbers (length list) 0))
+    (t (let ((zeros (numbers (length list) 0)))
+	 (setf (nth n zeros) (nth n list))
+	 zeros))))
 
-(defun default-mask (table)
-  (array-dimensions table))
+(defun value-of-element (element)
+  (second element))
+
+(defun element-at-position (table position)
+  (second (assoc position (rest table))))
 
 (defmacro iterate-over-value-table (table element &body body)
-  (let ((current-element (gensym "CURRENT-ELEMENT"))
-        (start-element (gensym "START-ELEMENT"))
-        (local-mask (gensym "LOCAL-MASK")))
-    `(let ((,start-element (numbers (get-arity-of-table ,table) 0))
-           (,local-mask (default-mask ,table)))
-       (loop for ,current-element = ,start-element then (next-pos ,current-element ,local-mask)
-             while ,current-element
-             do (let ((,element (append ,current-element 
-                                        (list (apply #'aref (cons ,table ,current-element))))))
-                  ,@body)))))
+  (let ((pair (gensym "PAIR")))
+    `(loop for ,pair in (rest ,table)
+           do (let ((,element ,pair))
+		,@body))))

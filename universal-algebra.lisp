@@ -177,6 +177,12 @@ where INTERPRETATION is a value table of the given interpretation."
 (defun value-of-element (element)
   (second element))
 
+(defun nth-operand (element n)
+  (nth n (all-operands element)))
+
+(defun all-operands (element)
+  (first element))
+
 (defun element-at-position (table position)
   (second (assoc position (rest table))))
 

@@ -21,7 +21,8 @@
     :function-symbol-of
     :get-arity-of-table
     :numbers
-    :all-zero-except-n
     :value-of-element
+    :nth-operand
+    :all-operands
     :element-at-position
     :iterate-over-value-table))

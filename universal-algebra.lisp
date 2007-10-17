@@ -39,7 +39,8 @@
            (set-equal symbols (mapcar #'first alphabet))
            (every #'(lambda (x) (positive-number-p (second x))) alphabet))
       t
-      (error 'malformed-rank-alphabet :text "Invalid rank-alphabet for given symbol set.")))
+      (error 'malformed-rank-alphabet 
+	     :text "Invalid rank-alphabet for given symbol set.")))
 
 (defmacro define-simple-condition (name)
   `(define-condition ,name ()
@@ -74,7 +75,9 @@ where INTERPRETATION is a value table of the given interpretation."
   (make-instance 'algebra 
                  :base-set  (make-set base-set)
                  :signature signature
-                 :interpretations (make-interpretation base-set signature interpretations)))
+                 :interpretations (make-interpretation base-set 
+						       signature 
+						       interpretations)))
 
 (defun make-algebra-from-scratch (base-set function-symbols arities interpretations)
   "Returns ALGEBRA object given by BASE-SET, FUNCTION-SYMBOLS and ARITIES of FUNCTION-SYMBOLS (given as rank-alphabet or as arity-function)"
@@ -82,24 +85,80 @@ where INTERPRETATION is a value table of the given interpretation."
     (make-instance 'algebra
                    :base-set  (make-set base-set)
                    :signature signature 
-                   :interpretations (make-interpretation base-set signature interpretations))))
+                   :interpretations (make-interpretation base-set 
+							 signature 
+							 interpretations))))
 
 (defun make-set (set &key (test #'equal))
   (remove-duplicates set :test test))
 
 (defun make-interpretation (base-set signature interpretations)
-  "Returns set of functions that represent INTERPRETATIONS in <BASE-SET,SIGNATURE>"
+  "Returns set of functions that represent INTERPRETATIONS in <BASE-SET,SIGNATURE>
+INTERPRETATIONS should have the form (... (SYMBOL TABLE) ...) or (... (SYMBOL
+FUNCTION)...) whereas TABLE should be a value table describing SYMBOL and
+FUNCTION should be an operation defined with DEFINE-OPERATION."
   (cond
-    ((valid-interpretations-in-algebra base-set signature interpretations) interpretations)
+    ((valid-interpretations-in-algebra base-set signature interpretations) 
+      (normalize-interpretations base-set interpretations))
     (t (error 'malformed-interpretation :text "Invalid interpretation given"))))
 
 (define-simple-condition malformed-interpretation)
 
-; make interpretation out of function, base-set and arity
+(defun normalize-interpretations (base-set interpretations)
+  "Normalizes INTERPRETATIONS to only consist of value tables."
+  (mapcar #'(lambda (table)
+	      (let ((function-symbol (function-symbol-of table))
+		    (interpretation (second table)))
+		(cond
+		  ((interpretation-function-p interpretation)
+		   (list
+		    function-symbol
+		    (interpretation-function-to-value-table base-set interpretation)))
+		  (t table))))
+	  interpretations))
 
-(defun generate-all-tuples (base-set n)
-  "Returns list of all N-tuples of elements in BASE-SET"
-  nil) ; HERE
+(defun interpretation-function-to-value-table (base-set ifunc)
+  "Converts IFUNC to value-table."
+  (let ((value-table ()))
+    (labels ((collect-all-values (argument)
+	       (cond
+		 ((null argument) value-table)
+		 (t (push (list argument (apply (symbol-function ifunc) argument)) 
+			  value-table)
+		    (collect-all-values (next-argument base-set argument))))))
+      (collect-all-values (numbers (get-arity-of-interpretation-function ifunc) 
+				   (first base-set))))))
+
+(defun next-argument (base-set argument)
+  "Returns next ARGUMENT in BASE-SET of length (LENGTH ARGUMENT)"
+  (cond 
+    ((null argument) nil)
+    (t (let ((rest (rest (member (first argument) base-set)))); all elements after current
+	 (cond
+	   ((null rest) ; increment next position
+	    (let ((next (next-argument base-set (rest argument))))
+	      (when next
+		(cons (first base-set) next)))) ; and start with first element again
+	   (t (cons (first rest) (rest argument))))))))
+
+; make interpretation out of function, base-set and arity
+(defmacro define-operation (name arguments &body body)
+  "Defines function which can be used to generate interpretations 
+instead of value tables."
+  `(progn
+     (setf (get ',name :is-interpretation-function) t)
+     (setf (get ',name :arity) (length ',arguments))
+    
+     (defun ,name ,arguments
+       ,@body)))
+
+(defun interpretation-function-p (func)
+  (and (symbolp func)
+       (get func :is-interpretation-function)))
+
+(defun get-arity-of-interpretation-function (func)
+  (when (interpretation-function-p func)
+    (get func :arity)))
 
 (defun valid-interpretations-in-algebra (base-set signature interpretations)
   "Returns non-NIL if INTERPRETATIONS is valid in <BASE-SET,SIGNATURE>"
@@ -113,8 +172,8 @@ where INTERPRETATION is a value table of the given interpretation."
     ((or  (null interpretations)
           (null rank-alphabet)) nil)
     (t (let* ((table (first interpretations))
-              (function-symbol (function-symbol-of table))
-              (arity (get-arity-of-function-symbol function-symbol rank-alphabet)))
+	      (function-symbol (function-symbol-of table))
+	      (arity (get-arity-of-function-symbol function-symbol rank-alphabet)))
          (cond
            ((not arity) nil)
            ((and (arity-correct-p arity table)
@@ -128,23 +187,23 @@ where INTERPRETATION is a value table of the given interpretation."
            (t nil))))))
 
 (defun arity-correct-p (arity table)
-  (= arity (get-arity-of-table table)))
+  (cond
+    ((interpretation-function-p (second table))
+      (= arity (get-arity-of-interpretation-function (second table))))
+    (t (= arity (get-arity-of-table table)))))
 
 (defun defines-function-on-set-p (base-set table)
-  (and (defined-on-all-possible-inputs base-set table)
-       (values-are-in-base-set base-set table)))
+  (or (interpretation-function-p (second table))
+      (and (defined-on-all-possible-inputs base-set table)
+	   (values-are-in-base-set base-set table))))
 
 (defun defined-on-all-possible-inputs (base-set table)
   (let ((arguments (mapcar #'first (rest table)))
 	(arity (get-arity-of-table table)))
-    (labels ((recursive-check (n)
-	       (cond
-		 ((zerop n) t)
-		 (t (let ((used-arguments (mapcar #'(lambda (x) (nth n x)) arguments)))
-		      (cond
-			((not (set-equal used-arguments base-set)) nil)
-			(t (recursive-check (1- n)))))))))
-      (recursive-check (1- arity)))))
+    (and (every #'(lambda (x) (= (length x) arity)) arguments)
+	 (every #'(lambda (x) (every #'(lambda (y) (member y base-set)) x)) arguments)
+	 (= (expt (length base-set) arity)
+	    (length (remove-duplicates arguments :test #'equal))))))
 
 (defun values-are-in-base-set (base-set table)
   (iterate-over-value-table table element
@@ -162,7 +221,7 @@ where INTERPRETATION is a value table of the given interpretation."
 
 (defun numbers (n number)
   (cond 
-    ((>= number n) ())
+    ((>= 0 n) ())
     (t (cons number (numbers (1- n) number)))))
 
 (defun all-zero-except-n (list n)

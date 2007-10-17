@@ -18,6 +18,7 @@
     :make-set
     :make-interpretation
     :malformed-interpretation
+    :define-operation
     :function-symbol-of
     :get-arity-of-table
     :numbers

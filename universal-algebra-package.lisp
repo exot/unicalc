@@ -1,5 +1,5 @@
 (defpackage :universal-algebra
- (:use :cl)
+ (:use :cl :technicals)
  (:export
     :signature
     :create-signature-from-arity-function

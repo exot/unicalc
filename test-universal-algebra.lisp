@@ -43,3 +43,13 @@
 (pprint (interpretations-on *algebra*))
 (pprint (signature-of *algebra*))
 (pprint (base-set-of *algebra*))
+
+(define-operation NAND (x y)
+  (not (and (plusp x) (plusp y))))
+
+(defparameter *boolean-algebra* 
+  (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
+    '((NAND NAND))))
+
+(pprint (interpretations-on *boolean-algebra*))
+                             

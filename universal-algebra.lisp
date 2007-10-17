@@ -1,5 +1,47 @@
 (in-package :universal-algebra)
 
+;;; iterating over value tables
+
+(defun function-symbol-of (table)
+  (first table))
+
+(defun get-arity-of-table (table)
+  (length (first (first (rest table)))))
+
+(defun numbers (n number)
+  (cond 
+    ((>= 0 n) ())
+    (t (cons number (numbers (1- n) number)))))
+
+(defun all-zero-except-n (list n)
+  "Returns LIST with zeros except in position n"
+  (cond
+    ((or (null list) (>= n (length list)))
+     (numbers (length list) 0))
+    (t (let ((zeros (numbers (length list) 0)))
+	 (setf (nth n zeros) (nth n list))
+	 zeros))))
+
+(defun value-of-element (element)
+  (second element))
+
+(defun nth-operand (element n)
+  (nth n (all-operands element)))
+
+(defun all-operands (element)
+  (first element))
+
+(defun element-at-position (table position)
+  (second (assoc position (rest table))))
+
+(defmacro iterate-over-value-table (table element &body body)
+  (let ((pair (gensym "PAIR")))
+    `(loop for ,pair in (rest ,table)
+           do (let ((,element ,pair))
+		,@body))))
+
+;;; start actual implementation
+
 (defclass signature ()
   ((function-symbols :initarg :function-symbols :accessor function-symbols-of)
    (arities          :initarg :arities          :accessor arities-of)))
@@ -210,43 +252,3 @@ instead of value tables."
     (when (not (member (value-of-element element) base-set))
       (return nil)))
   t)
-
-;;; iterating over value tables
-
-(defun function-symbol-of (table)
-  (first table))
-
-(defun get-arity-of-table (table)
-  (length (first (first (rest table)))))
-
-(defun numbers (n number)
-  (cond 
-    ((>= 0 n) ())
-    (t (cons number (numbers (1- n) number)))))
-
-(defun all-zero-except-n (list n)
-  "Returns LIST with zeros except in position n"
-  (cond
-    ((or (null list) (>= n (length list)))
-     (numbers (length list) 0))
-    (t (let ((zeros (numbers (length list) 0)))
-	 (setf (nth n zeros) (nth n list))
-	 zeros))))
-
-(defun value-of-element (element)
-  (second element))
-
-(defun nth-operand (element n)
-  (nth n (all-operands element)))
-
-(defun all-operands (element)
-  (first element))
-
-(defun element-at-position (table position)
-  (second (assoc position (rest table))))
-
-(defmacro iterate-over-value-table (table element &body body)
-  (let ((pair (gensym "PAIR")))
-    `(loop for ,pair in (rest ,table)
-           do (let ((,element ,pair))
-		,@body))))

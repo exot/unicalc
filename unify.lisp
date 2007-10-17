@@ -1,4 +1,5 @@
 ;;; define variables and symbols for algebra
+;;;
 ;;; <*variables*,*signature*>
 
 (defvar *variables* ())

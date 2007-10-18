@@ -49,6 +49,12 @@
   "Return arity of FUNC in ALPHABET, NIL if not there"
   (second (find-if #'(lambda (x) (equal (first x) func)) alphabet)))
 
+(defgeneric arity-of-function-symbol (term-algebra-or-signature function-symbol)
+  (:documentation "Returns arity of FUNCTION-SYMBOL from TERM-ALGEBRA-OR-SIGNATURE"))
+
+(defmethod arity-of-function-symbol ((source signature) function-symbol)
+  (get-arity-of-function-symbol function-symbol (arities-of source)))
+
 ;;; algebras
 
 (defclass algebra ()

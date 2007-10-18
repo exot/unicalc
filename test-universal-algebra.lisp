@@ -1,4 +1,10 @@
-(in-package :universal-algebra)
+(defpackage :test-universal-algebra
+  (:use 
+   :cl
+   :universal-algebra
+   :terms))
+
+(in-package :test-universal-algebra)
 
 (defparameter *base-set* (make-set '(0 1 2)))
 
@@ -52,4 +58,14 @@
     '((NAND NAND))))
 
 (pprint (interpretations-on *boolean-algebra*))
-                             
+
+;;; terms
+
+(defparameter *global-term-algebra* 
+  (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
+                     *signature*))
+
+(pprint (variablep *global-term-algebra* 'v0))
+(pprint (variablep *global-term-algebra* 'v9))
+
+(pprint (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2)))))

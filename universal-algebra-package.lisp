@@ -2,6 +2,8 @@
  (:use :cl :technicals)
  (:export
     :signature
+    :function-symbols-of
+    :arities-of
     :create-signature-from-arity-function
     :make-rank-alphabet-from-arity-function
     :define-arity-function
@@ -11,8 +13,11 @@
     :malformed-rank-alphabet
     :set-equal
     :make-signature
-    :get-arity-of-function-symbol
+    :arity-of-function-symbol
     :algebra
+    :base-set-of
+    :signature-of
+    :interpretations-on
     :make-algebra
     :make-algebra-from-scratch
     :make-set

@@ -1,10 +1,10 @@
-(defpackage :test-universal-algebra
-  (:use 
-   :cl
-   :universal-algebra
-   :terms))
+;; (defpackage :test-universal-algebra
+;;   (:use 
+;;    :cl
+;;    :universal-algebra
+;;    :terms))
 
-(in-package :test-universal-algebra)
+;; (in-package :test-universal-algebra)
 
 (defparameter *base-set* (make-set '(0 1 2)))
 

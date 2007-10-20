@@ -43,6 +43,10 @@
   (and (numberp x)
        (plusp x)))
 
+(defun non-negative-number-p (x)
+  (and (numberp x)
+       (not (minusp x))))
+
 (defmacro define-simple-condition (name)
   `(define-condition ,name ()
      ((text :initarg text :reader text))))

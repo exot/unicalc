@@ -2,7 +2,8 @@
   (:use 
    :cl
    :universal-algebra
-   :terms))
+   :terms
+   :subalgebras))
 
 (in-package :test-universal-algebra)
 
@@ -73,3 +74,33 @@
 (pprint (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2)))))
 
 ;;; subalgebras
+
+(defparameter *signature-2* (make-signature '(+ -) '((+ 2) (- 2))))
+
+(defparameter *algebra-2* (make-algebra '(0 1 2) *signature-2*
+                                        '((+
+                                           ((0 0) 0)
+                                           ((1 0) 1)
+                                           ((0 1) 1)
+                                           ((0 2) 2)
+                                           ((1 1) 2)
+                                           ((2 0) 2)
+                                           ((1 2) 0)
+                                           ((2 1) 0)
+                                           ((2 2) 1))
+                                          (-
+                                           ((0 0) 0)
+                                           ((1 0) 0)
+                                           ((0 1) 0)
+                                           ((0 2) 0)
+                                           ((2 0) 0)
+                                           ((1 1) 0)
+                                           ((1 2) 0)
+                                           ((2 1) 0)
+                                           ((2 2) 0)))))
+
+(defparameter *signature-empty* (make-signature '(*) '((* 0))))
+
+(defparameter *algebra-3* (make-algebra '(0 1 2) *signature-empty* '((* (() 0)))))
+
+(print (calculate-generating-elements *algebra-3*)) ; should be '(1 2)

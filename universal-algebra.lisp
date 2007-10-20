@@ -33,7 +33,7 @@
   (if (and (= (length symbols)
               (length alphabet))
            (set-equal symbols (mapcar #'first alphabet))
-           (every #'(lambda (x) (positive-number-p (second x))) alphabet))
+           (every #'(lambda (x) (non-negative-number-p (second x))) alphabet))
       t
       (error 'malformed-rank-alphabet 
 	     :text "Invalid rank-alphabet for given symbol set.")))

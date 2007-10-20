@@ -11,6 +11,7 @@
    :element-at-position
    :iterate-over-value-table  
    :positive-number-p
+   :non-negative-number-p
    :define-simple-condition
    :set-equal
    :make-set

@@ -87,10 +87,11 @@ where INTERPRETATION is a value table of the given interpretation."
 INTERPRETATIONS should have the form (... (SYMBOL TABLE) ...) or (... (SYMBOL
 FUNCTION)...) whereas TABLE should be a value table describing SYMBOL and
 FUNCTION should be an operation defined with DEFINE-OPERATION."
-  (cond
-    ((valid-interpretations-in-algebra base-set signature interpretations) 
-      (normalize-interpretations base-set interpretations))
-    (t (error 'malformed-interpretation :text "Invalid interpretation given"))))
+  (let ((normalized-interpretations (normalize-interpretations base-set interpretations)))
+    (cond
+      ((valid-interpretations-in-algebra base-set signature normalized-interpretations) 
+       normalized-interpretations)
+      (t (error 'malformed-interpretation :text "Invalid interpretation given")))))
 
 (define-simple-condition malformed-interpretation)
 
@@ -101,7 +102,7 @@ FUNCTION should be an operation defined with DEFINE-OPERATION."
 		    (interpretation (second table)))
 		(cond
 		  ((interpretation-function-p interpretation)
-		   (list
+		   (cons
 		    function-symbol
 		    (interpretation-function-to-value-table base-set interpretation)))
 		  (t table))))
@@ -164,15 +165,11 @@ instead of value tables."
            (t nil))))))
 
 (defun arity-correct-p (arity table)
-  (cond
-    ((interpretation-function-p (second table))
-      (= arity (get-arity-of-interpretation-function (second table))))
-    (t (= arity (get-arity-of-table table)))))
+  (= arity (get-arity-of-table table)))
 
 (defun defines-function-on-set-p (base-set table)
-  (or (interpretation-function-p (second table))
-      (and (defined-on-all-possible-inputs base-set table)
-	   (values-are-in-base-set base-set table))))
+  (and (defined-on-all-possible-inputs base-set table)
+       (values-are-in-base-set base-set table)))
 
 (defun defined-on-all-possible-inputs (base-set table)
   (let ((arguments (mapcar #'first (rest table)))
@@ -185,5 +182,5 @@ instead of value tables."
 (defun values-are-in-base-set (base-set table)
   (iterate-over-value-table table element
     (when (not (member (value-of-element element) base-set))
-      (return nil)))
+      (return-from values-are-in-base-set nil)))
   t)

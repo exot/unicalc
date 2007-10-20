@@ -1,17 +1,17 @@
-;; (defpackage :test-universal-algebra
-;;   (:use 
-;;    :cl
-;;    :universal-algebra
-;;    :terms))
+(defpackage :test-universal-algebra
+  (:use 
+   :cl
+   :universal-algebra
+   :terms))
 
-;; (in-package :test-universal-algebra)
+(in-package :test-universal-algebra)
 
 (defparameter *base-set* (make-set '(0 1 2)))
 
 (defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
 
 (define-operation p-impl (a b)
-  (+ a b))
+  (rem (+ a b) 3))
 
 (defparameter *algebra* (make-algebra *base-set* *signature*
 				      '((+ ((0) 0) 
@@ -51,7 +51,9 @@
 (pprint (base-set-of *algebra*))
 
 (define-operation NAND (x y)
-  (not (and (plusp x) (plusp y))))
+  (if (and (plusp x) (plusp y))
+        0
+        1))
 
 (defparameter *boolean-algebra* 
   (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
@@ -69,3 +71,5 @@
 (pprint (variablep *global-term-algebra* 'v9))
 
 (pprint (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2)))))
+
+;;; subalgebras

@@ -3,4 +3,5 @@
    :cl
    :universal-algebra
    :terms
-   :subalgebras))
+   :subalgebras
+   :functions-and-relations))

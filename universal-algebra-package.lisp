@@ -31,4 +31,6 @@
     :nth-operand
     :all-operands
     :element-at-position
-    :iterate-over-value-table))
+    :iterate-over-value-table
+    :apply-operation-in-algebra
+    :algebras-of-same-signature-p))

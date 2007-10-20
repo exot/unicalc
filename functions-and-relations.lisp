@@ -66,7 +66,7 @@
 (defun function-graph-p (graph A B)
   "Returns non-NIL if GRAPH describes a function from A to B."
   (and (valid-graph-p graph A B)
-       (let* ((graph-arguments (mapcar #'first (remove-duplicates graph :test #'equal))))
+       (let ((graph-arguments (mapcar #'first (remove-duplicates graph :test #'equal))))
          (= (length graph-arguments)
             (length (remove-duplicates graph-arguments :test #'equal))))))
 
@@ -82,6 +82,53 @@
 
 ;; doing something with functions
 
-(defun apply-to-element (function element)
+(define-simple-condition wrong-argument)
+
+(defun apply-function-to-element (function element)
   "Applies FUNCTION to ELEMENT."
-  (second (assoc element (graph function))))
+  (or (second (assoc element (graph function)))
+      (error 'wrong-argument 
+             :text (format nil "Cannot apply ~A to ~A" function element))))
+
+(defun apply-function-to-tuple (function tuple)
+  "Applies FUNCTION to elements of SET, not neccessarily returning a set."
+  (mapcar #'(lambda (element) 
+              (apply-function-to-element function element))
+          tuple))
+
+(defun apply-function-to-set (function set)
+  "Applies FUNCTION to elements of SET."
+  (make-set (apply-function-to-tuple function set)))
+
+(defun range (function)
+  (remove-duplicates (mapcar #'second (graph function)) :test #'equal))
+
+(defun surjective-p (function)
+  (set-equal (target function)
+             (range function)))
+
+(defun injective-p (function)
+  (equal (length (source function))
+         (length (range function))))
+
+(defun homomorphic-p (function algebra1 algebra2)
+  "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and ALGEBRA2."
+  (when (and (algebras-of-same-signature-p algebra1 algebra2)
+             (set-equal (source function) (base-set-of algebra1) :test #'equal)
+             (subsetp (target function) (base-set-of algebra2) :test #'equal))
+    (let ((signature (signature-of algebra1)))
+      (every #'(lambda (operation) 
+                 (compatible-with-operation-p function operation algebra1 algebra2))
+             (function-symbols-of signature)))))
+
+(defun compatible-with-operation-p (function operation algebra1 algebra2)
+  "Returns non-NIL if FUNCTION is compatible with OPERATION on ALGEBRA1 and on ALGEBRA2."
+  (let ((arity (arity-of-function-symbol (signature-of algebra1) operation)))
+    (labels ((check-all-arguments (argument)
+               (cond 
+                 ((null argument) t)
+                 ((not (equal (apply-function-to-element function (apply-operation-in-algebra operation argument algebra1))
+                              (apply-operation-in-algebra operation (apply-function-to-tuple function argument) algebra2)))
+                  nil)
+                 (t (check-all-arguments (next-argument (base-set-of algebra1) argument))))))
+      (check-all-arguments (symbols arity (first (base-set-of algebra1)))))))

@@ -11,6 +11,9 @@
     ((>= 0 n) ())
     (t (cons number (numbers (1- n) number)))))
 
+(defun symbols (n number)
+  (numbers n number))
+
 (defun all-zero-except-n (list n)
   "Returns LIST with zeros except in position n"
   (cond
@@ -51,10 +54,10 @@
   `(define-condition ,name ()
      ((text :initarg text :reader text))))
 
-(defun set-equal (set1 set2)
+(defun set-equal (set1 set2 &key (test #'equal))
   "Returns T if (AND (SUBSETP SET1 SET2) (SUBSETP SET2 SET1))"
-  (and (subsetp set1 set2)
-       (subsetp set2 set1)))
+  (and (subsetp set1 set2 :test test)
+       (subsetp set2 set1 :test test)))
 
 (defun make-set (set &key (test #'equal))
   (remove-duplicates set :test test))

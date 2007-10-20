@@ -5,7 +5,8 @@
   :depends-on ("technicals" 
                "universal-algebra"
                "terms"
-               "subalgebras")
+               "subalgebras"
+               "functions-and-relations")
   :components ((:file "test-universal-algebra-package")
                (:file "test-universal-algebra" 
                 :depends-on ("test-universal-algebra-package"))))

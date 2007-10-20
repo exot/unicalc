@@ -97,3 +97,41 @@
 (defparameter *algebra-3* (make-algebra '(0 1 2) *signature-empty* '((* (() 0)))))
 
 (print (calculate-generating-elements *algebra-3*)) ; should be '(1 2)
+
+;; functions and relations
+
+(defparameter *A* (make-set '(a b c d e)))
+(defparameter *B* (make-set '(1 2 3 4 5 6 7)))
+
+(defparameter *R* (make-relation *A* *B* '((a 1) (b 2) (c 3) (d 4) (e 7))))
+
+(defparameter *myfunc* (make-function *A* *B* *R*))
+
+(defparameter *C* (make-set '(1 2)))
+(defparameter *D* (make-set '(a b)))
+
+(defparameter *signature-3* (make-signature '(+ -) '((+ 2) (- 1))))
+
+(defparameter *algebra-C* (make-algebra *C* *signature-3*
+                                        '((+
+                                           ((1 1) 2)
+                                           ((1 2) 2)
+                                           ((2 1) 1)
+                                           ((2 2) 2))
+                                          (-
+                                           ((1) 2)
+                                           ((2) 1)))))
+
+(defparameter *algebra-D* (make-algebra *D* *signature-3*
+                                        '((+
+                                           ((a a) b)
+                                           ((a b) b)
+                                           ((b a) a)
+                                           ((b b) b))
+                                          (-
+                                           ((a) b)
+                                           ((b) a)))))
+
+(defparameter *identity* (make-function *C* *D* '((1 a) (2 b)))) ; is homomorphic between *algebra-C* and *algebra-D*
+
+(defparameter *constantly-b* (make-function *C* *D* '((1 b) (2 b)))) ; is not homomorphic betwenn *algebra-C* and *algebra-D*

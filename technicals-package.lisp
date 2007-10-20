@@ -4,6 +4,7 @@
    :function-symbol-of
    :get-arity-of-table
    :numbers
+   :symbols
    :all-zero-except-n
    :value-of-element
    :nth-operand

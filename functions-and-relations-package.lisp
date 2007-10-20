@@ -1,4 +1,4 @@
-(defpackage :functions
+(defpackage :functions-and-relations
   (:use
    :cl
    :technicals

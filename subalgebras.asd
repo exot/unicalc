@@ -2,6 +2,6 @@
 (in-package :subalgebras-system)
 
 (defsystem subalgebras
-  :depends-on ("universal-algebra")
+  :depends-on ("technicals" "universal-algebra")
   :components ((:file "subalgebras-package")
                (:file "subalgebras" :depends-on ("subalgebras-package"))))

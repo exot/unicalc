@@ -15,4 +15,5 @@
    :define-simple-condition
    :set-equal
    :make-set
-   :next-argument))
+   :next-argument
+   :n-elemental-subsets))

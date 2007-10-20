@@ -11,19 +11,6 @@
                  (t (check-incremental (1+ n)))))))
     (check-incremental 0)))
 
-(defun n-elemental-subsets (set n)
-  "Returns set of all N elemental subsets of SET."
-  (cond
-    ((= n 0) (list ()))
-    ((null set) nil)
-    (t (let ((subsets ()))
-         (loop for element in set
-               do (let ((shorter-subsets (n-elemental-subsets 
-                                           (remove element set) (1- n))))
-                    (mapc #'(lambda (x) (push (cons element x) subsets))
-                          shorter-subsets)))
-         subsets))))
-
 (defun n-elements-generate-algebra (algebra number-of-elements)
   "Return list of NUMBER-OF-ELEMENTS elements of ALGEBRA if NUMBER-OF-ELEMENTS elements
 in ALGEBRA exists which generate the whole ALGEBRA."

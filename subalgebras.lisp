@@ -46,3 +46,5 @@ from REACHABLE-ELEMENTS"
                (when (and (subsetp (all-operands element) reachable-elements)
                           (not (member (value-of-element element) reachable-elements)))
                  (return-from next-reachable-element (value-of-element element)))))))
+
+;;; here is still a lot todo

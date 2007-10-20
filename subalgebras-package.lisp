@@ -4,4 +4,5 @@
    :technicals
    :universal-algebra)
   (:export 
-   :calculate-generating-elements))
+   :calculate-generating-elements
+   :elements-generate-algebra-p))

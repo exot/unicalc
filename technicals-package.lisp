@@ -17,4 +17,7 @@
    :set-equal
    :make-set
    :next-argument
-   :n-elemental-subsets))
+   :n-elemental-subsets
+   :tuples
+   :forall
+   :exists))

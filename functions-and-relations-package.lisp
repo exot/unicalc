@@ -24,4 +24,6 @@
    :injective-p
    :homomorphism-p
    :isomorphism-p
-   :quasi-homomorphism-p))
+   :quasi-homomorphism-p
+   :apply-quasihomomorphism-to-algebra
+   :no-quasihomomorphism))

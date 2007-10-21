@@ -175,13 +175,42 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
                                       function operation algebra))))
 
 (defun check-for-all-second-arguments (first-argument second-argument function operation algebra)
+  "Recursion over second argument."
   (cond
     ((null second-argument) t)
     ((and (equal (apply-function-to-tuple function first-argument) 
                  (apply-function-to-tuple function second-argument))
           (not (equal (apply-function-to-element function (apply-operation-in-algebra operation first-argument algebra))
                       (apply-function-to-element function (apply-operation-in-algebra operation second-argument algebra)))))
-     (print 1)
      nil)
     (t (check-for-all-second-arguments first-argument (next-argument (base-set-of algebra) second-argument)
                                        function operation algebra))))
+
+(defun apply-quasihomomorphism-to-algebra (function algebra)
+  "Applies the quasihomomorphism FUNCTION to ALGEBRA yielding the image algebra."
+  (cond
+     ((not (quasi-homomorphism-p function algebra))
+      (error 'no-quasihomomorphism
+             :text (format nil "~A is not a quasihomomorphis on ~A" function algebra)))
+     (t (let ((new-base-set (apply-function-to-set function (base-set-of algebra)))
+              (signature (signature-of algebra))
+              (new-interpretations (apply-function-to-interpretations 
+                                    function
+                                    (interpretations-on algebra))))
+          (make-algebra new-base-set signature new-interpretations)))))
+
+(define-simple-condition no-quasihomomorphism)
+
+(defun apply-function-to-interpretations (function interpretations)
+  (mapcar #'(lambda (table) (apply-function-to-table function table))
+          interpretations))
+
+(defun apply-function-to-table (function table)  ;;; uses internal structure of table
+  (let ((new-table ()))
+    (iterate-over-value-table table element
+      (push (list (apply-function-to-tuple function (all-operands element))
+                  (apply-function-to-element function (value-of-element element)))
+            new-table))
+    (let ((new-table-set (make-set new-table)))
+      (push (function-symbol-of table) new-table-set)
+      new-table-set)))

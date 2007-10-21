@@ -134,4 +134,12 @@
 
 (defparameter *identity* (make-function *C* *D* '((1 a) (2 b)))) ; is homomorphic between *algebra-C* and *algebra-D*
 
-(defparameter *constantly-b* (make-function *C* *D* '((1 b) (2 b)))) ; is not homomorphic betwenn *algebra-C* and *algebra-D*
+(defparameter *constantly-b* (make-function *C* '(b) '((1 b) (2 b)))) ; is not homomorphic between *algebra-C* and *algebra-D*
+
+(pprint (homomorphism-p *identity* *algebra-C* *algebra-D*)) ;; T
+(pprint (homomorphism-p *constantly-b* *algebra-C* *algebra-D*)) ;; NIL
+(pprint (quasi-homomorphism-p *constantly-b* *algebra-C*)) ;; T
+
+(defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
+
+(pprint (homomorphism-p *constantly-b* *algebra-C* *image-under-c*)) ;; T

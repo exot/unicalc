@@ -214,3 +214,39 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
     (let ((new-table-set (make-set new-table)))
       (push (function-symbol-of table) new-table-set)
       new-table-set)))
+
+(defun kernel (function)
+  "Returns kernel of FUNCTION."
+  (let ((base-set (source function)))
+    (labels ((kernel-element (pair pairs)
+               (cond
+                 ((null pair) pairs)
+                 (t (if (equal (apply-function-to-element function (first pair))
+                               (apply-function-to-element function (second pair)))
+                      (kernel-element (next-argument base-set pair) (cons pair pairs))
+                      (kernel-element (next-argument base-set pair) pairs))))))
+      (kernel-element (symbols 2 (first base-set)) ()))))
+
+(define-simple-condition function-error)
+
+(defun inverse-image (function set)
+  "Returns the inverse image of SET under FUNCTION."
+  (cond
+    ((not (subsetp set (target function) :test #'equal))
+     (error 'function-error
+            :text (format nil "~A is not a subset of ~A" set function)))
+    (t (mapcan #'(lambda (element) (inverse-image-of-element function element))
+               set))))
+
+(defun inverse-image-of-element (function element)
+  (labels ((origin-of-element (argument all-origins)
+             (let ((next-element (first (rest (member argument (source function))))))
+               (cond
+                 ((null argument) all-origins)
+                 ((equal element
+                         (apply-function-to-element function argument))
+                  (origin-of-element next-element
+                                     (make-set (cons argument all-origins))))
+                 (t 
+                  (origin-of-element next-element all-origins))))))
+    (origin-of-element (first (source function)) ())))

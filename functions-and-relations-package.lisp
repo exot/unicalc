@@ -26,4 +26,7 @@
    :isomorphism-p
    :quasi-homomorphism-p
    :apply-quasihomomorphism-to-algebra
-   :no-quasihomomorphism))
+   :no-quasihomomorphism
+   :kernel
+   :inverse-image
+   :inverse-image-of-element))

@@ -22,4 +22,6 @@
    :range
    :surjective-p
    :injective-p
-   :homorphic-p))
+   :homomorphism-p
+   :isomorphism-p
+   :quasi-homomorphism-p))

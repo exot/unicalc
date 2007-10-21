@@ -111,7 +111,11 @@
   (equal (length (source function))
          (length (range function))))
 
-(defun homomorphic-p (function algebra1 algebra2)
+(defun bijective-p (function)
+  (and (injective-p function)
+       (surjective-p function)))
+
+(defun homomorphism-p (function algebra1 algebra2)
   "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and ALGEBRA2."
   (when (and (algebras-of-same-signature-p algebra1 algebra2)
              (set-equal (source function) (base-set-of algebra1) :test #'equal)
@@ -132,3 +136,52 @@
                   nil)
                  (t (check-all-arguments (next-argument (base-set-of algebra1) argument))))))
       (check-all-arguments (symbols arity (first (base-set-of algebra1)))))))
+
+(defun isomorphism-p (function algebra1 algebra2)
+  "Returns non-NIL if FUNCTION is a isomorphism between ALGEBRA1 and ALGEBRA2."
+  (and (bijective-p function)
+       (homomorphism-p function algebra1 algebra2)))
+
+(defun quasi-homomorphism-p (function algebra)
+  "Returns non-NIL if FUNCTION is a quasi-homomorphism on ALGEBRA.
+
+That is: f is named quasi-homomorph on algebra A iff for all operations op on 
+  A, (a_1,...,a_2), (b_1,...,b_n) in A^n holds
+
+   (f(a_1),...,f(a_n)) = (f(b_1),...,f(b_n)) => f(op(a_1,...,a_n)) = f(op(b_1,...,b_n))
+
+"
+  (let ((symbols (function-symbols-of (signature-of algebra))))
+    (check-for-all-operations function symbols algebra)))
+
+(defun check-for-all-operations (function symbols algebra)
+  (cond
+    ((null symbols) t)
+    (t (let* ((arity (arity-of-function-symbol (signature-of algebra) (first symbols)))
+              (start-pos (symbols arity (first (base-set-of algebra)))))
+         (cond
+           ((not (check-for-all-first-arguments start-pos function (first symbols) algebra))
+            nil)
+           (t (check-for-all-operations function (rest symbols) algebra)))))))
+
+(defun check-for-all-first-arguments (first-argument function operation algebra)
+  "Recursion over first argument."
+  (cond
+    ((null first-argument) t)
+    ((not (check-for-all-second-arguments first-argument (symbols (length first-argument) (first (base-set-of algebra)))
+                                          function operation algebra))
+     nil)
+    (t (check-for-all-first-arguments (next-argument (base-set-of algebra) first-argument) 
+                                      function operation algebra))))
+
+(defun check-for-all-second-arguments (first-argument second-argument function operation algebra)
+  (cond
+    ((null second-argument) t)
+    ((and (equal (apply-function-to-tuple function first-argument) 
+                 (apply-function-to-tuple function second-argument))
+          (not (equal (apply-function-to-element function (apply-operation-in-algebra operation first-argument algebra))
+                      (apply-function-to-element function (apply-operation-in-algebra operation second-argument algebra)))))
+     (print 1)
+     nil)
+    (t (check-for-all-second-arguments first-argument (next-argument (base-set-of algebra) second-argument)
+                                       function operation algebra))))

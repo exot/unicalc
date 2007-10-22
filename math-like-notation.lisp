@@ -21,18 +21,21 @@
                    ,already-known))
          (define-lazy-set #',func-name)))))
 
+(defmacro next-function (set)
+  `(typecase ,set
+     (lazy-set (next ,set))
+     (list     #'(lambda ()
+		   (let ((result (first ,set)))
+		     (setf ,set (rest ,set))
+		     result)))))
+
 (defmacro check-for-all (default-result test test-result-if-success (variable set) &body body)
   "Returns non-NIL if BODY holds for all VARIABLE in SET."
   (let ((myset (gensym "MYSET"))
         (next-function (gensym "NEXT-FUNCTION"))
         (helper (gensym "HELPER")))
     `(let* ((,myset ,set)
-            (,next-function (typecase ,myset
-                              (lazy-set (next ,myset))
-                              (list     #'(lambda ()
-                                            (let ((result (first ,myset)))
-                                              (setf ,myset (rest ,myset))
-                                              result))))))
+            (,next-function (next-function ,myset)))
       (labels ((,helper (argument)
                  (cond
                    ((null argument) ,default-result)
@@ -47,3 +50,10 @@
 
 (defmacro exists ((variable set) &body body)
   `(check-for-all nil #'(lambda (x) x) t (,variable ,set) ,@body))
+
+(defun read-set (stream char)
+  (declare (ignore char))
+  `(make-set ',(read-delimited-list #\} stream t) :test #'equal))
+
+(set-macro-character #\{ #'read-set)
+(set-macro-character #\} (get-macro-character #\)))

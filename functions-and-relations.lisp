@@ -117,25 +117,20 @@
 
 (defun homomorphism-p (function algebra1 algebra2)
   "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and ALGEBRA2."
-  (when (and (algebras-of-same-signature-p algebra1 algebra2)
-             (set-equal (source function) (base-set-of algebra1) :test #'equal)
-             (subsetp (target function) (base-set-of algebra2) :test #'equal))
-    (let ((signature (signature-of algebra1)))
-      (every #'(lambda (operation) 
-                 (compatible-with-operation-p function operation algebra1 algebra2))
-             (function-symbols-of signature)))))
-
-(defun compatible-with-operation-p (function operation algebra1 algebra2)
-  "Returns non-NIL if FUNCTION is compatible with OPERATION on ALGEBRA1 and on ALGEBRA2."
-  (let ((arity (arity-of-function-symbol (signature-of algebra1) operation)))
-    (labels ((check-all-arguments (argument)
-               (cond 
-                 ((null argument) t)
-                 ((not (equal (apply-function-to-element function (apply-operation-in-algebra operation argument algebra1))
-                              (apply-operation-in-algebra operation (apply-function-to-tuple function argument) algebra2)))
-                  nil)
-                 (t (check-all-arguments (next-argument (base-set-of algebra1) argument))))))
-      (check-all-arguments (symbols arity (first (base-set-of algebra1)))))))
+  (and (algebras-of-same-signature-p algebra1 algebra2)
+       (set-equal (source function) (base-set-of algebra1))
+       (subsetp (target function) (base-set-of algebra2) :test #'equal)
+       (let ((signature (signature-of algebra1)))
+	       (forall (op (function-symbols-of signature))
+		 (forall (x (tuples (base-set-of algebra1)
+				    (arity-of-function-symbol signature op)))
+		   (equal (apply-function-to-element
+			   function
+			   (apply-operation-in-algebra op x algebra1))
+			  (apply-operation-in-algebra
+			   op
+			   (apply-function-to-tuple function x)
+			   algebra2)))))))
 
 (defun isomorphism-p (function algebra1 algebra2)
   "Returns non-NIL if FUNCTION is a isomorphism between ALGEBRA1 and ALGEBRA2."
@@ -151,6 +146,24 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
    (f(a_1),...,f(a_n)) = (f(b_1),...,f(b_n)) => f(op(a_1,...,a_n)) = f(op(b_1,...,b_n))
 
 "
+  (and (set-equal (source function) (base-set-of algebra))
+       (let ((signature (signature-of algebra))
+	     (base-set  (base-set-of algebra)))
+	 (forall (op (function-symbols-of signature))
+	   (let ((arity (arity-of-function-symbol signature op)))
+	     (forall (x (tuples base-set arity))
+	       (forall (y (tuples base-set arity))
+		 (if (equal (apply-function-to-tuple function x)
+			    (apply-function-to-tuple function y))
+		     (equal (apply-function-to-element
+			     function
+			     (apply-operation-in-algebra op x algebra))
+			    (apply-function-to-element
+			     function
+			     (apply-operation-in-algebra op y algebra)))
+		     t))))))))
+
+(defun quasi-homomorphism-2-p (function algebra)
   (let ((symbols (function-symbols-of (signature-of algebra))))
     (check-for-all-operations function symbols algebra)))
 

@@ -3,4 +3,5 @@
 
 (defsystem technicals
   :components ((:file "technicals-package")
-               (:file "technicals" :depends-on ("technicals-package"))))
+               (:file "technicals" :depends-on ("technicals-package"))
+               (:file "math-like-notation" :depends-on ("technicals"))))

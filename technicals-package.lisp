@@ -20,4 +20,5 @@
    :n-elemental-subsets
    :tuples
    :forall
-   :exists))
+   :exists
+   :=>))

@@ -57,3 +57,8 @@
 
 (set-macro-character #\{ #'read-set)
 (set-macro-character #\} (get-macro-character #\)))
+
+(defmacro => (a b)
+  `(if ,a
+     ,b
+     t))

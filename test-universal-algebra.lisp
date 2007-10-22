@@ -143,3 +143,8 @@
 (defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
 
 (pprint (homomorphism-p *constantly-b* *algebra-C* *image-under-c*)) ;; T
+
+(defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
+                                                   '((0 1) (1 1) (2 2))))
+
+(pprint (quasi-homomorphism-p *non-quasi-homomorph* *algebra*))

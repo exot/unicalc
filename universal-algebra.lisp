@@ -87,7 +87,9 @@ where INTERPRETATION is a value table of the given interpretation."
 INTERPRETATIONS should have the form (... (SYMBOL TABLE) ...) or (... (SYMBOL
 FUNCTION)...) whereas TABLE should be a value table describing SYMBOL and
 FUNCTION should be an operation defined with DEFINE-OPERATION."
-  (let ((normalized-interpretations (normalize-interpretations base-set interpretations)))
+  (let ((normalized-interpretations (normalize-interpretations
+				     base-set
+				     interpretations)))
     (cond
       ((valid-interpretations-in-algebra base-set signature normalized-interpretations) 
        normalized-interpretations)
@@ -104,7 +106,8 @@ FUNCTION should be an operation defined with DEFINE-OPERATION."
 		  ((interpretation-function-p interpretation)
 		   (cons
 		    function-symbol
-		    (interpretation-function-to-value-table base-set interpretation)))
+		    (interpretation-function-to-value-table base-set
+							    interpretation)))
 		  (t table))))
 	  interpretations))
 
@@ -175,15 +178,14 @@ instead of value tables."
   (let ((arguments (mapcar #'first (rest table)))
 	(arity (get-arity-of-table table)))
     (and (every #'(lambda (x) (= (length x) arity)) arguments)
-	 (every #'(lambda (x) (every #'(lambda (y) (member y base-set)) x)) arguments)
+	 (every #'(lambda (x) (every #'(lambda (y) (member y base-set)) x))
+		arguments)
 	 (= (expt (length base-set) arity)
 	    (length (remove-duplicates arguments :test #'equal))))))
 
 (defun values-are-in-base-set (base-set table)
-  (iterate-over-value-table table element
-    (when (not (member (value-of-element element) base-set))
-      (return-from values-are-in-base-set nil)))
-  t)
+  (forall-in-table (element table)
+		   (member (value-of-element element) base-set)))
 
 ;;
 
@@ -198,8 +200,11 @@ instead of value tables."
 
 (defun apply-operation-in-algebra (operation-symbol arguments algebra)
   "Applies OPERATION-SYMBOL in ALGEBRA on ARGUMENTS and returns result."
-  (let ((arity (get-arity-of-function-symbol operation-symbol (arities-of (signature-of algebra)))))
+  (let ((arity (get-arity-of-function-symbol
+		operation-symbol
+		(arities-of (signature-of algebra)))))
     (when (and arity
                (= arity (length arguments)))
-      (let ((table-of-operation-symbol (assoc operation-symbol (interpretations-on algebra))))
+      (let ((table-of-operation-symbol (assoc operation-symbol
+					      (interpretations-on algebra))))
         (second (assoc arguments (rest table-of-operation-symbol) :test #'equal))))))

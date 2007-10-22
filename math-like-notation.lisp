@@ -62,3 +62,9 @@
   `(if ,a
      ,b
      t))
+
+(defmacro forall-in-table ((variable table) &body body)
+  `(forall (,variable (rest ,table)) ,@body))
+
+(defmacro existsi-in-table ((variable table) &body body)
+  `(exists (,variable (rest ,table)) ,@body))

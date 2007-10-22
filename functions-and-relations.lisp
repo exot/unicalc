@@ -67,8 +67,9 @@
   "Returns non-NIL if GRAPH describes a function from A to B."
   (and (valid-graph-p graph A B)
        (let ((graph-arguments (mapcar #'first (remove-duplicates graph :test #'equal))))
-         (= (length graph-arguments)
-            (length (remove-duplicates graph-arguments :test #'equal))))))
+         (and (= (length graph-arguments)
+                 (length (remove-duplicates graph-arguments :test #'equal)))
+              (set-equal A graph-arguments)))))
 
 (defmethod make-function (source target (function function))
   (make-function source target (function-to-graph source function)))

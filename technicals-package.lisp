@@ -21,4 +21,6 @@
    :tuples
    :forall
    :exists
-   :=>))
+   :=>
+   :forall-in-table
+   :exists-in-table))

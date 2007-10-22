@@ -212,6 +212,9 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
             :text (format nil "~A is not a subset of ~A" set function)))
     (t (mapcan #'(lambda (element) (inverse-image-of-element function element))
                set))))
+  ;; (make-set (loop for i in (source function)
+  ;;                 when (member (apply-function-to-element function i) set)
+  ;;                 collect i))
 
 (defun inverse-image-of-element (function element)
   (labels ((origin-of-element (argument all-origins)
@@ -225,3 +228,4 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
                  (t 
                   (origin-of-element next-element all-origins))))))
     (origin-of-element (first (source function)) ())))
+  ;; (inverse-image function {element})

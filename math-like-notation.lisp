@@ -39,7 +39,7 @@
       (labels ((,helper (argument)
                  (cond
                    ((null argument) ,default-result)
-                   ((funcall ,test (let ((,variable argument))
+                   ((funcall ,test (destructuring-bind (,variable) '(argument)
                                      ,@body))
                     ,test-result-if-success)
                    (t (,helper (funcall ,next-function))))))

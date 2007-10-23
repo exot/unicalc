@@ -61,28 +61,3 @@
 
 (defun make-set (set &key (test #'equal))
   (remove-duplicates set :test test))
-
-(defun next-argument (base-set argument)
-  "Returns next ARGUMENT in BASE-SET of length (LENGTH ARGUMENT)"
-  (cond 
-    ((null argument) nil)
-    (t (let ((rest (rest (member (first argument) base-set)))); all elements after current
-	 (cond
-	   ((null rest) ; increment next position
-	    (let ((next (next-argument base-set (rest argument))))
-	      (when next
-		(cons (first base-set) next)))) ; and start with first element again
-	   (t (cons (first rest) (rest argument))))))))
-
-(defun n-elemental-subsets (set n)
-  "Returns set of all N elemental subsets of SET."
-  (cond
-    ((= n 0) (list ()))
-    ((null set) nil)
-    (t (let ((subsets ()))
-         (loop for element in set
-               do (let ((shorter-subsets (n-elemental-subsets 
-                                           (remove element set) (1- n))))
-                    (mapc #'(lambda (x) (push (cons element x) subsets))
-                          shorter-subsets)))
-         subsets))))

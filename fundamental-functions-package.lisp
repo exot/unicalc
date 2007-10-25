@@ -21,6 +21,11 @@
    :surjective-p
    :injective-p
    :bijective-p
+   :iterate-over-function-graph
+   :value-of-element
+   :all-operands
+   :nth-operand
    :function-symbol-of
    :implementing-function-of
-   :get-arity-of-table))
+   :get-arity-of-table
+   :arity-of-function))

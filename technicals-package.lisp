@@ -4,11 +4,6 @@
    :numbers
    :symbols
    :all-zero-except-n
-   :value-of-element
-   :nth-operand
-   :all-operands
-   :element-at-position
-   :iterate-over-value-table  
    :positive-number-p
    :non-negative-number-p
    :define-simple-condition
@@ -17,6 +12,7 @@
    :next-argument
    :n-elemental-subsets
    :tuples
+   :subsets
    :forall
    :exists
    :=>

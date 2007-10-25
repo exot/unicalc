@@ -42,7 +42,7 @@ in ALGEBRA exists which generate the whole ALGEBRA."
 from REACHABLE-ELEMENTS"
   (let ((value-tables (interpretations-on algebra)))
     (loop for table in value-tables
-          do (iterate-over-value-table table element
+          do (iterate-over-function-graph (implementing-function-of table) element
                (when (and (subsetp (all-operands element) reachable-elements)
                           (not (member (value-of-element element) reachable-elements)))
                  (return-from next-reachable-element (value-of-element element)))))))

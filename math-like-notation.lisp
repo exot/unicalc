@@ -31,30 +31,30 @@
       (make-instance 'lazy-set
                      :next #'next-function))))
 
-(defun next-tuple-from-lazy-set (lazy-set tuple)
-  "Returns next TUPLE with base-set being LAZY-SET."
-  (cond
-    ((null tuple) nil)
-    (t (let ((next (funcall (next lazy-set))))
-         (cond
-           ((null next)
-            (let ((next-next (next-tuple-from-lazy-set lazy-set (rest tuple))))
-              (when next-next
-                (cons (funcall (next lazy-set)) next-next))))
-           (t (cons next (rest tuple))))))))
-
-(defmacro tuples-lazy (set power)
-  (let ((func-name (gensym "FUNC-NAME"))
-        (already-known (gensym "ALREADY-KNOWN")))
-    `(let ((,already-known ()))
-       (flet ((,func-name ()
-                (cond
-                  ((null ,already-known)
-                   (setf ,already-known (symbols ,power (first ,set))))
-                  (t
-                   (setf ,already-known (next-argument ,set ,already-known))))
-                   ,already-known))
-         (define-lazy-set #',func-name)))))
+;;; (defun next-tuple-from-lazy-set (lazy-set tuple)
+;;;   "Returns next TUPLE with base-set being LAZY-SET."
+;;;   (cond
+;;;     ((null tuple) nil)
+;;;     (t (let ((next (funcall (next lazy-set))))
+;;;          (cond
+;;;            ((null next)
+;;;             (let ((next-next (next-tuple-from-lazy-set lazy-set (rest tuple))))
+;;;               (when next-next
+;;;                 (cons (funcall (next lazy-set)) next-next))))
+;;;            (t (cons next (rest tuple))))))))
+;;;
+;;; (defmacro tuples-lazy (set power)
+;;;   (let ((func-name (gensym "FUNC-NAME"))
+;;;         (already-known (gensym "ALREADY-KNOWN")))
+;;;     `(let ((,already-known ()))
+;;;        (flet ((,func-name ()
+;;;                 (cond
+;;;                   ((null ,already-known)
+;;;                    (setf ,already-known (symbols ,power (first ,set))))
+;;;                   (t
+;;;                    (setf ,already-known (next-argument ,set ,already-known))))
+;;;                    ,already-known))
+;;;          (define-lazy-set #',func-name)))))
 
 ;; lazy up to here
 
@@ -83,31 +83,29 @@
                           shorter-subsets)))
          (make-set subsets :test #'set-equal)))))
 
-(defmacro tuples (set power)
-  (let ((tuple (gensym "TUPLE-"))
-        (myset (gensym "MYSET-"))
-        (mypower (gensym "MYPOWER-")))
-    `(let ((,myset ,set)
-           (,mypower ,power))
-       (loop for ,tuple = (technicals::symbols ,mypower (first ,myset))
-             then (technicals::next-argument ,myset ,tuple)
-             until (null ,tuple)
-             collect ,tuple))))
+(defun tuples (set power)
+  (cond
+    ((zerop power) (list nil))
+    (t (let ((myset set)
+             (mypower power))
+         (loop for tuple = (technicals::symbols mypower (first myset))
+               then (technicals::next-argument myset tuple)
+               until (null tuple)
+               collect tuple)))))
 
-(defmacro subsets (set)
-  (let ((all-subsets (gensym "ALL-SUBSETS-")))
-    `(labels ((,all-subsets (set)
-               (cond
-                 ((null set) (list nil))
-                 (t (let ((element (first set))
-                          (subsets ()))
-                      (let ((shorter-subsets (,all-subsets (rest set))))
-                        (mapc #'(lambda (x)
-                                  (push (cons element x) subsets)
-                                  (push x subsets))
-                              shorter-subsets))
-                      subsets)))))
-      (make-set (,all-subsets ,set) :test #'set-equal))))
+(defun subsets (set)
+  (labels ((all-subsets (set)
+             (cond
+               ((null set) (list nil))
+               (t (let ((element (first set))
+                        (subsets ()))
+                    (let ((shorter-subsets (all-subsets (rest set))))
+                      (mapc #'(lambda (x)
+                                (push (cons element x) subsets)
+                                (push x subsets))
+                            shorter-subsets))
+                    subsets)))))
+    (make-set (all-subsets set) :test #'set-equal)))
 
 (defmacro next-function (set)
   `(typecase ,set

@@ -61,18 +61,23 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 (define-simple-condition no-quasihomomorphism)
 
 (defun apply-function-to-interpretations (function interpretations)
+  "Applies FUNCTION to INTERPRETATIONS consisting of pairs of function symbols
+and implementing functions."
   (mapcar #'(lambda (table) (apply-function-to-table function table))
           interpretations))
 
-(defun apply-function-to-table (function table)  ;;; uses internal structure of table
-  (let ((new-table ()))
-    (iterate-over-value-table table element
+(defun apply-function-to-table (function table)
+  "Applies FUNCTION to TABLE being a pair of function symbols and implementing functions."
+  (let ((new-graph ()))
+    (iterate-over-function-graph (implementing-function-of table) element
       (push (list (apply-function-to-tuple function (all-operands element))
                   (apply-function-to-element function (value-of-element element)))
-            new-table))
-    (let ((new-table-set (make-set new-table)))
-      (push (function-symbol-of table) new-table-set)
-      new-table-set)))
+            new-graph))
+    (let ((new-source (tuples (apply-function-to-set function (source function))
+                              (arity-of-function (implementing-function-of table))))
+          (new-target (apply-function-to-set function (source function))))
+      (list (function-symbol-of table)
+            (make-function new-source new-target (make-set new-graph :test #'set-equal))))))
 
 (defun kernel (function)
   "Returns kernel of FUNCTION."

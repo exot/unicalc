@@ -4,6 +4,11 @@
   ((function-symbols :initarg :function-symbols :accessor function-symbols-of)
    (arities          :initarg :arities          :accessor arities-of)))
 
+(defmethod print-object ((obj signature) stream)
+  (print-unreadable-object (obj stream :type t)
+    (format stream "~&  symbols: {~{~a~^,~}}" (function-symbols-of obj))
+    (format stream "~&  arities: {~{~a~^,~}}" (arities-of obj))))
+
 (defun create-signature-from-arity-function (function-symbols arity-function)
   "Returns SIGNATURE with FUNCTION-SYMBOLS and corresponding arities given by ARITY-FUNCTION"
   (make-instance 'signature 
@@ -61,6 +66,12 @@
   ((base-set        :accessor base-set-of        :initarg :base-set)
    (signature       :accessor signature-of       :initarg :signature)
    (interpretations :accessor interpretations-on :initarg :interpretations)))
+
+(defmethod print-object ((obj algebra) stream)
+  (print-unreadable-object (obj stream :type t)
+    (format stream "~&   base set: {~{~a~^,~}}" (base-set-of obj))
+    (format stream "~&   signature: ~a" (signature-of obj))
+    (format stream "~&   interpretations: ~a" (interpretations-on obj))))
 
 (defun make-algebra (base-set signature interpretations)
   "Returns ALGEBRA object. INTERPRETATIONS shall be an alist of (SYMBOL INTERPRETATION)
@@ -209,4 +220,5 @@ instead of value tables."
             (= arity (length arguments)))
        (let ((afunc (implementing-function-of-operation-symbol operation-symbol algebra)))
          (apply-function-to-element afunc arguments)))
-      (t (error 'operation-not-appliable :text "Operation cannot be applied to argument in algebra.")))))
+      (t (error 'operation-not-appliable
+                :text "Operation cannot be applied to argument in algebra.")))))

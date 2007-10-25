@@ -7,6 +7,10 @@
    (target :accessor target-of-relation :initarg :target)
    (graph  :accessor graph-of-relation  :initarg :graph )))
 
+(defmethod print-object ((obj relation) stream)
+  (print-unreadable-object (obj stream :type t)
+    (format stream "{~&~{ ~S~^,~&~I~}}" (graph obj))))
+
 (defun relation-p (rel A B)
   "Returns non-NIL if REL is a relation on AxB."
   (and (subsetp (source-of-relation rel) A)

@@ -80,9 +80,9 @@
 					   ((2 2 2) 1))
 					(p p-impl))))
 
-(pprint (interpretations-on *algebra*))
-(pprint (signature-of *algebra*))
-(pprint (base-set-of *algebra*))
+(print (interpretations-on *algebra*))
+(print (signature-of *algebra*))
+(print (base-set-of *algebra*))
 
 (define-operation NAND (x y)
   (if (and (plusp x) (plusp y))
@@ -93,7 +93,7 @@
   (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
     '((NAND NAND))))
 
-(pprint (interpretations-on *boolean-algebra*))
+(print (interpretations-on *boolean-algebra*))
 
 ;;; terms
 
@@ -101,10 +101,10 @@
   (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
                      *signature*))
 
-(pprint (variablep *global-term-algebra* 'v0))
-(pprint (variablep *global-term-algebra* 'v9))
+(print (variablep *global-term-algebra* 'v0))
+(print (variablep *global-term-algebra* 'v9))
 
-(pprint (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2)))))
+(print (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2)))))
 
 ;; subalgebras
 
@@ -140,15 +140,15 @@
 
 (print (calculate-generating-elements *algebra-3*)) ; should be '(1 2)
 
-(pprint (homomorphism-p *identity* *algebra-C* *algebra-D*)) ;; T
-(pprint (homomorphism-p *constantly-b* *algebra-C* *algebra-D*)) ;; NIL
-(pprint (quasi-homomorphism-p *constantly-b* *algebra-C*)) ;; T
+(print (homomorphism-p *identity* *algebra-C* *algebra-D*)) ;; T
+(print (homomorphism-p *constantly-b* *algebra-C* *algebra-D*)) ;; NIL
+(print (quasi-homomorphism-p *constantly-b* *algebra-C*)) ;; T
 
 (defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
 
-(pprint (homomorphism-p *constantly-b* *algebra-C* *image-under-c*)) ;; T
+(print (homomorphism-p *constantly-b* *algebra-C* *image-under-c*)) ;; T
 
 (defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
                                                    '((0 1) (1 1) (2 2))))
 
-(pprint (quasi-homomorphism-p *non-quasi-homomorph* *algebra*)) ;; NIL
+(print (quasi-homomorphism-p *non-quasi-homomorph* *algebra*)) ;; NIL

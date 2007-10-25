@@ -2,6 +2,7 @@
 (in-package :universal-algebra-system)
 
 (defsystem universal-algebra
-  :depends-on ("technicals")
+  :depends-on ("technicals"
+               "fundamental-functions")
   :components ((:file "universal-algebra-package")
                (:file "universal-algebra" :depends-on ("universal-algebra-package"))))

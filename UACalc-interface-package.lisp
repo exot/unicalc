@@ -1,2 +1,5 @@
 (defpackage :UACalc-interface
- (:use :cl :universal-algebra))
+ (:use
+   :cl
+   :fundamental-functions
+   :universal-algebra))

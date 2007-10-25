@@ -3,6 +3,7 @@
 
 (defsystem test-universal-algebra
   :depends-on ("technicals" 
+               "fundamental-functions"
                "universal-algebra"
                "terms"
                "subalgebras"

@@ -3,6 +3,7 @@
 
 (defsystem UACalc-interface
   :depends-on ("technicals"
+               "fundamental-functions"
                "universal-algebra"
                "subalgebras"
                "functions-and-relations")

@@ -2,6 +2,7 @@
   (:use 
    :cl
    :technicals
+   :fundamental-functions
    :universal-algebra
    :terms
    :subalgebras

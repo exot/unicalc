@@ -1,5 +1,8 @@
 (defpackage :terms
- (:use :cl :universal-algebra)
+ (:use
+   :cl
+   :fundamental-functions
+   :universal-algebra)
  (:export
   :term-algebra
   :variables-of

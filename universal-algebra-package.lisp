@@ -1,5 +1,8 @@
 (defpackage :universal-algebra
- (:use :cl :technicals)
+ (:use
+   :cl
+   :fundamental-functions
+   :technicals)
  (:export
     :signature
     :function-symbols-of

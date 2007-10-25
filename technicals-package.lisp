@@ -1,8 +1,6 @@
 (defpackage :technicals
   (:use :cl)
   (:export
-   :function-symbol-of
-   :get-arity-of-table
    :numbers
    :symbols
    :all-zero-except-n

@@ -10,6 +10,7 @@
    :target
    :graph
    :algebraic-function
+   :algebraic-function-p
    :make-function
    :function-graph-p
    :function-to-graph
@@ -19,4 +20,7 @@
    :range
    :surjective-p
    :injective-p
-   :bijective-p))
+   :bijective-p
+   :function-symbol-of
+   :implementing-function-of
+   :get-arity-of-table))

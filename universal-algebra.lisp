@@ -106,25 +106,18 @@ FUNCTION should be an operation defined with DEFINE-OPERATION."
 		  ((interpretation-function-p interpretation)
 		   (cons
 		    function-symbol
-		    (interpretation-function-to-value-table base-set
-							    interpretation)))
-		  (t table))))
+		    (interpretation-function-to-graph base-set interpretation)))
+                  ((algebraic-function-p interpretation)
+                   (cons function-symbol interpretation))
+		  (t (make-function (tuples base-set (get-arity-of-table table)) base-set table)))))
 	  interpretations))
 
-(defun interpretation-function-to-value-table (base-set ifunc)
-  "Converts IFUNC to value-table."
-  (let ((value-table ()))
-    (labels ((collect-all-values (argument)
-	       (cond
-		 ((null argument) value-table)
-		 (t (push (list argument (apply (symbol-function ifunc) argument)) 
-			  value-table)
-		    (collect-all-values (next-argument base-set argument))))))
-      (collect-all-values (numbers (get-arity-of-interpretation-function ifunc) 
-				   (first base-set))))))
+(defun interpretation-function-to-graph (base-set interpretation)
+  (function-to-graph (tuples base-set (get-arity-of-interpretation-function interpretation))
+                     #'(lambda (x) (apply interpretation x))))
 
 (defmacro define-operation (name arguments &body body)
-  "Defines function which can be used to generate interpretations 
+  "Defines function which can be used to generate interpretations
 instead of value tables."
   `(progn
      (setf (get ',name :is-interpretation-function) t)
@@ -152,13 +145,13 @@ instead of value tables."
           (null rank-alphabet)) t)
     ((or  (null interpretations)
           (null rank-alphabet)) nil)
-    (t (let* ((table (first interpretations))
-	      (function-symbol (function-symbol-of table))
+    (t (let* ((interpretation (first interpretations))
+	      (function-symbol (function-symbol-of interpretation))
 	      (arity (get-arity-of-function-symbol function-symbol rank-alphabet)))
          (cond
            ((not arity) nil)
-           ((and (arity-correct-p arity table)
-                 (defines-function-on-set-p base-set table))
+           ((and (arity-correct-p arity interpretation)
+                 (defines-function-on-set-p base-set interpretation))
             (check-interpretations base-set 
                                    (remove-if #'(lambda (x) 
 						  (equal (first x) 
@@ -167,25 +160,24 @@ instead of value tables."
                                    (rest interpretations)))
            (t nil))))))
 
-(defun arity-correct-p (arity table)
-  (= arity (get-arity-of-table table)))
+(defun arity-correct-p (arity interpre)
+  (= arity (get-arity-of-table interpre)))
 
-(defun defines-function-on-set-p (base-set table)
-  (and (defined-on-all-possible-inputs base-set table)
-       (values-are-in-base-set base-set table)))
+(defun defines-function-on-set-p (base-set interpre)
+  (and (defined-on-all-possible-inputs base-set interpre)
+       (values-are-in-base-set base-set interpre)))
 
-(defun defined-on-all-possible-inputs (base-set table)
-  (let ((arguments (mapcar #'first (rest table)))
-	(arity (get-arity-of-table table)))
-    (and (every #'(lambda (x) (= (length x) arity)) arguments)
-	 (every #'(lambda (x) (every #'(lambda (y) (member y base-set)) x))
-		arguments)
+(defun defined-on-all-possible-inputs (base-set interpre)
+  (let ((afunc (implementing-function-of interpre))
+        (arity (get-arity-of-table table)))
+    (and (forall (x arguments) (= (length x) arity))
+         (forall (x arguments) (subsetp x base-set :test #'equal))
 	 (= (expt (length base-set) arity)
 	    (length (remove-duplicates arguments :test #'equal))))))
 
-(defun values-are-in-base-set (base-set table)
-  (forall-in-table (element table)
-		   (member (value-of-element element) base-set)))
+(defun values-are-in-base-set (base-set interpre)
+  (let ((images (target (implementing-function-of interpre))))
+    (forall (element images) (member element base-set))))
 
 ;;
 
@@ -198,6 +190,9 @@ instead of value tables."
          (set-equal (arities-of signature1)
                     (arities-of signature2)))))
 
+(defun implementing-function-of-operation-symbol (operation-symbol algebra)
+  (implementing-function-of (assoc operation-symbol (interpretations-on algebra))))
+
 (defun apply-operation-in-algebra (operation-symbol arguments algebra)
   "Applies OPERATION-SYMBOL in ALGEBRA on ARGUMENTS and returns result."
   (let ((arity (get-arity-of-function-symbol
@@ -205,6 +200,5 @@ instead of value tables."
 		(arities-of (signature-of algebra)))))
     (when (and arity
                (= arity (length arguments)))
-      (let ((table-of-operation-symbol (assoc operation-symbol
-					      (interpretations-on algebra))))
-        (second (assoc arguments (rest table-of-operation-symbol) :test #'equal))))))
+      (let ((afunc (implementing-function-of-operation-symbol operation-symbol algebra)))
+        (funcall afunc arguments)))))

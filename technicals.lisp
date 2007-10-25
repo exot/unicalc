@@ -1,11 +1,5 @@
 (in-package :technicals)
 
-(defun function-symbol-of (table)
-  (first table))
-
-(defun get-arity-of-table (table)
-  (length (first (first (rest table)))))
-
 (defun numbers (n number)
   (cond 
     ((>= 0 n) ())

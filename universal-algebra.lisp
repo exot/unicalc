@@ -98,7 +98,8 @@ FUNCTION should be an operation defined with DEFINE-OPERATION."
 (define-simple-condition malformed-interpretation)
 
 (defun normalize-interpretations (base-set interpretations)
-  "Normalizes INTERPRETATIONS to only consist of value tables."
+  "Normalizes INTERPRETATIONS to only consist of tables (aka pairs of function
+symbols and implementing algebraic functions)."
   (mapcar #'(lambda (table)
 	      (let ((function-symbol (function-symbol-of table)))
 		(cond

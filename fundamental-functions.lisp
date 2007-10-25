@@ -9,7 +9,7 @@
 
 (defmethod print-object ((obj relation) stream)
   (print-unreadable-object (obj stream :type t)
-    (format stream "{~&~{ ~S~^,~&~I~}}" (graph obj))))
+    (format stream "{~&~{~2:T~S~^,~&~I~}}" (graph obj))))
 
 (defun relation-p (rel A B)
   "Returns non-NIL if REL is a relation on AxB."

@@ -6,8 +6,8 @@
 
 (defmethod print-object ((obj signature) stream)
   (print-unreadable-object (obj stream :type t)
-    (format stream "~&  symbols: {~{~a~^,~}}" (function-symbols-of obj))
-    (format stream "~&  arities: {~{~a~^,~}}" (arities-of obj))))
+    (format stream "~&~2:Tsymbols: {~{~a~^,~}}" (function-symbols-of obj))
+    (format stream "~&~2:Tarities: {~{~a~^,~}}" (arities-of obj))))
 
 (defun create-signature-from-arity-function (function-symbols arity-function)
   "Returns SIGNATURE with FUNCTION-SYMBOLS and corresponding arities given by ARITY-FUNCTION"
@@ -69,9 +69,9 @@
 
 (defmethod print-object ((obj algebra) stream)
   (print-unreadable-object (obj stream :type t)
-    (format stream "~&   base set: {~{~a~^,~}}" (base-set-of obj))
-    (format stream "~&   signature: ~a" (signature-of obj))
-    (format stream "~&   interpretations: ~a" (interpretations-on obj))))
+    (format stream "~&~2:Tbase set: {~{~a~^,~}}" (base-set-of obj))
+    (format stream "~&~2:Tsignature: ~a" (signature-of obj))
+    (format stream "~&~2:Tinterpretations: ~a" (interpretations-on obj))))
 
 (defun make-algebra (base-set signature interpretations)
   "Returns ALGEBRA object. INTERPRETATIONS shall be an alist of (SYMBOL INTERPRETATION)

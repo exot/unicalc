@@ -9,7 +9,4 @@
    :isomorphism-p
    :quasi-homomorphism-p
    :apply-quasihomomorphism-to-algebra
-   :no-quasihomomorphism
-   :kernel
-   :inverse-image
-   :inverse-image-of-element))
+   :no-quasihomomorphism))

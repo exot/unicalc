@@ -12,6 +12,7 @@
    :algebraic-function
    :algebraic-function-p
    :make-function
+   :malformed-function-definition
    :function-graph-p
    :function-to-graph
    :apply-function-to-element
@@ -21,6 +22,10 @@
    :surjective-p
    :injective-p
    :bijective-p
+   :function-error
+   :kernel
+   :inverse-image
+   :inverse-image-of-element
    :iterate-over-function-graph
    :value-of-element
    :all-operands

@@ -103,12 +103,12 @@
 
 ;; doing something with functions
 
-(define-simple-condition wrong-argument)
+(define-simple-condition function-error)
 
 (defun apply-function-to-element (function element)
   "Applies FUNCTION to ELEMENT."
   (or (second (assoc element (graph function) :test #'set-equal))
-      (error 'wrong-argument
+      (error 'function-error
              :text (format nil "Cannot apply ~A to ~A" function element))))
 
 (defun apply-function-to-tuple (function tuple)
@@ -136,6 +136,45 @@
   (and (injective-p function)
        (surjective-p function)))
 
+(defun kernel (function)
+  "Returns kernel of FUNCTION."
+  (let ((base-set (source function)))
+    (labels ((kernel-element (pair pairs)
+               (cond
+                 ((null pair) pairs)
+                 (t (if (equal (apply-function-to-element function (first pair))
+                               (apply-function-to-element function (second pair)))
+                      (kernel-element (next-argument base-set pair) (cons pair pairs))
+                      (kernel-element (next-argument base-set pair) pairs))))))
+      (kernel-element (symbols 2 (first base-set)) ()))))
+
+(define-simple-condition function-error)
+
+(defun inverse-image (function set)
+  "Returns the inverse image of SET under FUNCTION."
+  (cond
+    ((not (subsetp set (target function) :test #'equal))
+     (error 'function-error
+            :text (format nil "~A is not a subset of ~A" set function)))
+    (t (mapcan #'(lambda (element) (inverse-image-of-element function element))
+               set))))
+  ;; (make-set (loop for i in (source function)
+  ;;                 when (member (apply-function-to-element function i) set)
+  ;;                 collect i))
+
+(defun inverse-image-of-element (function element)
+  (labels ((origin-of-element (argument all-origins)
+             (let ((next-element (first (rest (member argument (source function))))))
+               (cond
+                 ((null argument) all-origins)
+                 ((equal element
+                         (apply-function-to-element function argument))
+                  (origin-of-element next-element
+                                     (make-set (cons argument all-origins))))
+                 (t
+                  (origin-of-element next-element all-origins))))))
+    (origin-of-element (first (source function)) ())))
+  ;; (inverse-image function {element})
 ;;; iterating over function graphs (needed)
 
 (defmacro iterate-over-function-graph (function element &body body)

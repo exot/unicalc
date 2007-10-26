@@ -76,6 +76,8 @@ from REACHABLE-ELEMENTS"
 (defun restrict-table-to-set (table set signature)
   (let ((func-symbol (function-symbol-of table)))
     (list func-symbol
-	  (restrict-function-on-source
-	   (implementing-function-of table)
-	   (tuples set (arity-of-function-symbol signature func-symbol))))))
+          (restrict-function-on-target
+	   (restrict-function-on-source
+	    (implementing-function-of table)
+	    (tuples set (arity-of-function-symbol signature func-symbol)))
+           set))))

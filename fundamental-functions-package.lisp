@@ -1,7 +1,6 @@
 (defpackage :fundamental-functions
  (:use :cl :technicals)
  (:export
-   :relation
    :relation-p
    :valid-graph-p
    :make-relation
@@ -9,7 +8,6 @@
    :source
    :target
    :graph
-   :algebraic-function
    :algebraic-function-p
    :make-function
    :malformed-function-definition

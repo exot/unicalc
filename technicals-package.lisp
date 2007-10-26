@@ -9,6 +9,8 @@
    :define-simple-condition
    :set-equal
    :make-set
+   :card
+   :emptyp
    :next-argument
    :n-elemental-subsets
    :tuples

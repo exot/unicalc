@@ -49,3 +49,11 @@
 (defun make-set (set &key (test #'set-equal))
   "Makes set out of SET, i.e. removes all duplicates from set which are SET-EQUAL."
   (remove-duplicates set :test test))
+
+(defun card (set)
+  "Returns cardinality of set."
+  (length set))
+
+(defun emptyp (set)
+  "Returns T if set is empty"
+  (zerop (card set)))

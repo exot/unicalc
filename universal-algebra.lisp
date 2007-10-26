@@ -193,7 +193,7 @@ instead of value tables."
 	    (length (remove-duplicates arguments :test #'equal))))))
 
 (defun values-are-in-base-set (base-set interpre)
-  (let ((images (target (implementing-function-of interpre))))
+  (let ((images (range (implementing-function-of interpre))))
     (forall (element images) (member element base-set))))
 
 ;;

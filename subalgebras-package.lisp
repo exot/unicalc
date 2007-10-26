@@ -5,5 +5,7 @@
    :fundamental-functions
    :universal-algebra)
   (:export 
+   :subalgebra-error
    :calculate-generating-elements
-   :elements-generate-algebra-p))
+   :elements-generate-algebra-p
+   :subalgebra-generated-by-elements))

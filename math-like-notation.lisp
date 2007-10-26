@@ -85,7 +85,9 @@
 
 (defun tuples (set power)
   (cond
-    ((zerop power) (list nil))
+    ((or (zerop power)
+	 (emptyp set))
+     (list nil))
     (t (let ((myset set)
              (mypower power))
          (loop for tuple = (technicals::symbols mypower (first myset))

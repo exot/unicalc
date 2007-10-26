@@ -33,4 +33,6 @@
    :function-symbol-of
    :implementing-function-of
    :get-arity-of-table
-   :arity-of-function))
+   :arity-of-function
+   :restrict-function-on-source
+   :restrict-function-on-target))

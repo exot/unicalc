@@ -78,10 +78,13 @@
   (cond
     ((function-graph-p graph source target)
      (make-instance 'algebraic-function
-                    :source source
+                    :source nil
                     :target target
                     :graph graph))
     (t (error 'malformed-function-definition :text "Given graph is not a function graph."))))
+
+(defmethod source ((func-or-rel algebraic-function))
+  (mapcar #'first (graph func-or-rel)))
 
 (defun function-graph-p (graph A B)
   "Returns non-NIL if GRAPH describes a function from A to B."
@@ -217,3 +220,35 @@
 (defun arity-of-function (func)
   "Returns 'dimension' of source of FUNC."
   (length (first (source func))))
+
+;;; more on functions
+
+(defun restrict-function-on-source (function new-source)
+  "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
+  (let ((source (source function)))
+    (cond
+      ((not (subsetp new-source source :test #'set-equal))
+       (error 'function-error
+	      :text "Cannot restrict function to set not being
+subset of the source of the function."))
+      (t (flet ((calc-new-func-graph ()
+		  (let ((new-graph ()))
+		    (iterate-over-function-graph function element
+		      (when (member (all-operands element) new-source :test #'set-equal)
+			(push element new-graph)))
+		    new-graph)))
+	   (let ((new-graph (calc-new-func-graph)))
+	     (make-function new-source
+			    (target function)
+			    new-graph)))))))
+
+(defun restrict-function-on-target (function new-target)
+  "Returns algebraic function begin FUNCTION with target restricted to NEW-TARGET"
+  (let ((image (range function)))
+    (cond
+      ((not (subsetp image new-target :test #'set-equal))
+       (error 'function-error
+	      :text "Cannot restrict target of function to set not being superset."))
+      (t (make-function (source function)
+			new-target
+			(graph function))))))

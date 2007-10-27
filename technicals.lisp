@@ -57,3 +57,48 @@
 (defun emptyp (set)
   "Returns T if set is empty"
   (zerop (card set)))
+
+;;; permutations
+
+;; (defun generate-all-permutations (set)
+;;   "Returns function that generates permutations one by one."
+;;   (labels ((<-set (a b)
+;;              (member b (member a set)))
+;;            (find-a-i (list)
+;;              (cond
+;;                ((<= (length list) 1) nil)
+;;                ((<-set (second list) (first list)) (rest list))
+;;                (t (find-a-i (rest list)))))
+;;            (find-a-j (list a-i)
+;;              (cond
+;;                ((null list) nil)
+;;                ((<-set a-i (first list)) list)
+;;                (t (find-a-j (rest list) a-i))))
+;;            (split (list1 list2)
+;;              (cond
+;;                ((null list2) list1)
+;;                ((member (first list1) list2)
+;;                 nil)
+;;                (t (append (list (first list1))
+;;                           (split (rest list1) list2))))))
+;;     (let ((next-permutation (reverse set)))
+;;       #'(lambda ()
+;;           (let ((result next-permutation))
+;;             (setf next-permutation
+;;                   (when result
+;;                     (let ((a-i-list (find-a-i result)))
+;;                       (when a-i-list
+;;                         (let* ((a-j-list (find-a-j result (first a-i-list)))
+;;                                (between (split a-j-list a-i-list))
+;;                                (rest (split result a-j-list)))
+;;                           (print a-i-list)
+;;                           (print a-j-list)
+;;                           (print between)
+;;                           (print rest)
+;;                           (setf next-permutation
+;;                                 (append (reverse rest)
+;;                                         (list (first a-i-list))
+;;                                         (rest between)
+;;                                         (list (first a-j-list))
+;;                                         (rest a-i-list))))))))
+;;             result)))))

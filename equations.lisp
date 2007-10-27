@@ -1,4 +1,15 @@
 (in-package :equations)
+
+; evalutaing terms
+;
+; belegung
+;
+; auswertung von termen
+;
+; equation-holds-in-algebra-p
+;
+; models-p (synonym for equation-holds-in-algebra-p)
+
 ; equations
 
 (defun toggle-equation (eqn)

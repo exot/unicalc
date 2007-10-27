@@ -1,7 +1,8 @@
 (defpackage :equations
   (:use
    :cl
-   :technicals
+   :fundamental-functions
+   :universal-algebra
    :terms)
   (:export
    :weakly-dependent-p

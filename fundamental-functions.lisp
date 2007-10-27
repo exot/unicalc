@@ -111,7 +111,7 @@
 
 (defun apply-function-to-element (function element)
   "Applies FUNCTION to ELEMENT."
-  (or (second (assoc element (graph function) :test #'set-equal))
+  (or (second (assoc element (graph function) :test #'equal)) ; NOT SET-EQUAL!!!
       (error 'function-error
              :text (format nil "Cannot apply ~A to ~A" function element))))
 

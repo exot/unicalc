@@ -25,9 +25,9 @@
                 nil) ; start again
                (t (let ((result (first myset)))
                     (setf myset (rest myset))
-                    result))))
-           (reset-function ()
-             (setf myset set))) ; not needed by now
+                    result)))))
+           ;(reset-function ()
+           ;  (setf myset set))) ; not needed by now
       (make-instance 'lazy-set
                      :next #'next-function))))
 

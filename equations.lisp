@@ -1,11 +1,48 @@
 (in-package :equations)
 
-; evalutaing terms
-;
-; belegung
-;
-; auswertung von termen
-;
+;;; evalutaing terms
+
+; belegungen sind funktionen oder graphen von funktionen
+
+(define-simple-condition equations-error)
+
+(defgeneric ensure-association (func-or-graph)
+  (:documentation "Ensures FUNC-OR-GRAPH to be a function"))
+
+(defmethod ensure-association ((func-or-graph algebraic-function))
+  func-or-graph)
+
+(defmethod ensure-association ((func-or-graph list))
+ (make-function (mapcar #'first func-or-graph)
+                  (mapcar #'second func-or-graph)
+                  func-or-graph))
+
+(defun evaluate-term-in-algebra (algebra term association)
+  "Evaluates TERM in ALGEBRA with given ASSOCIATION."
+  (let* ((evaluator (ensure-association association))
+         (term-algebra (make-term-algebra (source evaluator) (signature-of algebra))))
+    (cond
+      ((not (termp term-algebra term))
+       (error 'equations-error
+              :text (format nil "~a is not a term with variables ~a and signature ~a"
+                            term (source evaluator) (signature-of algebra))))
+      (t (%evaluate-term-in-algebra term-algebra algebra term evaluator)))))
+
+(defun %evaluate-term-in-algebra (term-algebra algebra term association)
+    (cond
+      ((variablep term-algebra term)
+       (apply-function-to-element association term))
+      (t
+       (apply-operation-in-algebra (first term)
+                                   (mapcar #'(lambda (x)
+                                               (%evaluate-term-in-algebra
+                                                term-algebra
+                                                algebra
+                                                x
+                                                association))
+                                           (rest term))
+                                   algebra))))
+
 ; equation-holds-in-algebra-p
 ;
 ; models-p (synonym for equation-holds-in-algebra-p)

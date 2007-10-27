@@ -1,6 +1,7 @@
 (defpackage :fundamental-functions
  (:use :cl :technicals)
  (:export
+   :relation
    :relation-p
    :valid-graph-p
    :make-relation
@@ -8,6 +9,7 @@
    :source
    :target
    :graph
+   :algebraic-function
    :algebraic-function-p
    :make-function
    :malformed-function-definition
@@ -32,5 +34,6 @@
    :implementing-function-of
    :get-arity-of-table
    :arity-of-function
-   :restrict-function-on-source
-   :restrict-function-on-target))
+   :restrict-function-on-source-and-target
+   :restrict-function-on-target
+   :restrict-function-on-source))

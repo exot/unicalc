@@ -81,7 +81,8 @@
                     :source nil
                     :target target
                     :graph graph))
-    (t (error 'malformed-function-definition :text "Given graph is not a function graph."))))
+    (t (error 'malformed-function-definition
+              :text (format nil "Given graph ~a is not a function graph." graph)))))
 
 (defmethod source ((func-or-rel algebraic-function))
   (mapcar #'first (graph func-or-rel)))
@@ -150,8 +151,6 @@
                       (kernel-element (next-argument base-set pair) (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
       (kernel-element (symbols 2 (first base-set)) ()))))
-
-(define-simple-condition function-error)
 
 (defun inverse-image (function set)
   "Returns the inverse image of SET under FUNCTION."
@@ -223,32 +222,25 @@
 
 ;;; more on functions
 
-(defun restrict-function-on-source (function new-source)
-  "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
-  (let ((source (source function)))
-    (cond
-      ((not (subsetp new-source source :test #'set-equal))
-       (error 'function-error
-	      :text "Cannot restrict function to set not being
-subset of the source of the function."))
-      (t (flet ((calc-new-func-graph ()
-		  (let ((new-graph ()))
-		    (iterate-over-function-graph function element
-		      (when (member (all-operands element) new-source :test #'set-equal)
-			(push element new-graph)))
-		    new-graph)))
-	   (let ((new-graph (calc-new-func-graph)))
-	     (make-function new-source
-			    (target function)
-			    new-graph)))))))
+(defun restrict-function-on-source-and-traget (function new-source new-target)
+  "Restricts FUNCTION being a function on NEW-SOURCE\times NEW-TARGET."
+  (flet ((calc-new-func-graph ()
+            (let ((new-graph ()))
+              (iterate-over-function-graph function element
+                (when (member (all-operands element) new-source :test #'set-equal)
+                  (push element new-graph)))
+             new-graph)))
+    (let ((new-graph (calc-new-func-graph)))
+      (make-function new-source
+                     new-target
+                     new-graph))))
 
 (defun restrict-function-on-target (function new-target)
   "Returns algebraic function begin FUNCTION with target restricted to NEW-TARGET"
-  (let ((image (range function)))
-    (cond
-      ((not (subsetp image new-target :test #'set-equal))
-       (error 'function-error
-	      :text "Cannot restrict target of function to set not being superset."))
-      (t (make-function (source function)
-			new-target
-			(graph function))))))
+  (make-function (source function)
+                 new-target
+                 (graph function)))
+
+(defun restrict-function-on-source (function new-source)
+  "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
+  (restrict-function-on-source-and-traget function new-source (target function)))

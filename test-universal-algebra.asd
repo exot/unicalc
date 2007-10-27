@@ -7,7 +7,8 @@
                "universal-algebra"
                "terms"
                "subalgebras"
-               "functions-and-relations")
+               "functions-and-relations"
+	       "equations")
   :components ((:file "test-universal-algebra-package")
                (:file "test-universal-algebra" 
                 :depends-on ("test-universal-algebra-package"))))

@@ -63,9 +63,10 @@
 ;;; algebras
 
 (defclass algebra ()
-  ((base-set        :accessor base-set-of        :initarg :base-set)
-   (signature       :accessor signature-of       :initarg :signature)
-   (interpretations :accessor interpretations-on :initarg :interpretations)))
+  ((base-set        :accessor base-set-of           :initarg :base-set)
+   (signature       :accessor signature-of          :initarg :signature)
+   (interpretations :accessor interpretations-on    :initarg :interpretations)
+   (equal-pred      :accessor equal-pred-of-algebra :initarg :equal-pred :initform #'equal)))
 
 (defmethod print-object ((obj algebra) stream)
   (print-unreadable-object (obj stream :type t)
@@ -73,7 +74,7 @@
     (format stream "~&~2:Tsignature: ~a" (signature-of obj))
     (format stream "~&~2:Tinterpretations: ~a" (interpretations-on obj))))
 
-(defun make-algebra (base-set signature interpretations)
+(defun make-algebra (base-set signature interpretations &key (equal-pred #'equal))
   "Returns ALGEBRA object. INTERPRETATIONS shall be an alist of (SYMBOL INTERPRETATION)
 where INTERPRETATION is a value table of the given interpretation."
   (make-instance 'algebra 
@@ -81,34 +82,38 @@ where INTERPRETATION is a value table of the given interpretation."
                  :signature signature
                  :interpretations (make-interpretation base-set 
 						       signature 
-						       interpretations)))
+						       interpretations)
+                 :equal-pred equal-pred))
 
-(defun make-algebra-from-scratch (base-set function-symbols arities interpretations)
+(defun make-algebra-from-scratch (base-set function-symbols arities interpretations &key (equal-pred #'equal))
   "Returns ALGEBRA object given by BASE-SET, FUNCTION-SYMBOLS and ARITIES of FUNCTION-SYMBOLS (given as rank-alphabet or as arity-function)"
   (let ((signature (make-signature function-symbols arities)))
     (make-instance 'algebra
                    :base-set  (make-set base-set)
-                   :signature signature 
-                   :interpretations (make-interpretation base-set 
-							 signature 
-							 interpretations))))
+                   :signature signature
+                   :interpretations (make-interpretation base-set
+							 signature
+							 interpretations
+                                                         :equal-pred equal-pred)
+                   :equal-pred equal-pred)))
 
-(defun make-interpretation (base-set signature interpretations)
+(defun make-interpretation (base-set signature interpretations &key (equal-pred #'equal))
   "Returns set of functions that represent INTERPRETATIONS in <BASE-SET,SIGNATURE>
 INTERPRETATIONS should have the form (... (SYMBOL TABLE) ...) or (... (SYMBOL
 FUNCTION)...) whereas TABLE should be a value table describing SYMBOL and
 FUNCTION should be an operation defined with DEFINE-OPERATION."
   (let ((normalized-interpretations (normalize-interpretations
 				     base-set
-				     interpretations)))
+				     interpretations
+                                     :equal-pred equal-pred)))
     (cond
-      ((valid-interpretations-in-algebra base-set signature normalized-interpretations) 
+      ((valid-interpretations-in-algebra base-set signature normalized-interpretations :equal-pred equal-pred)
        normalized-interpretations)
       (t (error 'malformed-interpretation :text "Invalid interpretation given")))))
 
 (define-simple-condition malformed-interpretation)
 
-(defun normalize-interpretations (base-set interpretations)
+(defun normalize-interpretations (base-set interpretations &key (equal-pred #'equal))
   "Normalizes INTERPRETATIONS to only consist of tables (aka pairs of function
 symbols and implementing algebraic functions)."
   (mapcar #'(lambda (table)
@@ -119,14 +124,16 @@ symbols and implementing algebraic functions)."
 		    function-symbol
 		    (make-function (tuples base-set (get-arity-of-interpretation-function (second table)))
                                    base-set
-                                   (interpretation-function-to-graph base-set (second table)))))
+                                   (interpretation-function-to-graph base-set (second table))
+                                   :equal-pred equal-pred)))
                   ((algebraic-function-p (second table))
                    (list function-symbol (second table)))
 		  (t
                    (list function-symbol
                          (make-function (tuples base-set (get-arity-of-table table))
                                         base-set
-                                        (rest table)))))))
+                                        (rest table)
+                                        :equal-pred equal-pred))))))
 	  interpretations))
 
 (defun interpretation-function-to-graph (base-set interpretation)
@@ -151,12 +158,12 @@ instead of value tables."
   (when (interpretation-function-p func)
     (get func :arity)))
 
-(defun valid-interpretations-in-algebra (base-set signature interpretations)
+(defun valid-interpretations-in-algebra (base-set signature interpretations &key (equal-pred #'equal))
   "Returns non-NIL if INTERPRETATIONS is valid in <BASE-SET,SIGNATURE>"
   (let ((rank-alphabet (arities-of signature)))
-    (check-interpretations base-set rank-alphabet interpretations)))
+    (check-interpretations base-set rank-alphabet interpretations :equal-pred equal-pred)))
     
-(defun check-interpretations (base-set rank-alphabet interpretations)
+(defun check-interpretations (base-set rank-alphabet interpretations &key (equal-pred #'equal))
   (cond 
     ((and (null interpretations)
           (null rank-alphabet)) t)
@@ -168,7 +175,7 @@ instead of value tables."
          (cond
            ((not arity) nil)
            ((and (arity-correct-p arity interpretation)
-                 (defines-function-on-set-p base-set interpretation))
+                 (defines-function-on-set-p base-set interpretation :equal-pred equal-pred))
             (check-interpretations base-set 
                                    (remove-if #'(lambda (x) 
 						  (equal (first x) 
@@ -180,20 +187,23 @@ instead of value tables."
 (defun arity-correct-p (arity interpre)
   (= arity (arity-of-function (implementing-function-of interpre))))
 
-(defun defines-function-on-set-p (base-set interpre)
+(defun defines-function-on-set-p (base-set interpre &key (equal-pred #'equal))
   (and (defined-on-all-possible-inputs base-set interpre)
        (values-are-in-base-set base-set interpre)))
 
-(defun defined-on-all-possible-inputs (base-set interpre)
-  (let ((arguments (source (implementing-function-of interpre)))
-        (arity (arity-of-function (implementing-function-of interpre))))
+(defun defined-on-all-possible-inputs (base-set interpre &key (equal-pred #'equal))
+  (let* ((ifunc (implementing-function-of interpre))
+         (arguments (source ifunc))
+         (arity (arity-of-function (implementing-function-of interpre))))
     (and (forall (x arguments) (= (length x) arity))
-         (forall (x arguments) (subsetp x base-set :test #'equal))
+         (forall (x arguments) (subsetp x base-set :test equal-pred))
 	 (= (expt (length base-set) arity)
-	    (length (remove-duplicates arguments :test #'equal))))))
+	    (length (remove-duplicates arguments :test equal-pred))))))
 
-(defun values-are-in-base-set (base-set interpre)
-  (subsetp (target (implementing-function-of interpre)) base-set :test #'set-equal))
+(defun values-are-in-base-set (base-set interpre &key (equal-pred #'equal))
+  (let ((ifunc (implementing-function-of interpre)))
+    (subsetp (target ifunc) base-set
+             :test #'(lambda (x y) (set-equal x y :test equal-pred)))))
 
 ;;
 
@@ -218,6 +228,6 @@ instead of value tables."
       ((and arity
             (= arity (length arguments)))
        (let ((afunc (implementing-function-of-operation-symbol operation-symbol algebra)))
-         (apply-function-to-element afunc arguments)))
+         (apply-function-to-element afunc arguments))) ;;; equal predicate!
       (t (error 'operation-not-appliable
                 :text "Operation cannot be applied to argument in algebra.")))))

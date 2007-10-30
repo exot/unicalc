@@ -56,7 +56,8 @@
 
 ;; functions
 
-(defclass algebraic-function (relation) ())
+(defclass algebraic-function (relation)
+  ((equal-pred :accessor equal-pred :initarg :equal-pred :initform #'equal)))
 
 (defgeneric algebraic-function-p (func)
   (:documentation "Tests whether FUNC is a ALGEBRAIC-FUNCTION or not."))
@@ -69,18 +70,19 @@
   (declare (ignore func))
   nil)
 
-(defgeneric make-function (source target graph-or-function)
+(defgeneric make-function (source target graph-or-function &key equal-pred)
   (:documentation "Returns ALGEBRAIC-FUNCTION object describing GRAPH-OR-FUNCTION."))
 
 (define-simple-condition malformed-function-definition)
 
-(defmethod make-function (source target (graph list))
+(defmethod make-function (source target (graph list) &key (equal-pred #'equal))
   (cond
     ((function-graph-p graph source target)
      (make-instance 'algebraic-function
                     :source nil
                     :target target
-                    :graph graph))
+                    :graph graph
+                    :equal-pred equal-pred))
     (t (error 'malformed-function-definition
               :text (format nil "Given graph ~a is not a function graph." graph)))))
 
@@ -95,15 +97,15 @@
                  (length (remove-duplicates graph-arguments :test #'equal)))
               (set-equal A graph-arguments)))))
 
-(defmethod make-function (source target (function function))
-  (make-function source target (function-to-graph source function)))
+(defmethod make-function (source target (function function) &key (equal-pred #'equal))
+  (make-function source target (function-to-graph source function :equal-pred equal-pred)))
 
 (defun function-to-graph (source function)
   "Converts FUNCTION on SOURCE to a function graph."
   (mapcar #'(lambda (x) (list x (funcall function x))) source))
 
-(defmethod make-function (source target (relation relation))
-  (make-function source target (graph-of-relation relation)))
+(defmethod make-function (source target (relation relation) &key (equal-pred #'equal))
+  (make-function source target (graph-of-relation relation) :equal-pred equal-pred))
 
 ;; doing something with functions
 
@@ -111,7 +113,7 @@
 
 (defun apply-function-to-element (function element)
   "Applies FUNCTION to ELEMENT."
-  (or (second (assoc element (graph function) :test #'equal)) ; NOT SET-EQUAL!!!
+  (or (second (assoc element (graph function) :test (equal-pred function)))
       (error 'function-error
              :text (format nil "Cannot apply ~A to ~A" function element))))
 
@@ -126,15 +128,15 @@
   (make-set (apply-function-to-tuple function set)))
 
 (defun range (function)
-  (remove-duplicates (mapcar #'second (graph function)) :test #'equal))
+  (remove-duplicates (mapcar #'second (graph function)) :test (equal-pred function)))
 
 (defun surjective-p (function)
   (set-equal (target function)
              (range function)))
 
 (defun injective-p (function)
-  (equal (length (source function))
-         (length (range function))))
+  (= (length (source function))
+     (length (range function))))
 
 (defun bijective-p (function)
   (and (injective-p function)
@@ -146,8 +148,8 @@
     (labels ((kernel-element (pair pairs)
                (cond
                  ((null pair) pairs)
-                 (t (if (equal (apply-function-to-element function (first pair))
-                               (apply-function-to-element function (second pair)))
+                 (t (if (set-equal (apply-function-to-element function (first pair)) ;;; !!!
+                                   (apply-function-to-element function (second pair)))
                       (kernel-element (next-argument base-set pair) (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
       (kernel-element (symbols 2 (first base-set)) ()))))
@@ -155,7 +157,7 @@
 (defun inverse-image (function set)
   "Returns the inverse image of SET under FUNCTION."
   (cond
-    ((not (subsetp set (target function) :test #'equal))
+    ((not (subsetp set (target function) :test (equal-pred function)))
      (error 'function-error
             :text (format nil "~A is not a subset of ~A" set function)))
     (t (mapcan #'(lambda (element) (inverse-image-of-element function element))
@@ -166,11 +168,11 @@
 
 (defun inverse-image-of-element (function element)
   (labels ((origin-of-element (argument all-origins)
-             (let ((next-element (first (rest (member argument (source function))))))
+             (let ((next-element (first (rest (member argument (source function) :test (equal-pred function))))))
                (cond
                  ((null argument) all-origins)
-                 ((equal element
-                         (apply-function-to-element function argument))
+                 ((set-equal element
+                             (apply-function-to-element function argument))
                   (origin-of-element next-element
                                      (make-set (cons argument all-origins))))
                  (t
@@ -227,7 +229,7 @@
   (flet ((calc-new-func-graph ()
             (let ((new-graph ()))
               (iterate-over-function-graph function element
-                (when (member (all-operands element) new-source :test #'set-equal)
+                (when (member (all-operands element) new-source :test (equal-pred function))
                   (push element new-graph)))
              new-graph)))
     (let ((new-graph (calc-new-func-graph)))

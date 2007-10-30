@@ -18,6 +18,7 @@
   :make-signature
   :arity-of-function-symbol
   :algebra
+  :equal-pred-of-algebra
   :base-set-of
   :signature-of
   :interpretations-on

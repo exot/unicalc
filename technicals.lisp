@@ -30,8 +30,13 @@
        (not (minusp x))))
 
 (defmacro define-simple-condition (name)
-  `(define-condition ,name ()
-     ((text :initarg text :reader text))))
+  `(progn
+    (define-condition ,name ()
+      ((text :initarg :text :reader text :initform "")))
+
+    (defmethod print-object ((obj ,name) stream)
+      (print-unreadable-object (obj stream :type t)
+        (format stream "~a" (technicals::text obj))))))
 
 (defun set-equal (set1 set2 &key (test #'equal))
   "Returns T if SET1 and SET2 are equal in sense of sets. Does recursive

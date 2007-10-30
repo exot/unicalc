@@ -10,6 +10,7 @@
    :target
    :graph
    :algebraic-function
+   :equal-pred
    :algebraic-function-p
    :make-function
    :malformed-function-definition

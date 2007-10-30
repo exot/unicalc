@@ -6,4 +6,5 @@
    :universal-algebra
    :terms
    :subalgebras
+   :equations
    :functions-and-relations))

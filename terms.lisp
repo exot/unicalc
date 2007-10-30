@@ -37,6 +37,8 @@
 (defun composed-term-p (term-algebra x)
   (and (termp term-algebra x) (listp x)))
 
+; (defun free-variables-of-term (...) ... )
+
 (defun operation-symbol-of (term-algebra x)
   (when (composed-term-p term-algebra x)
     (first x)))

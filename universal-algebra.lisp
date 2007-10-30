@@ -125,7 +125,7 @@ symbols and implementing algebraic functions)."
 		    (make-function (tuples base-set (get-arity-of-interpretation-function (second table)))
                                    base-set
                                    (interpretation-function-to-graph base-set (second table))
-                                   :equal-pred equal-pred)))
+                                   :equal-pred #'(lambda (x y) (tuple-equal equal-pred x y)))))
                   ((algebraic-function-p (second table))
                    (list function-symbol (second table)))
 		  (t
@@ -133,7 +133,7 @@ symbols and implementing algebraic functions)."
                          (make-function (tuples base-set (get-arity-of-table table))
                                         base-set
                                         (rest table)
-                                        :equal-pred equal-pred))))))
+                                        :equal-pred #'(lambda (x y) (tuple-equal equal-pred x y))))))))
 	  interpretations))
 
 (defun interpretation-function-to-graph (base-set interpretation)
@@ -188,8 +188,8 @@ instead of value tables."
   (= arity (arity-of-function (implementing-function-of interpre))))
 
 (defun defines-function-on-set-p (base-set interpre &key (equal-pred #'equal))
-  (and (defined-on-all-possible-inputs base-set interpre)
-       (values-are-in-base-set base-set interpre)))
+  (and (defined-on-all-possible-inputs base-set interpre :equal-pred equal-pred)
+       (values-are-in-base-set base-set interpre) :equal-pred equal-pred))
 
 (defun defined-on-all-possible-inputs (base-set interpre &key (equal-pred #'equal))
   (let* ((ifunc (implementing-function-of interpre))

@@ -44,8 +44,19 @@
                                    algebra))))
 
 ; equation-holds-in-algebra-p
-;
+
+(defun equation-holds-in-algebra-p (algebra variables equation)
+  "Returns non-NIL if EQUATION holds in ALGEBRA."
+  (let ((equal-pred (equal-pred-of-algebra algebra)))
+    (forall (assignment (all-assignments variables (base-set-of algebra)))
+      (funcall equal-pred
+               (evaluate-term-in-algebra algebra (first equation) assignment)
+               (evaluate-term-in-algebra algebra (second equation) assignment)))))
+
 ; models-p (synonym for equation-holds-in-algebra-p)
+(defun models-p (algebra variables equation)
+  "Synonym for EQUATION-HOLDS-IN-ALGEBRA-P."
+  (equation-holds-in-algebra-p algebra variables equation))
 
 ; equations
 
@@ -60,7 +71,7 @@
     (when left-match
       (let ((right-match (match term-algebra (second eqn1) (second eqn2))))
         (when (and right-match
-                   (subsetp left-match right-match :test #'equal)
+                   (subsetp left-match right-match :test #'equal)  ;; #'equal because we are working with symbols
                    (subsetp right-match left-match :test #'equal))
           t)))))
 

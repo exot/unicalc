@@ -37,4 +37,5 @@
    :arity-of-function
    :restrict-function-on-source-and-target
    :restrict-function-on-target
-   :restrict-function-on-source))
+   :restrict-function-on-source
+   :all-assignments))

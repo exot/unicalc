@@ -70,6 +70,14 @@
 		(cons (first base-set) next)))) ; and start with first element again
 	   (t (cons (first rest) (rest argument))))))))
 
+(defun next-assignment (value-set assignment)
+  "Returns next assignment in VALUE-SET after ASSIGNMENT being a tuple of pairs, or NIL if ASSIGNMENT is last."
+  (let ((argument (mapcar #'second assignment))
+        (elements (mapcar #'first assignment)))
+    (let ((next-argument (next-argument value-set argument)))
+      (when next-argument
+        (mapcar #'(lambda (x y) (list x y)) elements next-argument)))))
+
 (defun n-elemental-subsets (set n)
   "Returns set of all N elemental subsets of SET."
   (cond

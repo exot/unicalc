@@ -152,7 +152,7 @@
                                    (apply-function-to-element function (second pair)))
                       (kernel-element (next-argument base-set pair) (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
-      (kernel-element (symbols 2 (first base-set)) ()))))
+      (make-relation base-set base-set (kernel-element (symbols 2 (first base-set)) ())))))
 
 (defun inverse-image (function set)
   "Returns the inverse image of SET under FUNCTION."
@@ -246,3 +246,15 @@
 (defun restrict-function-on-source (function new-source)
   "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
   (restrict-function-on-source-and-traget function new-source (target function)))
+
+;;; for iteration over all assignments
+
+(defun all-assignments (variables value-set)
+  "Returns lazy set consiting of all assignments of VARIABLES to value from VALUE-SET."
+  (let* ((first-assign (symbols (card variables) (first value-set)))
+         (assign (mapcar #'pair variables first-assign)))
+    (flet ((new-assignment ()
+             (let ((current-assign assign))
+               (setf assign (next-assignment value-set assign))
+               current-assign)))
+      (define-lazy-set #'new-assignment))))

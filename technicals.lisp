@@ -10,6 +10,9 @@
   "Returns list of N symbols of NUMBER."
   (numbers n number))
 
+(defun pair (x y)
+  (list x y))
+
 (defun all-zero-except-n (list n)
   "Returns LIST with zeros except in position n"
   (cond
@@ -50,6 +53,14 @@
           (not (listp set2)))
      (funcall test set1 set2))
     (t nil)))
+
+(defun tuple-equal (equal-pred x y)
+  "Returns T if X and Y are lists with EQUAL-PRED elements at the same positions"
+  (and (listp x)
+       (listp y)
+       (= (length x)
+          (length y))
+       (every equal-pred x y)))
 
 (defun make-set (set &key (test #'set-equal))
   "Makes set out of SET, i.e. removes all duplicates from set which are SET-EQUAL."

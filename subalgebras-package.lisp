@@ -10,4 +10,5 @@
    :subalgebra-error
    :calculate-generating-elements
    :elements-generate-algebra-p
-   :subalgebra-generated-by-elements))
+   :subalgebra-generated-by-elements
+   :homomorphism-from-assignment))

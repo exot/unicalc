@@ -107,7 +107,8 @@ FUNCTION should be an operation defined with DEFINE-OPERATION."
 				     interpretations
                                      :equal-pred equal-pred)))
     (cond
-      ((valid-interpretations-in-algebra base-set signature normalized-interpretations :equal-pred equal-pred)
+      ((valid-interpretations-in-algebra base-set signature normalized-interpretations
+					 :equal-pred equal-pred)
        normalized-interpretations)
       (t (error 'malformed-interpretation :text "Invalid interpretation given")))))
 

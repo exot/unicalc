@@ -4,6 +4,7 @@
 (defsystem subalgebras
   :depends-on ("technicals"
                "fundamental-functions"
-               "universal-algebra")
+               "universal-algebra"
+	       "functions-and-relations")
   :components ((:file "subalgebras-package")
                (:file "subalgebras" :depends-on ("subalgebras-package"))))

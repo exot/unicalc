@@ -173,3 +173,76 @@
 (print (isomorphic-p *algebra-c* *algebra-d*))
 
 (print (isomorphic-p *algebra* *algebra-2*))
+
+;;; assigment extension
+
+(defparameter *free-algebra*
+  (make-algebra {0 1 2 3 4}
+		(make-signature {+} {(+ 2)})
+		{(+
+		  ((0 0) 0)
+		  ((0 1) 2)
+		  ((0 2) 3)
+		  ((0 3) 3)
+		  ((0 4) 2)
+		  ((1 0) 2)
+		  ((1 1) 1)
+		  ((1 2) 4)
+		  ((1 3) 2)
+		  ((1 4) 4)
+		  ((2 0) 3)
+		  ((2 1) 4)
+		  ((2 2) 2)
+		  ((2 3) 3)
+		  ((2 4) 4)
+		  ((3 0) 3)
+		  ((3 1) 2)
+		  ((3 2) 3)
+		  ((3 3) 3)
+		  ((3 4) 2)
+		  ((4 0) 2)
+		  ((4 1) 4)
+		  ((4 2) 4)
+		  ((4 3) 2)
+		  ((4 4) 4))}))
+
+(defun symbolize-free-algebra (algebra)
+  "Returns ALGEBRA as factorized term algebra"
+  (let* ((generating-elements (calculate-generating-elements algebra))
+	 (symbols (symbol-list (card generating-elements)))
+	 (homomorphism (homomorphism-from-assignment algebra generating-elements
+						     (mapcar #'pair generating-elements
+							     symbols))))
+    (apply-quasihomomorphism-to-algebra homomorphism algebra)))
+
+(defparameter *symbolized-free-algebra* (symbolize-free-algebra *free-algebra*))
+
+(print *free-algebra*)
+(print *symbolized-free-algebra*)
+
+(defun extract-all-equations (symbolized-algebra)
+  (let ((found-equations ()))
+    (loop for table in (interpretations-on symbolized-algebra)
+	  do
+	  (let ((function-symbol (function-symbol-of table)))
+	    (iterate-over-function-graph (implementing-function-of table) element
+	      (push (list
+		     (cons function-symbol (all-operands element))
+		     (value-of-element element))
+		    found-equations)))
+	  finally (return found-equations))))
+
+(print (extract-all-equations *symbolized-free-algebra*))
+
+(defun pprint-all-equations (symbolized-algebra &optional (level 2))
+  (let* ((variables (remove-if-not #'symbolp (base-set-of symbolized-algebra)))
+	 (signature (signature-of symbolized-algebra))
+	 (term-algebra (make-term-algebra variables signature)))
+    (mapc #'(lambda (list)
+	      (pprint-term-list term-algebra list))
+	  (remove-all-weakly-dependent-equations
+	   term-algebra
+	   (extract-all-equations symbolized-algebra)
+	   level))))
+
+(pprint-all-equations (symbolize-free-algebra *free-algebra*))

@@ -98,7 +98,7 @@
               (set-equal A graph-arguments)))))
 
 (defmethod make-function (source target (function function) &key (equal-pred #'equal))
-  (make-function source target (function-to-graph source function :equal-pred equal-pred)))
+  (make-function source target (function-to-graph source function) :equal-pred equal-pred))
 
 (defun function-to-graph (source function)
   "Converts FUNCTION on SOURCE to a function graph."
@@ -132,7 +132,8 @@
 
 (defun surjective-p (function)
   (set-equal (target function)
-             (range function)))
+             (range function)
+	     :test (equal-pred function)))
 
 (defun injective-p (function)
   (= (length (source function))
@@ -258,3 +259,27 @@
                (setf assign (next-assignment value-set assign))
                current-assign)))
       (define-lazy-set #'new-assignment))))
+
+(defun all-functions (source target)
+  "Returns lazy set of all functions between SOURCE and TARGET."
+  (let ((assignments (all-assignments source target)))
+    (flet ((next-function ()
+	     (let ((next-assign (funcall (technicals::next assignments))))
+	       (when next-assign
+		 (make-function source target next-assign)))))
+      (define-lazy-set #'next-function))))
+
+(defun all-functions-with-predicate (source target predicate)
+  "Returns lazy set of all function between SEOURCE and TARGET fulfilling PREDICATE."
+  (let ((functions (all-functions source target)))
+    (labels ((next-function ()
+	       (let ((next-fun (funcall (next functions))))
+		 (cond
+		   ((not next-fun) nil)
+		   ((funcall predicate next-fun)
+		    next-fun)
+		   (t (next-function))))))
+      (define-lazy-set #'next-function))))
+
+(defun all-bijective-functions (source target)
+  (all-functions-with-predicate source target #'bijective-p))

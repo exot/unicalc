@@ -6,9 +6,8 @@
   ((next  :accessor next  :initarg :next)
    (reset :accessor reset :initarg :reset :initform #'(lambda () nil))))
 
-(defmacro define-lazy-set (next-function)
-  `(make-instance 'lazy-set
-    :next ,next-function))
+(defun define-lazy-set (next-function)
+  (make-instance 'lazy-set :next next-function))
 
 (defgeneric ensure-lazy-set (set)
   (:documentation "Ensures SET to be a lazy set"))

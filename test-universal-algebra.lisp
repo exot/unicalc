@@ -159,3 +159,17 @@
 
 (print (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 1) (y 2))))
 (print (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 2) (y 1))))
+
+;;; iterating over functions
+
+(print "Functions iteration")
+
+(forall (x (all-functions {1 2 3} {a b})) (print x))
+
+;;; isomorphics
+
+(print "Isomorphisms")
+
+(print (isomorphic-p *algebra-c* *algebra-d*))
+
+(print (isomorphic-p *algebra* *algebra-2*))

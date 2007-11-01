@@ -38,4 +38,7 @@
    :restrict-function-on-source-and-target
    :restrict-function-on-target
    :restrict-function-on-source
-   :all-assignments))
+   :all-assignments
+   :all-functions
+   :all-functions-with-predicate
+   :all-bijective-functions))

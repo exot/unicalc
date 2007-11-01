@@ -9,4 +9,6 @@
    :isomorphism-p
    :quasi-homomorphism-p
    :apply-quasihomomorphism-to-algebra
-   :no-quasihomomorphism))
+   :no-quasihomomorphism
+   :all-isomorphisms
+   :isomorphic-p))

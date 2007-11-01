@@ -78,3 +78,17 @@ and implementing functions."
           (new-target (apply-function-to-set function (source function))))
       (list (function-symbol-of table)
             (make-function new-source new-target (make-set new-graph :test #'set-equal))))))
+
+(defun all-isomorphisms (algebra1 algebra2)
+  "Returns lazy set of all isomorphisms between ALGEBRA1 and ALGEBRA2."
+  (all-functions-with-predicate (base-set-of algebra1)
+				(base-set-of algebra2)
+				#'(lambda (x) (isomorphism-p x algebra1 algebra2))))
+
+(defun isomorphic-p (algebra1 algebra2)
+  "Returns isomorphmis between ALGEBRA1 and ALGEBRA2 if existent, NIL otherwise."
+  (when (and (= (card (base-set-of algebra1))
+		(card (base-set-of algebra2)))
+	     (algebras-of-same-signature-p algebra1 algebra2))
+    (let ((isos (all-isomorphisms algebra1 algebra2)))
+      (funcall (next isos)))))

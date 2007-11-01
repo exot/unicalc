@@ -13,6 +13,8 @@
    :make-set
    :card
    :emptyp
+   :lazy-set
+   :next
    :define-lazy-set
    :next-argument
    :next-assignment

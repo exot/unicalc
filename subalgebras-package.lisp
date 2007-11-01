@@ -3,7 +3,9 @@
    :cl
    :technicals
    :fundamental-functions
-   :universal-algebra)
+   :universal-algebra
+   :terms
+   :functions-and-relations)
   (:export 
    :subalgebra-error
    :calculate-generating-elements

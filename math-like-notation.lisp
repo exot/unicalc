@@ -9,6 +9,21 @@
 (defun define-lazy-set (next-function)
   (make-instance 'lazy-set :next next-function))
 
+(defgeneric ensure-standard-set (set &key equal)
+  (:documentation "Ensures SET to be a standard set, i.e. a tuple
+with no two elements being EQUAL"))
+
+(defmethod ensure-standard-set ((set list) &key (equal #'equal))
+  (make-set set :test equal))
+
+(defmethod ensure-standard-set ((set lazy-set) &key (equal #'equal))
+  (flet ((next-element ()
+	   (funcall (next set))))
+    (let ((temp-set (loop for element = (next-element) then (next-element)
+			  while element
+			  collect element)))
+      (make-set temp-set :test equal))))
+
 (defgeneric ensure-lazy-set (set)
   (:documentation "Ensures SET to be a lazy set"))
 
@@ -90,31 +105,33 @@
                           shorter-subsets)))
          (make-set subsets :test #'set-equal)))))
 
-(defun tuples (set power)
-  (cond
-    ((or (zerop power)
-	 (emptyp set))
-     (list nil))
-    (t (let ((myset set)
-             (mypower power))
-         (loop for tuple = (technicals::symbols mypower (first myset))
-               then (technicals::next-argument myset tuple)
-               until (null tuple)
-               collect tuple)))))
+(defun tuples (given-set power)
+  (let ((set (ensure-standard-set given-set)))
+    (cond
+      ((or (zerop power)
+	   (emptyp set))
+       (list nil))
+      (t (let ((myset set)
+	       (mypower power))
+	   (loop for tuple = (technicals::symbols mypower (first myset))
+		 then (technicals::next-argument myset tuple)
+		 until (null tuple)
+		 collect tuple))))))
 
-(defun subsets (set)
-  (labels ((all-subsets (set)
-             (cond
-               ((null set) (list nil))
-               (t (let ((element (first set))
-                        (subsets ()))
-                    (let ((shorter-subsets (all-subsets (rest set))))
-                      (mapc #'(lambda (x)
-                                (push (cons element x) subsets)
-                                (push x subsets))
-                            shorter-subsets))
-                    subsets)))))
-    (make-set (all-subsets set) :test #'set-equal)))
+(defun subsets (given-set)
+  (let ((set (ensure-standard-set given-set)))
+    (labels ((all-subsets (set)
+	       (cond
+		 ((null set) (list nil))
+		 (t (let ((element (first set))
+			  (subsets ()))
+		      (let ((shorter-subsets (all-subsets (rest set))))
+			(mapc #'(lambda (x)
+				  (push (cons element x) subsets)
+				  (push x subsets))
+			      shorter-subsets))
+		      subsets)))))
+      (make-set (all-subsets set) :test #'set-equal))))
 
 (defmacro next-function (set)
   `(typecase ,set

@@ -245,4 +245,5 @@
 	   (extract-all-equations symbolized-algebra)
 	   level))))
 
-(pprint-all-equations (symbolize-free-algebra *free-algebra*))
+(defun test-case-1 ()
+  (pprint-all-equations (symbolize-free-algebra *free-algebra*)))

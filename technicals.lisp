@@ -47,8 +47,8 @@
   (cond
     ((and (listp set1)
           (listp set2))
-     (and (subsetp set1 set2 :test #'set-equal)
-          (subsetp set2 set1 :test #'set-equal)))
+     (and (subsetp set1 set2 :test #'(lambda (x y) (set-equal x y :test test)))
+          (subsetp set2 set1 :test #'(lambda (x y) (set-equal x y :test test)))))
     ((and (not (listp set1))
           (not (listp set2)))
      (funcall test set1 set2))

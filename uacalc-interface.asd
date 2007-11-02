@@ -7,4 +7,7 @@
                "universal-algebra"
                "subalgebras"
                "functions-and-relations")
-  :components ((:file "UACalc-interface-package")))
+  :components ((:file "UACalc-interface-package")
+	       (:file "UACalc-technicals")
+	       (:file "UACalc-interface"))
+  :serial t)

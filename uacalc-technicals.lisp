@@ -106,11 +106,6 @@
 	      (t (push (list argument value) graph))))
 	  finally (return graph))))
 
-(defun operation-symbol (symbol number)
-  (intern (concatenate 'string
-		       (princ-to-string symbol)
-		       (princ-to-string number))))
-
 (defun read-all-operations-from-file (file base-set)
   (loop for i = 0 then (1+ i)
 	for pair = (read-operation-from-file file (operation-symbol "F" i) base-set)

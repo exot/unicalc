@@ -41,39 +41,6 @@
       (print-unreadable-object (obj stream :type t)
         (format stream "~a" (technicals::text obj))))))
 
-(defun set-equal (set1 set2 &key (test #'equal))
-  "Returns T if SET1 and SET2 are equal in sense of sets. Does recursive
-  check if needed."
-  (cond
-    ((and (listp set1)
-          (listp set2))
-     (and (subsetp set1 set2 :test #'(lambda (x y) (set-equal x y :test test)))
-          (subsetp set2 set1 :test #'(lambda (x y) (set-equal x y :test test)))))
-    ((and (not (listp set1))
-          (not (listp set2)))
-     (funcall test set1 set2))
-    (t nil)))
-
-(defun tuple-equal (equal-pred x y)
-  "Returns T if X and Y are lists with EQUAL-PRED elements at the same positions"
-  (and (listp x)
-       (listp y)
-       (= (length x)
-          (length y))
-       (every equal-pred x y)))
-
-(defun make-set (set &key (test #'set-equal))
-  "Makes set out of SET, i.e. removes all duplicates from set which are SET-EQUAL."
-  (remove-duplicates set :test test))
-
-(defun card (set)
-  "Returns cardinality of set."
-  (length set))
-
-(defun emptyp (set)
-  "Returns T if set is empty"
-  (zerop (card set)))
-
 (defun number-list (n)
   "Returns list (0 .. (1- n))"
   (labels ((count-down (n list)
@@ -83,13 +50,18 @@
     (when (>= n 0)
       (count-down (1- n) ()))))
 
+(defun operation-symbol (symbol number)
+  "Returns symbol concatenated from SYMBOL and NUMBER."
+  (intern (concatenate 'string
+		       (princ-to-string symbol)
+		       (princ-to-string number))))
+
 (defun symbol-list (n &optional (name "V"))
-  "Returns list of N symbols named V0 ... VN"
+  "Returns list of N symbols named V0 ... VN unless otherwise specified"
   (labels ((recursive-symbol-list (n list)
 	     (cond
 	       ((< n 0) list)
-	       (t (recursive-symbol-list (1- n)
-					 (cons (intern (concatenate 'string name
-								    (princ-to-string n)))
-					       list))))))
+	       (t (recursive-symbol-list
+		    (1- n)
+		    (cons (operation-symbol name n) list))))))
     (recursive-symbol-list (1- n) ())))

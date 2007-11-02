@@ -1,6 +1,7 @@
 (defpackage :technicals
   (:use :cl)
   (:export
+;; technicals.lisp
    :numbers
    :symbols
    :pair
@@ -8,21 +9,25 @@
    :positive-number-p
    :non-negative-number-p
    :define-simple-condition
-   :set-equal
-   :tuple-equal
+   :number-list
+   :operation-symbol
+   :symbol-list
+;; sets.lisp
+   :algebraic-set
    :make-set
+   :next-argument
+   :next-assignment
    :card
    :emptyp
-   :number-list
-   :symbol-list
+   :set-equal
+   :tuple-equal
+   :tuples
+   :subsets
+   :n-elemental-subsets
+;; math-like-notation.lisp
    :lazy-set
    :next
    :define-lazy-set
-   :next-argument
-   :next-assignment
-   :n-elemental-subsets
-   :tuples
-   :subsets
    :forall
    :exists
    :=>

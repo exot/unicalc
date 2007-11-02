@@ -14,21 +14,6 @@
 	       (t (values next t))))))
     (make-instance 'lazy-set :next #'next-element)))
 
-(defgeneric ensure-standard-set (set &key equal)
-  (:documentation "Ensures SET to be a standard set, i.e. a tuple
-with no two elements being EQUAL"))
-
-(defmethod ensure-standard-set ((set list) &key (equal #'equal))
-  (make-set set :test equal))
-
-(defmethod ensure-standard-set ((set lazy-set) &key (equal #'equal))
-  (flet ((next-element ()
-	   (funcall (next set))))
-    (let ((temp-set (loop for element = (next-element) then (next-element)
-			  while element
-			  collect element)))
-      (make-set temp-set :test equal))))
-
 (defgeneric ensure-lazy-set (set)
   (:documentation "Ensures SET to be a lazy set"))
 
@@ -77,70 +62,8 @@ with no two elements being EQUAL"))
 
 ;; lazy up to here
 
-(defun next-argument (base-set argument)
-  "Returns next ARGUMENT in BASE-SET of length (LENGTH ARGUMENT)"
-  (cond
-    ((null argument) nil)
-    (t (let ((rest (rest (member (first argument) base-set)))); all elements after current
-	 (cond
-	   ((null rest) ; increment next position
-	    (let ((next (next-argument base-set (rest argument))))
-	      (when next
-		(cons (first base-set) next)))) ; and start with first element again
-	   (t (cons (first rest) (rest argument))))))))
-
-(defun next-assignment (value-set assignment)
-  "Returns next assignment in VALUE-SET after ASSIGNMENT being a tuple of pairs, or NIL if ASSIGNMENT is last."
-  (let ((argument (mapcar #'second assignment))
-        (elements (mapcar #'first assignment)))
-    (let ((next-argument (next-argument value-set argument)))
-      (when next-argument
-        (mapcar #'(lambda (x y) (list x y)) elements next-argument)))))
-
-(defun n-elemental-subsets (set n)
-  "Returns set of all N elemental subsets of SET."
-  (cond
-    ((= n 0) (list ()))
-    ((null set) nil)
-    (t (let ((subsets ()))
-         (loop for element in set
-               do (let ((shorter-subsets (n-elemental-subsets
-                                           (remove element set) (1- n))))
-                    (mapc #'(lambda (x) (push (cons element x) subsets))
-                          shorter-subsets)))
-         (make-set subsets :test #'set-equal)))))
-
-(defun tuples (given-set power)
-  (let ((set (ensure-standard-set given-set)))
-    (cond
-      ((or (zerop power)
-	   (emptyp set))
-       (list nil))
-      (t (let ((myset set)
-	       (mypower power))
-	   (loop for tuple = (technicals::symbols mypower (first myset))
-		 then (technicals::next-argument myset tuple)
-		 until (null tuple)
-		 collect tuple))))))
-
-(defun subsets (given-set &key (equal-pred #'equal))
-  (let ((set (ensure-standard-set given-set)))
-    (labels ((all-subsets (set)
-	       (cond
-		 ((null set) (list nil))
-		 (t (let ((element (first set))
-			  (subsets ()))
-		      (let ((shorter-subsets (all-subsets (rest set))))
-			(mapc #'(lambda (x)
-				  (push (cons element x) subsets)
-				  (push x subsets))
-			      shorter-subsets))
-		      subsets)))))
-      (make-set (all-subsets set) :test
-		#'(lambda (x y)
-		    (set-equal x y :test equal-pred))))))
-
-(defparameter *end-of-set* (gensym "END-OF-SET"))
+(defparameter *end-of-set* (gensym "END-OF-SET")
+  "Unique symbol to signal the end of a set")
 
 (defun next-function (set)
   (typecase set
@@ -179,13 +102,6 @@ with no two elements being EQUAL"))
 
 (defmacro exists ((variable set) &body body)
   `(check-for-all nil #'(lambda (x) x) t (,variable ,set) ,@body))
-
-(defun read-set (stream char)
-  (declare (ignore char))
-  `(make-set ',(read-delimited-list #\} stream t) :test #'equal))
-
-(set-macro-character #\{ #'read-set)
-(set-macro-character #\} (get-macro-character #\)))
 
 (defmacro => (a b)
   `(if ,a

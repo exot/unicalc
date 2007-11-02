@@ -13,6 +13,7 @@
    :make-set
    :card
    :emptyp
+   :number-list
    :symbol-list
    :lazy-set
    :next

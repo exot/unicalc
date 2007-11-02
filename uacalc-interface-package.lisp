@@ -5,4 +5,8 @@
    :fundamental-functions
    :universal-algebra
    :functions-and-relations
-   :subalgebras))
+   :subalgebras)
+ (:export
+   :uacalc-interface-error
+   :uacalc-write-algebra-to-file
+   :uacalc-read-algebra-from-file))

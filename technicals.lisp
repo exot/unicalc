@@ -74,13 +74,22 @@
   "Returns T if set is empty"
   (zerop (card set)))
 
-(defun symbol-list (n)
+(defun number-list (n)
+  "Returns list (0 .. (1- n))"
+  (labels ((count-down (n list)
+	     (cond
+	       ((zerop (1+ n)) list)
+	       (t (count-down (1- n) (cons n list))))))
+    (when (>= n 0)
+      (count-down (1- n) ()))))
+
+(defun symbol-list (n &optional (name "V"))
   "Returns list of N symbols named V0 ... VN"
   (labels ((recursive-symbol-list (n list)
 	     (cond
 	       ((< n 0) list)
 	       (t (recursive-symbol-list (1- n)
-					 (cons (intern (concatenate 'string "V"
+					 (cons (intern (concatenate 'string name
 								    (princ-to-string n)))
 					       list))))))
     (recursive-symbol-list (1- n) ())))

@@ -173,7 +173,7 @@
                (cond
                  ((null argument) all-origins)
                  ((set-equal element
-                             (apply-function-to-element function argument))
+                             (apply-function-to-element function argument)) ;;; EQUAL-PRED
                   (origin-of-element next-element
                                      (make-set (cons argument all-origins))))
                  (t
@@ -204,7 +204,7 @@
   (nth n (all-operands element)))
 
 ;;; tables (pairs of function symbol and implementing function; use in universal-algebra)
-
+;; --> extra file named tables.lisp
 (defun function-symbol-of (table)
   "Returns the function symbol of TABLE being an entry in the set
   of interpretations of a given algebra."
@@ -249,7 +249,7 @@
   (restrict-function-on-source-and-traget function new-source (target function)))
 
 ;;; for iteration over all assignments
-
+;; --> move next-assignment here
 (defun all-assignments (variables value-set)
   "Returns lazy set consiting of all assignments of VARIABLES to value from VALUE-SET."
   (let* ((first-assign (symbols (card variables) (first value-set)))

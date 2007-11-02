@@ -13,7 +13,7 @@
    :operation-symbol
    :symbol-list
 ;; sets.lisp
-   :algebraic-set
+   :standard-set
    :make-set
    :next-argument
    :next-assignment

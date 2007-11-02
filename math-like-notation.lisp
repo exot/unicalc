@@ -14,6 +14,14 @@
 	       (t (values next t))))))
     (make-instance 'lazy-set :next #'next-element)))
 
+(defmethod ensure-standard-set ((set lazy-set) &key (equal #'equal))
+  (flet ((next-element ()
+	   (funcall (next set))))
+    (let ((temp-set (loop for element = (next-element) then (next-element)
+			  while element
+			  collect element)))
+      (make-set temp-set :test equal))))
+
 (defgeneric ensure-lazy-set (set)
   (:documentation "Ensures SET to be a lazy set"))
 

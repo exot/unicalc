@@ -1,6 +1,6 @@
 (in-package :technicals)
 
-(deftype algebraic-set () "Type to hold sets" 'list)
+(deftype standard-set () "Type to hold sets" `list)
 
 (defun make-set (set &key (test #'set-equal))
   "Makes set out of SET, i.e. removes all duplicates from set which are SET-EQUAL."
@@ -19,14 +19,6 @@ with no two elements being EQUAL"))
 
 (defmethod ensure-standard-set ((set list) &key (equal #'equal))
   (make-set set :test equal))
-
-(defmethod ensure-standard-set ((set lazy-set) &key (equal #'equal))
-  (flet ((next-element ()
-	   (funcall (next set))))
-    (let ((temp-set (loop for element = (next-element) then (next-element)
-			  while element
-			  collect element)))
-      (make-set temp-set :test equal))))
 
 ;;; next functions
 
@@ -125,4 +117,4 @@ with no two elements being EQUAL"))
                     (mapc #'(lambda (x) (push (cons element x) subsets))
                           shorter-subsets)))
          (make-set subsets :test
-		   #'(lambda (x y) (set-equal x y :test equal-pred)))))
+		   #'(lambda (x y) (set-equal x y :test equal-pred)))))))

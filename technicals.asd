@@ -4,6 +4,6 @@
 (defsystem technicals
   :components ((:file "technicals-package")
                (:file "technicals")
-	       (:file "sets.lisp")
+	       (:file "sets")
                (:file "math-like-notation"))
   :serial t)

@@ -6,8 +6,13 @@
   ((next  :accessor next  :initarg :next)
    (reset :accessor reset :initarg :reset :initform #'(lambda () nil))))
 
-(defun define-lazy-set (next-function)
-  (make-instance 'lazy-set :next next-function))
+(defun define-lazy-set (next-function &optional (end-symbol nil))
+  (flet ((next-element ()
+	   (let ((next (funcall next-function)))
+	     (cond
+	       ((eq end-symbol next) (values nil nil))
+	       (t (values next t))))))
+    (make-instance 'lazy-set :next #'next-element)))
 
 (defgeneric ensure-standard-set (set &key equal)
   (:documentation "Ensures SET to be a standard set, i.e. a tuple
@@ -118,7 +123,7 @@ with no two elements being EQUAL"))
 		 until (null tuple)
 		 collect tuple))))))
 
-(defun subsets (given-set)
+(defun subsets (given-set &key (equal-pred #'equal))
   (let ((set (ensure-standard-set given-set)))
     (labels ((all-subsets (set)
 	       (cond
@@ -131,31 +136,43 @@ with no two elements being EQUAL"))
 				  (push x subsets))
 			      shorter-subsets))
 		      subsets)))))
-      (make-set (all-subsets set) :test #'set-equal))))
+      (make-set (all-subsets set) :test
+		#'(lambda (x y)
+		    (set-equal x y :test equal-pred))))))
 
-(defmacro next-function (set)
-  `(typecase ,set
-     (lazy-set (next ,set))
-     (list     #'(lambda ()
-		   (let ((result (first ,set)))
-		     (setf ,set (rest ,set))
-		     result)))))
+(defparameter *end-of-set* (gensym "END-OF-SET"))
+
+(defun next-function (set)
+  (typecase set
+    (lazy-set (next set))
+    (list     (next (define-lazy-set
+			#'(lambda ()
+			    (cond
+			      ((emptyp set) *end-of-set*)
+			      (t (let ((result (first set)))
+				   (setf set (rest set))
+				   result))))
+			*end-of-set*)))))
 
 (defmacro check-for-all (default-result test test-result-if-success (variable set) &body body)
   "Returns non-NIL if BODY holds for all VARIABLE in SET."
   (let ((myset (gensym "MYSET"))
         (next-function (gensym "NEXT-FUNCTION"))
-        (helper (gensym "HELPER")))
+        (helper (gensym "HELPER"))
+	(element (gensym "ELEMENT"))
+	(valid (gensym "VALID")))
     `(let* ((,myset ,set)
             (,next-function (technicals::next-function ,myset)))
-      (labels ((,helper (argument)
+      (labels ((,helper (argument end-of-set)
                  (cond
-                   ((null argument) ,default-result)
+                   ((not end-of-set) ,default-result)
                    ((funcall ,test (destructuring-bind (,variable) (list argument)
                                      ,@body))
                     ,test-result-if-success)
-                   (t (,helper (funcall ,next-function))))))
-        (,helper (funcall ,next-function))))))
+                   (t (multiple-value-bind (,element ,valid) (funcall ,next-function)
+			  (,helper ,element ,valid))))))
+	(multiple-value-bind (element valid) (funcall ,next-function)
+	  (,helper element valid))))))
 
 (defmacro forall ((variable set) &body body)
   `(check-for-all t #'not nil (,variable ,set) ,@body))

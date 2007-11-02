@@ -1,6 +1,6 @@
-(in-package :UACalc-interface)
+(in-package :uacalc-interface)
 
-(define-simple-condition UACalc-interface-error)
+(define-simple-condition uacalc-interface-error)
 
 (defun create-renaming-function (from-set to-set &key (equal #'equal))
   (cond

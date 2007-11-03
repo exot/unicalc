@@ -4,5 +4,7 @@
 (defsystem fundamental-functions
   :depends-on ("technicals")
   :components ((:file "fundamental-functions-package")
-               (:file "fundamental-functions"
-                :depends-on ("fundamental-functions-package"))))
+               (:file "relations")
+	       (:file "functions")
+	       (:file "basic-functions")
+	       (:file "tables")))

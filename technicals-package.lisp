@@ -16,7 +16,6 @@
    :standard-set
    :make-set
    :next-argument
-   :next-assignment
    :card
    :emptyp
    :set-equal
@@ -30,6 +29,4 @@
    :define-lazy-set
    :forall
    :exists
-   :=>
-   :forall-in-table
-   :exists-in-table))
+   :=>))

@@ -5,5 +5,6 @@
   :components ((:file "technicals-package")
                (:file "technicals")
 	       (:file "sets")
-               (:file "math-like-notation"))
+               (:file "math-like-notation")
+               (:file "test-cases"))
   :serial t)

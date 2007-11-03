@@ -1,5 +1,8 @@
 (in-package :technicals)
 
+(defun true-value-p (x)
+  (not (not x)))
+
 (defun numbers (n number)
   "Returns list of N symbols of NUMBER."
   (cond 

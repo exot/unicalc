@@ -1,0 +1,3 @@
+Just run
+ (asdf:oos 'asdf:load-op 'test-universal-algebra)
+with your Lisp session started in the file where the source files are located.

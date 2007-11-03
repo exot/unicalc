@@ -2,6 +2,8 @@
 
 (define-simple-condition uacalc-interface-error)
 
+;;; uacalc-write-algebra-to-file
+
 (defun create-renaming-function (from-set to-set &key (equal #'equal))
   (cond
     ((not (= (card from-set)
@@ -47,6 +49,8 @@
   (let ((numerized-algebra (numerize-algebra algebra)))
     (with-open-file (file file-name :direction :output)
       (write-numerized-algebra-to-file numerized-algebra file))))
+
+;;; uacalc-read-algebra-from-file
 
 ;; this is a copy of next-argument to ensure correctness
 (defun next-uacalc-tuple (base-set tuple)
@@ -129,3 +133,5 @@
 	   (operations (read-all-operations-from-file file base-set))
 	   (signature (calculate-signature-from-operations operations)))
       (make-algebra base-set signature operations :equal-pred #'equal))))
+
+;;;

@@ -2,6 +2,7 @@
   (:use :cl)
   (:export
 ;; technicals.lisp
+   :true-value-p
    :numbers
    :symbols
    :pair
@@ -29,4 +30,13 @@
    :define-lazy-set
    :forall
    :exists
-   :=>))
+   :=>
+;; test-cases
+   :test-case-error
+   :test-failed
+   :define-test-case
+   :define-test-case-without-errors
+   :define-test-case-with-errors
+   :set-error-handling
+   :run-test
+   :run-tests))

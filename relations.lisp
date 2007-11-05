@@ -3,9 +3,9 @@
 ;; relations
 
 (defclass relation ()
-  ((source :accessor source-of-relation :initarg :source)
-   (target :accessor target-of-relation :initarg :target)
-   (graph  :accessor graph-of-relation  :initarg :graph )))
+  ((source :type standard-set :accessor source-of-relation :initarg :source)
+   (target :type standard-set :accessor target-of-relation :initarg :target)
+   (graph  :type standard-set :accessor graph-of-relation  :initarg :graph )))
 
 (defmethod print-object ((obj relation) stream)
   (print-unreadable-object (obj stream :type t)
@@ -13,17 +13,21 @@
 
 (defun relation-p (rel A B)
   "Returns non-NIL if REL is a relation on AxB."
+  (declare (type relation rel)
+	   (type standard-set A B))
   (and (subsetp (source-of-relation rel) A)
        (subsetp (target-of-relation rel) B)
        (valid-graph-p (graph-of-relation rel) A B)))
 
 (defun valid-graph-p (graph A B)
   "Returns non-NIL if GRAPH is subset of AxB."
+  (declare (type standard-set graph A B))
   (and (subsetp (mapcar #'first graph) A :test #'set-equal)
        (subsetp (mapcar #'second graph) B :test #'set-equal)))
 
 (defun make-relation (source target graph)
   "Creates RELATION out of SOURCE, TARGET and GRAPH."
+  (declare (type standard-set source target graph))
   (cond
     ((valid-graph-p graph source target)
      (make-instance 'relation

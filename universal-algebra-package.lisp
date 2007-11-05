@@ -4,19 +4,14 @@
    :fundamental-functions
    :technicals)
  (:export
+;; signatures
   :signature
   :function-symbols-of
   :arities-of
-  :create-signature-from-arity-function
-  :make-rank-alphabet-from-arity-function
-  :define-arity-function
-  :create-signature-from-rank-alphabet
-  :positive-number-p
-  :define-simple-condition
   :malformed-rank-alphabet
-  :set-equal
   :make-signature
   :arity-of-function-symbol
+;; algebras
   :algebra
   :equal-pred-of-algebra
   :base-set-of
@@ -24,10 +19,7 @@
   :interpretations-on
   :make-algebra
   :make-algebra-from-scratch
-  :make-set
-  :make-interpretation
   :malformed-interpretation
-  :define-operation
-  :iterate-over-value-table
+;; basic-algebras
   :apply-operation-in-algebra
   :algebras-of-same-signature-p))

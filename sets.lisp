@@ -4,6 +4,7 @@
 
 (defun make-set (set &key (test #'set-equal))
   "Makes set out of SET, i.e. removes all duplicates from set which are SET-EQUAL."
+  (declare (type (or null list) set))
   (remove-duplicates set :test test))
 
 (defun read-set (stream char)
@@ -20,10 +21,17 @@ with no two elements being EQUAL"))
 (defmethod ensure-standard-set ((set list) &key (equal #'equal))
   (make-set set :test equal))
 
+(defun standard-set-p (set)
+  "Predicate to test on STANDARD-SETs"
+  (declare (inline standard-set-p))
+  (listp set))
+
 ;;; next functions
 
 (defun next-argument (base-set argument)
   "Returns next ARGUMENT in BASE-SET of length (LENGTH ARGUMENT)"
+  (declare (type standard-set base-set)
+	   (type (or list null) argument))
   (cond
     ((null argument) nil)
     (t (let ((rest (rest (member (first argument) base-set)))); all elements after current
@@ -38,10 +46,12 @@ with no two elements being EQUAL"))
 
 (defun card (set)
   "Returns cardinality of set."
+  (declare (type standard-set set))
   (length set))
 
 (defun emptyp (set)
   "Returns T if set is empty"
+  (declare (type standard-set set))
   (zerop (card set)))
 
 ;;; equal predicates
@@ -68,6 +78,8 @@ with no two elements being EQUAL"))
        (every equal-pred x y)))
 
 (defun tuples (given-set power)
+  (declare (type standard-set given-set)
+	   (type integer power))
   (let ((set (ensure-standard-set given-set)))
     (cond
       ((or (zerop power)
@@ -81,6 +93,7 @@ with no two elements being EQUAL"))
 		 collect tuple))))))
 
 (defun subsets (given-set &key (equal-pred #'equal))
+  (declare (type standard-set given-set))
   (let ((set (ensure-standard-set given-set)))
     (labels ((all-subsets (set)
 	       (cond
@@ -99,6 +112,7 @@ with no two elements being EQUAL"))
 
 (defun n-elemental-subsets (set n &key (equal-pred #'equal))
   "Returns set of all N elemental subsets of SET."
+  (declare (type standard-set set))
   (cond
     ((= n 0) (list ()))
     ((null set) nil)

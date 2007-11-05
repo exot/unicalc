@@ -68,6 +68,8 @@ and implementing functions."
 
 (defun apply-function-to-table (function table)
   "Applies FUNCTION to TABLE being a pair of function symbols and implementing functions."
+  (declare (type algebraic-function function)
+	   (type table table))
   (let ((new-graph ()))
     (iterate-over-function-graph (implementing-function-of table) element
       (push (list (apply-function-to-tuple function (all-operands element))
@@ -77,7 +79,8 @@ and implementing functions."
                               (arity-of-function (implementing-function-of table))))
           (new-target (apply-function-to-set function (source function))))
       (list (function-symbol-of table)
-            (make-function new-source new-target (make-set new-graph :test (equal-pred function)))))))
+            (make-function new-source new-target
+			   (make-set new-graph :test (equal-pred function)))))))
 
 (defun all-isomorphisms (algebra1 algebra2)
   "Returns lazy set of all isomorphisms between ALGEBRA1 and ALGEBRA2."

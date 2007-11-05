@@ -13,6 +13,7 @@
   :function-error
   :malformed-function-definition
   :algebraic-function
+  :equal-pred
   :algebraic-function-p
   :make-function
   :function-graph-p
@@ -35,13 +36,17 @@
   :restrict-function-on-source-and-target
   :restrict-function-on-target
   :restrict-function-on-source
+  :all-assignments
   :all-functions
   :all-functions-with-predicate
   :all-bijective-functions
 ;; tables
+  :table
   :function-symbol-of
   :implementing-function-of
   :get-arity-of-table
   :arity-of-function
   :forall-in-table
-  :exists-in-table))
+  :exists-in-table
+  :define-operation
+  :normalize-table-representation))

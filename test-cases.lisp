@@ -31,22 +31,21 @@
 	,@body
 	t)))
 
-(defparameter *error-handling* nil)
+(let ((*error-handling* nil))
+  (defun set-error-handling (value)
+    (cond
+      ((equal value nil) (setf *error-handling* nil))
+      ((equal value 'error) (setf *error-handling* 'error))
+      (t (error 'test-case-error :text
+		(format nil "~&~A is not a valid error handling specifier.~%"
+			value))))
+    t)
 
-(defun set-error-handling (value)
-  (cond
-    ((equal value nil) (setf *error-handling* nil))
-    ((equal value 'error) (setf *error-handling* 'error))
-    (t (error 'test-case-error :text
-	      (format nil "~&~A is not a valid error handling specifier.~%"
-		      value))))
-  t)
-
-(defun raise-error (text)
-  (cond
-    ((equal *error-handling* 'error)
-     (error 'technicals::test-failed :text text))
-    ((not *error-handling*) (format t text))))
+  (defun raise-error (text)
+    (cond
+      ((equal *error-handling* 'error)
+       (error 'technicals::test-failed :text text))
+      ((not *error-handling*) (format t text)))))
 
 (defun run-test (name)
   (funcall name))

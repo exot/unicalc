@@ -9,6 +9,7 @@
    :all-zero-except-n
    :positive-number-p
    :non-negative-number-p
+   :with-gensyms
    :define-simple-condition
    :number-list
    :operation-symbol

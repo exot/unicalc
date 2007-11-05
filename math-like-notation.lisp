@@ -7,6 +7,8 @@
    (reset :accessor reset :initarg :reset :initform #'(lambda () nil))))
 
 (defun define-lazy-set (next-function &optional (end-symbol nil))
+  "Returns a LAZY-SET with next-function being NEXT-FUNCTION"
+  (declare (type function next-function))
   (flet ((next-element ()
 	   (let ((next (funcall next-function)))
 	     (cond
@@ -74,7 +76,7 @@
   "Unique symbol to signal the end of a set")
 
 (defun next-function (set)
-  (typecase set
+  (etypecase set
     (lazy-set (next set))
     (list     (next (define-lazy-set
 			#'(lambda ()

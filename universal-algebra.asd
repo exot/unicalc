@@ -5,4 +5,7 @@
   :depends-on ("technicals"
                "fundamental-functions")
   :components ((:file "universal-algebra-package")
-               (:file "universal-algebra" :depends-on ("universal-algebra-package"))))
+	       (:file "signatures")
+	       (:file "algebras")
+	       (:file "basic-algebras"))
+  :serial t)

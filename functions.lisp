@@ -23,6 +23,7 @@
   (:documentation "Returns ALGEBRAIC-FUNCTION object describing GRAPH-OR-FUNCTION."))
 
 (defmethod make-function (source target (graph list) &key (equal-pred #'equal))
+  (declare (type standard-set source target))
   (cond
     ((function-graph-p graph source target)
      (make-instance 'algebraic-function
@@ -31,13 +32,15 @@
                     :graph graph
                     :equal-pred equal-pred))
     (t (error 'malformed-function-definition
-              :text (format nil "Given graph ~a is not a function graph." graph)))))
+              :text (format nil "Given graph ~a is not a function graph with ~@
+                                 source ~A and target ~A." graph source target)))))
 
 (defmethod source ((func-or-rel algebraic-function))
   (mapcar #'first (graph func-or-rel)))
 
 (defun function-graph-p (graph A B)
   "Returns non-NIL if GRAPH describes a function from A to B."
+  (declare (type standard-set graph A B))
   (and (valid-graph-p graph A B)
        (let ((graph-arguments (mapcar #'first (remove-duplicates graph :test #'equal))))
          (and (= (length graph-arguments)
@@ -45,11 +48,15 @@
               (set-equal A graph-arguments)))))
 
 (defmethod make-function (source target (function function) &key (equal-pred #'equal))
+  (declare (type standard-set source target))
   (make-function source target (function-to-graph source function) :equal-pred equal-pred))
 
 (defun function-to-graph (source function)
   "Converts FUNCTION on SOURCE to a function graph."
+  (declare (type standard-set source)
+	   (type function function))
   (mapcar #'(lambda (x) (list x (funcall function x))) source))
 
 (defmethod make-function (source target (relation relation) &key (equal-pred #'equal))
+  (declare (type standard-set source target))
   (make-function source target (graph-of-relation relation) :equal-pred equal-pred))

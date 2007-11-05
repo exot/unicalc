@@ -5,12 +5,14 @@
 
 (defun numbers (n number)
   "Returns list of N symbols of NUMBER."
+  (declare (type integer n))
   (cond 
     ((>= 0 n) ())
     (t (cons number (numbers (1- n) number)))))
 
 (defun symbols (n number)
   "Returns list of N symbols of NUMBER."
+  (declare (type integer n))
   (numbers n number))
 
 (defun pair (x y)
@@ -18,6 +20,7 @@
 
 (defun all-zero-except-n (list n)
   "Returns LIST with zeros except in position n"
+  (declare (type list list) (type integer n))
   (cond
     ((or (null list) (>= n (length list)))
      (numbers (length list) 0))
@@ -35,6 +38,15 @@
   (and (numberp x)
        (not (minusp x))))
 
+(defmacro with-gensyms (symbols &body body)
+  "Expands to BODY with all SYMBOLS replaced with gensyms.
+Based on macro from 'Tutorial on Good Lisp Programming Style'
+by Norvig and Pitman. "
+  (sublis (mapcar #'(lambda (sym)
+		      (cons sym (gensym (string sym))))
+		  symbols)
+	  body))
+
 (defmacro define-simple-condition (name)
   `(progn
     (define-condition ,name ()
@@ -46,6 +58,7 @@
 
 (defun number-list (n)
   "Returns list (0 .. (1- n))"
+  (declare (type integer n))
   (labels ((count-down (n list)
 	     (cond
 	       ((zerop (1+ n)) list)
@@ -55,12 +68,15 @@
 
 (defun operation-symbol (symbol number)
   "Returns symbol concatenated from SYMBOL and NUMBER."
+  (declare (type (or symbol string) symbol)
+	   (type integer number))
   (intern (concatenate 'string
 		       (princ-to-string symbol)
 		       (princ-to-string number))))
 
 (defun symbol-list (n &optional (name "V"))
   "Returns list of N symbols named V0 ... VN unless otherwise specified"
+  (declare (type integer n) (type string name))
   (labels ((recursive-symbol-list (n list)
 	     (cond
 	       ((< n 0) list)

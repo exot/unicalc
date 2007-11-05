@@ -7,4 +7,5 @@
                (:file "relations")
 	       (:file "functions")
 	       (:file "basic-functions")
-	       (:file "tables")))
+	       (:file "tables"))
+  :serial t)

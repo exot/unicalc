@@ -55,7 +55,7 @@
                (evaluate-term-in-algebra algebra (second equation) assignment)))))
 
 ; models-p (synonym for equation-holds-in-algebra-p)
-(declare (inline models-p))
+(declaim (inline models-p))
 (defun models-p (algebra variables equation)
   "Synonym for EQUATION-HOLDS-IN-ALGEBRA-P."
   (equation-holds-in-algebra-p algebra variables equation))

@@ -101,7 +101,8 @@ on this subterm. Otherwise NIL is returned."
   (cond
      ((variablep term-algebra term) (or (second (assoc term matching)) term))
      (t (cons (first term) (mapcar #'(lambda (term)
-                                        (apply-matching term-algebra matching term)) (rest term))))))
+                                        (apply-matching term-algebra matching term))
+                                   (rest term))))))
 
 ;;; cosmetics - printing terms in human readable forms
 

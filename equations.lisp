@@ -20,12 +20,13 @@
 (defun evaluate-term-in-algebra (algebra term association)
   "Evaluates TERM in ALGEBRA with given ASSOCIATION."
   (let* ((evaluator (ensure-association association))
-         (term-algebra (make-term-algebra (source evaluator) (signature-of algebra))))
+         (term-algebra (make-term-algebra (source evaluator)
+                                          (signature-of algebra))))
     (cond
       ((not (termp term-algebra term))
-       (error 'equations-error
-              :text (format nil "~a is not a term with variables ~a and signature ~a"
-                            term (source evaluator) (signature-of algebra))))
+       (error 'equations-error :text
+              (format nil "~a is not a term with variables ~a and signature ~a"
+                      term (source evaluator) (signature-of algebra))))
       (t (%evaluate-term-in-algebra term-algebra algebra term evaluator)))))
 
 (defun %evaluate-term-in-algebra (term-algebra algebra term association)
@@ -54,6 +55,7 @@
                (evaluate-term-in-algebra algebra (second equation) assignment)))))
 
 ; models-p (synonym for equation-holds-in-algebra-p)
+(declare (inline models-p))
 (defun models-p (algebra variables equation)
   "Synonym for EQUATION-HOLDS-IN-ALGEBRA-P."
   (equation-holds-in-algebra-p algebra variables equation))
@@ -71,7 +73,8 @@
     (when left-match
       (let ((right-match (match term-algebra (second eqn1) (second eqn2))))
         (when (and right-match
-                   (subsetp left-match right-match :test #'equal)  ;; #'equal because we are working with symbols
+                   ;; #'equal because we are working with symbols
+                   (subsetp left-match right-match :test #'equal)
                    (subsetp right-match left-match :test #'equal))
           t)))))
 

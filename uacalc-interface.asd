@@ -8,6 +8,6 @@
                "subalgebras"
                "functions-and-relations")
   :components ((:file "uacalc-interface-package")
-	       (:file "uacalc-technicals")
+	       (:file "uacalc-interface-io")
 	       (:file "uacalc-interface"))
   :serial t)

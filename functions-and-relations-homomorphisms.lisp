@@ -1,7 +1,10 @@
 (in-package :functions-and-relations)
 
 (defun homomorphism-p (function algebra1 algebra2)
-  "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and ALGEBRA2."
+  (declare (type algebraic-function function)
+           (type algebra algebra1 algebra2))
+  "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and
+  ALGEBRA2."
   (and (algebras-of-same-signature-p algebra1 algebra2)
        (set-equal (source function) (base-set-of algebra1))
        (subsetp (target function) (base-set-of algebra2) :test #'equal)
@@ -18,17 +21,22 @@
 			   algebra2)))))))
 
 (defun isomorphism-p (function algebra1 algebra2)
+  (declare (type algebraic-function function)
+           (type algebra algebra1 algebra2))
   "Returns non-NIL if FUNCTION is a isomorphism between ALGEBRA1 and ALGEBRA2."
   (and (bijective-p function)
        (homomorphism-p function algebra1 algebra2)))
 
 (defun quasi-homomorphism-p (function algebra)
+  (declare (type algebraic-function function)
+           (type algebra algebra))
   "Returns non-NIL if FUNCTION is a quasi-homomorphism on ALGEBRA.
 
-That is: f is named quasi-homomorph on algebra A iff for all operations op on 
+That is: f is named quasi-homomorph on algebra A iff for all operations op on
   A, (a_1,...,a_2), (b_1,...,b_n) in A^n holds
 
-   (f(a_1),...,f(a_n)) = (f(b_1),...,f(b_n)) => f(op(a_1,...,a_n)) = f(op(b_1,...,b_n))"
+   (f(a_1),...,f(a_n)) = (f(b_1),...,f(b_n)) =>
+     f(op(a_1,...,a_n)) = f(op(b_1,...,b_n))"
   (and (set-equal (source function) (base-set-of algebra))
        (let ((signature (signature-of algebra))
 	     (base-set  (base-set-of algebra)))
@@ -46,14 +54,19 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 			     (apply-operation-in-algebra op y algebra)))))))))))
 
 (defun apply-quasihomomorphism-to-algebra (function algebra)
-  "Applies the quasihomomorphism FUNCTION to ALGEBRA yielding the image algebra."
+  (declare (type algebraic-function function)
+           (type algebra algebra))
+  "Applies the quasihomomorphism FUNCTION to ALGEBRA yielding the image
+  algebra."
   (cond
      ((not (quasi-homomorphism-p function algebra))
       (error 'no-quasihomomorphism
-             :text (format nil "~A is not a quasihomomorphis on ~A" function algebra)))
-     (t (let ((new-base-set (apply-function-to-set function (base-set-of algebra)))
+             :text (format nil "~A is not a quasihomomorphis on ~A"
+                           function algebra)))
+     (t (let ((new-base-set (apply-function-to-set function
+                                                   (base-set-of algebra)))
               (signature (signature-of algebra))
-              (new-interpretations (apply-function-to-interpretations 
+              (new-interpretations (apply-function-to-interpretations
                                     function
                                     (interpretations-on algebra))))
           (make-algebra new-base-set signature new-interpretations)))))
@@ -61,35 +74,46 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 (define-simple-condition no-quasihomomorphism)
 
 (defun apply-function-to-interpretations (function interpretations)
+  (declare (type algebraic-function function)
+           (type standard-set interpretations))
   "Applies FUNCTION to INTERPRETATIONS consisting of pairs of function symbols
-and implementing functions."
+   and implementing functions."
   (mapcar #'(lambda (table) (apply-function-to-table function table))
           interpretations))
 
 (defun apply-function-to-table (function table)
-  "Applies FUNCTION to TABLE being a pair of function symbols and implementing functions."
+  "Applies FUNCTION to TABLE being a pair of function symbols and implementing
+   functions."
   (declare (type algebraic-function function)
 	   (type table table))
   (let ((new-graph ()))
     (iterate-over-function-graph (implementing-function-of table) element
       (push (list (apply-function-to-tuple function (all-operands element))
-                  (apply-function-to-element function (value-of-element element)))
+                  (apply-function-to-element function
+                                             (value-of-element element)))
             new-graph))
-    (let ((new-source (tuples (apply-function-to-set function (source function))
-                              (arity-of-function (implementing-function-of table))))
+    (let ((new-source (tuples (apply-function-to-set function
+                                                     (source function))
+                              (arity-of-function
+                                (implementing-function-of table))))
           (new-target (apply-function-to-set function (source function))))
       (list (function-symbol-of table)
             (make-function new-source new-target
-			   (make-set new-graph :test (equal-pred function)))))))
+			   (make-set new-graph
+                                     :test (equal-pred function)))))))
 
 (defun all-isomorphisms (algebra1 algebra2)
+  (declare (type algebra algebra1 algebra2))
   "Returns lazy set of all isomorphisms between ALGEBRA1 and ALGEBRA2."
   (all-functions-with-predicate (base-set-of algebra1)
 				(base-set-of algebra2)
-				#'(lambda (x) (isomorphism-p x algebra1 algebra2))))
+				#'(lambda (x)
+                                    (isomorphism-p x algebra1 algebra2))))
 
 (defun isomorphic-p (algebra1 algebra2)
-  "Returns isomorphmis between ALGEBRA1 and ALGEBRA2 if existent, NIL otherwise."
+  (declare (type algebra algebra1 algebra2))
+  "Returns isomorphmis between ALGEBRA1 and ALGEBRA2 if existent,
+   NIL otherwise."
   (when (and (= (card (base-set-of algebra1))
 		(card (base-set-of algebra2)))
 	     (algebras-of-same-signature-p algebra1 algebra2))

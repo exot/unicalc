@@ -5,4 +5,5 @@
   :depends-on ("technicals"
                "terms")
   :components ((:file "equations-package")
-               (:file "equations" :depends-on ("equations-package"))))
+               (:file "equations-equations"))
+  :serial t)

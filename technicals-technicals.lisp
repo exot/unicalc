@@ -6,7 +6,7 @@
 (defun numbers (n number)
   "Returns list of N symbols of NUMBER."
   (declare (type integer n))
-  (cond 
+  (cond
     ((>= 0 n) ())
     (t (cons number (numbers (1- n) number)))))
 

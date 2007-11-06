@@ -4,8 +4,8 @@
 (defsystem fundamental-functions
   :depends-on ("technicals")
   :components ((:file "fundamental-functions-package")
-               (:file "relations")
-	       (:file "functions")
-	       (:file "basic-functions")
-	       (:file "tables"))
+               (:file "fundamental-functions-relations")
+	       (:file "fundamental-functions-functions")
+	       (:file "fundamental-functions-basic-functions")
+	       (:file "fundamental-functions-tables"))
   :serial t)

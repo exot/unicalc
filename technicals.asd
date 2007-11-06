@@ -3,8 +3,8 @@
 
 (defsystem technicals
   :components ((:file "technicals-package")
-               (:file "technicals")
-	       (:file "sets")
-               (:file "math-like-notation")
-               (:file "test-cases"))
+               (:file "technicals-technicals")
+	       (:file "technicals-sets")
+               (:file "technicals-math-like-notation")
+               (:file "technicals-test-cases"))
   :serial t)

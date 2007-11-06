@@ -183,3 +183,35 @@
 ;;; .vlf files
 
 (define-uacalc-file-accessor vector-list-file-name ".vlf")
+
+(defun write-vector-to-file (file vector)
+  (declare (type stream file)
+	   (type vector vector))
+  (format file "~&")
+  (format file "~A" (elt vector 0))
+  (loop for entry across (subseq vector 1)
+	do (format file ",~A" entry))
+  (format file "~%"))
+
+(defgeneric uacalc-write-vector-list-to-file (file-name-or-project vector-list)
+  (declare (type list vector-list)
+	   (type (or string uacalc-project) file-name-or-project))
+  (:documentation "Writes VECTOR-LIST as a list of equal sized vectors
+ to FILE-NAME-OR-PROJECT according to UACALC format rules"))
+
+(defmethod uacalc-write-vector-list-to-file ((project uacalc-project)
+					     vector-list)
+  (uacalc-write-vector-list-to-file (vector-list-file-name project)
+				    vector-list))
+
+(defmethod uacalc-write-vector-list-to-file ((file-name string) vector-list)
+  (with-open-file (stream file-name :direction :output
+			  :if-exists :supersede)
+    (write-vector-to-file stream
+			  (vector (length vector-list)
+			          (length (first vector-list))))
+    (format stream "~%")
+    (loop for vector in vector-list
+	  do (write-vector-to-file stream vector))))
+
+;;;

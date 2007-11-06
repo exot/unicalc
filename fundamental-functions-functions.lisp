@@ -20,7 +20,8 @@
   nil)
 
 (defgeneric make-function (source target graph-or-function &key equal-pred)
-  (:documentation "Returns ALGEBRAIC-FUNCTION object describing GRAPH-OR-FUNCTION."))
+  (:documentation "Returns ALGEBRAIC-FUNCTION object describing
+GRAPH-OR-FUNCTION."))
 
 (defmethod make-function (source target (graph list) &key (equal-pred #'equal))
   (declare (type standard-set source target))
@@ -33,7 +34,8 @@
                     :equal-pred equal-pred))
     (t (error 'malformed-function-definition
               :text (format nil "Given graph ~a is not a function graph with ~@
-                                 source ~A and target ~A." graph source target)))))
+                                 source ~A and target ~A."
+                            graph source target)))))
 
 (defmethod source ((func-or-rel algebraic-function))
   (mapcar #'first (graph func-or-rel)))

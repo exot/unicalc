@@ -4,6 +4,8 @@
 
 ;;; uacalc-write-algebra-to-file
 
+(define-simple-condition uacalc-io-error)
+
 (defun create-renaming-function (from-set to-set &key (equal #'equal))
   (cond
     ((not (= (card from-set)
@@ -46,10 +48,13 @@
                                                             algebra)
                                 file))))
 
-(defun uacalc-write-algebra-to-file (algebra file-name)
-  "Writes ALGEBRA in UACalc format to FILE-NAME"
+(defgeneric uacalc-write-algebra-to-file (algebra file-name-or-project)
+  (declare (type algebra algebra))
+  (:documentation "Writes ALGEBRA in UACalc format to FILE-NAME-OR-PROJECT."))
+
+(defmethod uacalc-write-algebra-to-file (algebra (file-name string))
   (let ((numerized-algebra (numerize-algebra algebra)))
-    (with-open-file (file file-name :direction :output)
+    (with-open-file (file file-name :direction :output :if-exists :error)
       (write-numerized-algebra-to-file numerized-algebra file))))
 
 ;;; uacalc-read-algebra-from-file
@@ -58,8 +63,8 @@
 (defun next-uacalc-tuple (base-set tuple)
   (cond
     ((null tuple) nil)
-    (t (let ((rest (rest (member (first tuple) base-set)))); all elements after
-                                                           ; current
+    (t (let ((rest (rest (member (first tuple) base-set)))); all elements
+                                                           ; after current
 	 (cond
 	   ((null rest) ; increment next position
 	    (let ((next (next-argument base-set (rest tuple))))
@@ -111,7 +116,8 @@
 	      ((and (null value)
 		    (not (null graph)))
 	       (error 'UACalc-interface-error :text
-		      (format nil "~A is invalid: malformed function definition"
+		      (format nil
+                              "~A is invalid: malformed function definition"
                               file)))
 	      ((null value) nil)
 	      (t (push (list argument value) graph))))
@@ -135,12 +141,45 @@
                                                    table))))))
     (make-signature (mapcar #'first rank-alphabet) rank-alphabet)))
 
-(defun uacalc-read-algebra-from-file (file-name)
-  "Reads algebra from file-name begin a UACalc algebra file."
-  (with-open-file (file file-name)
+(defgeneric uacalc-read-algebra-from-file (file-name-or-project)
+  (:documentation "Reads algebra from file-name begin a UACalc algebra file."))
+
+(defmethod uacalc-read-algebra-from-file ((file-name string))
+  (with-open-file (file file-name :direction :input :if-does-not-exist :error)
     (let* ((base-set (read-base-set-from-file file))
 	   (operations (read-all-operations-from-file file base-set))
 	   (signature (calculate-signature-from-operations operations)))
       (make-algebra base-set signature operations :equal-pred #'equal))))
 
 ;;;
+
+(define-simple-condition uacalc-project-error)
+
+(defclass uacalc-project ()
+  ((pure-file-name :type string :accessor pure-file-name :initarg :file-name)))
+
+(defmacro define-uacalc-file-accessor (name extension)
+  "Defines acessor function NAME for a UACALC-PROJECT with EXTENSION"
+  `(progn
+     (defun ,name (project)
+;       ,@(concatenate 'string
+;                      "PURE-FILE-NAME of PROJECT appended with "
+;                      (string extension))
+       (declare (type uacalc-project project))
+       (the string (concatenate 'string
+                                (pure-file-name project)
+                                (string ,extension))))))
+
+;;; .alg files
+
+(define-uacalc-file-accessor file-name ".alg")
+
+(defmethod uacalc-write-algebra-to-file (algebra (project uacalc-project))
+  (uacalc-write-algebra-to-file algebra (file-name project)))
+
+(defmethod uacalc-read-algebra-from-file ((project uacalc-project))
+  (uacalc-read-algebra-from-file (file-name project)))
+
+;;; .vlf files
+
+(define-uacalc-file-accessor vector-list-file-name ".vlf")

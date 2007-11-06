@@ -81,11 +81,15 @@
     (labels ((kernel-element (pair pairs)
                (cond
                  ((null pair) pairs)
-                 (t (if (set-equal (apply-function-to-element function (first pair)) ;;; !!!
-                                   (apply-function-to-element function (second pair)))
-                      (kernel-element (next-argument base-set pair) (cons pair pairs))
+                 (t (if (set-equal (apply-function-to-element function
+                                                              (first pair));!!!
+                                   (apply-function-to-element function
+                                                              (second pair)))
+                      (kernel-element (next-argument base-set pair)
+                                      (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
-      (make-relation base-set base-set (kernel-element (symbols 2 (first base-set)) ())))))
+      (make-relation base-set base-set
+                     (kernel-element (symbols 2 (first base-set)) ())))))
 
 (defun inverse-image (function set &key (equal-pred #'equal))
   "Returns the inverse image of SET under FUNCTION."

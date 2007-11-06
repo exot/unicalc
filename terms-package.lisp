@@ -1,6 +1,7 @@
 (defpackage :terms
  (:use
    :cl
+   :technicals
    :fundamental-functions
    :universal-algebra)
  (:export

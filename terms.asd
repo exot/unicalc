@@ -2,7 +2,9 @@
 (in-package :terms-system)
 
 (defsystem terms
-  :depends-on ("fundamental-functions"
+  :depends-on ("technicals"
+               "fundamental-functions"
                "universal-algebra")
   :components ((:file "terms-package")
-               (:file "terms" :depends-on ("terms-package"))))
+               (:file "terms"))
+  :serial t)

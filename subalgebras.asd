@@ -8,4 +8,5 @@
                "universal-algebra"
 	       "functions-and-relations")
   :components ((:file "subalgebras-package")
-               (:file "subalgebras" :depends-on ("subalgebras-package"))))
+               (:file "subalgebras-subalgebras"))
+  :serial t)

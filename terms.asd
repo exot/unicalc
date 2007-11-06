@@ -6,5 +6,5 @@
                "fundamental-functions"
                "universal-algebra")
   :components ((:file "terms-package")
-               (:file "terms"))
+               (:file "terms-terms"))
   :serial t)

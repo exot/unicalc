@@ -11,7 +11,9 @@
     `(defun ,name ,arguments
       (let ((,real-result (handler-case
 			      ,@body
-			    (simple-condition (v) (print v) nil))))
+			    (simple-condition (v)
+                              (format t "~A" v)
+                              nil))))
 	(cond
 	  ((not (equal ,real-result ,result))
 	   (print ,real-result)

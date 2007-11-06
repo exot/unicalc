@@ -13,6 +13,7 @@
   :variablep
   :function-symbol-p
   :arity-of-function-symbol
+  :term
   :termp
   :composed-term-p
   :operation-symbol-of

@@ -77,15 +77,15 @@
     ((variablep term-algebra term1) (list (list term1 term2)))
     (t (cond
          ((or (variablep term-algebra term2)
-              (not (equal (first term1) 
-                          (first term2)))) 
+              (not (equal (first term1)
+                          (first term2))))
            nil)
          (t (reduce #'(lambda (x y)
                         (if (or (not x) (not y)) ; if first-match returns nil
                             nil                  ; then no matching is possible
                             (nunion x y :test #'equal)))
-                    (mapcar #'(lambda (t1 t2) 
-                                (first-match term-algebra t1 t2)) 
+                    (mapcar #'(lambda (t1 t2)
+                                (first-match term-algebra t1 t2))
                             (rest term1) (rest term2))))))))
 
 (defun valid-match-p (match)
@@ -120,7 +120,7 @@
        ((variablep term-algebra term2) nil) ; no subterms left
        (t (dolist (subterm (rest term2)) ; check whether one subterms may match
              (find-matching-subterm term-algebra term1 subterm)))))
-  
+
   (defun matches-subterm (term-algebra term1 term2)
     "Returns subterm of TERM2 and matching, if TERM1 can be matched
      on this subterm. Otherwise NIL is returned."
@@ -182,7 +182,7 @@
                (case (length list)
                  (1 (pprint-term term-algebra (first list))
                     (values))
-                 (otherwise 
+                 (otherwise
                    (pprint-term term-algebra (first list))
                    (format t "= ")
                    (recursive-pprint (rest list))))))

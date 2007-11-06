@@ -9,8 +9,10 @@
                  :variables variables
                  :signature signature))
 
-(defun make-term-algebra-from-scratch (variables function-symbols rank-alphabet)
-  (make-term-algebra variables (make-signature function-symbols rank-alphabet)))
+(defun make-term-algebra-from-scratch (variables function-symbols
+                                       rank-alphabet)
+  (make-term-algebra variables (make-signature function-symbols
+                                               rank-alphabet)))
 
 (defun variablep (term-algebra x)
   "Returns non-NIL if X designates a variable in TERM-ALGEBRA."
@@ -31,7 +33,8 @@
    (or (variablep term-algebra x)
        (and (listp x)
             (function-symbol-p term-algebra (first x))
-            (equal (length (rest x)) (arity-of-function-symbol term-algebra (first x)))
+            (equal (length (rest x)) (arity-of-function-symbol term-algebra
+                                                               (first x)))
             (every #'(lambda (x) (termp term-algebra x)) (rest x)))))
 
 (defun composed-term-p (term-algebra x)
@@ -67,8 +70,8 @@
          (length (remove-duplicates (mapcar #'first match) :test #'equal))))
 
 (defun match (term-algebra term1 term2)
-  "Checks whether TERM1 can be matched on TERM2 in TERM-ALGEBRA returning a matching from TERM1 to TERM2 or NIL
-if not."
+  "Checks whether TERM1 can be matched on TERM2 in TERM-ALGEBRA returning
+  a matching from TERM1 to TERM2 or NIL if not."
   (if (not (and (termp term-algebra term1) 
                 (termp term-algebra term2)))
     nil
@@ -79,7 +82,8 @@ if not."
 
 (let ((matching-subterms ()))
   (defun find-matching-subterm (term-algebra term1 term2) 
-    "returns subterm of TERM2 if TERM1 in TERM-ALGEBRA can be matched on it, NIL otherwise."
+    "returns subterm of TERM2 if TERM1 in TERM-ALGEBRA can be matched on it,
+NIL otherwise."
     (when (match term-algebra term1 term2) 
        (push (list term2 (match term-algebra term1 term2)) matching-subterms))
     (cond
@@ -101,7 +105,8 @@ on this subterm. Otherwise NIL is returned."
   (cond
      ((variablep term-algebra term) (or (second (assoc term matching)) term))
      (t (cons (first term) (mapcar #'(lambda (term)
-                                        (apply-matching term-algebra matching term))
+                                        (apply-matching term-algebra matching
+                                                        term))
                                    (rest term))))))
 
 ;;; cosmetics - printing terms in human readable forms
@@ -112,7 +117,9 @@ on this subterm. Otherwise NIL is returned."
     (cond
       ((variablep term-algebra term1) (format t "~a " term1))
       ;; for our unary symbols ... grrr ...
-      ((= (arity-of-function-symbol term-algebra (operation-symbol-of term-algebra term1)) 1)
+      ((= (arity-of-function-symbol term-algebra
+            (operation-symbol-of term-algebra term1))
+          1)
        (format t "( ")
        (format t "~a " (operation-symbol-of term-algebra term1))
        (mapc #'(lambda (term)
@@ -128,7 +135,8 @@ on this subterm. Otherwise NIL is returned."
          (format t ") ")))))
 
 (defun pprint-term-list (term-algebra list-of-terms)
-  "Prints LIST-OF-TERMS in TERM-ALGEBRA in infix notation with '=' between them."
+  "Prints LIST-OF-TERMS in TERM-ALGEBRA in infix notation with '=' between
+them."
   (when (and (listp list-of-terms)
              (every #'(lambda (term) (termp term-algebra term)) list-of-terms))
     (labels ((recursive-pprint (list)

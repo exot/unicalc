@@ -42,7 +42,9 @@
     (write-number-to-file arity file)
     (loop for arg = (funcall (next all-arguments))
 	  while arg do
-	  (write-number-to-file (apply-operation-in-algebra operation arg algebra) file))))
+	  (write-number-to-file (apply-operation-in-algebra operation arg
+                                                            algebra)
+                                file))))
 
 (defun uacalc-write-algebra-to-file (algebra file-name)
   "Writes ALGEBRA in UACalc format to FILE-NAME"
@@ -56,16 +58,19 @@
 (defun next-uacalc-tuple (base-set tuple)
   (cond
     ((null tuple) nil)
-    (t (let ((rest (rest (member (first tuple) base-set)))); all elements after current
+    (t (let ((rest (rest (member (first tuple) base-set)))); all elements after
+                                                           ; current
 	 (cond
 	   ((null rest) ; increment next position
 	    (let ((next (next-argument base-set (rest tuple))))
 	      (when next
-		(cons (first base-set) next)))) ; and start with first element again
+		(cons (first base-set) next)))) ; and start with first element
+                                                ; again
 	   (t (cons (first rest) (rest tuple))))))))
 
 (defun all-uacalc-arguments (n base-set)
-  "Returns lazy set for all arguments of a N-ary function on BASE-SET in order used by UACalc."
+  "Returns lazy set for all arguments of a N-ary function on BASE-SET in order
+  used by UACalc."
   (let ((set base-set)
 	(start (numbers n 0)))
     (flet ((next-element ()
@@ -81,7 +86,8 @@
   (let ((number (read-next-number-from-file file)))
     (cond
       ((null number) (error 'UACalc-interface-error :text
-			    (format nil "~A is invalid: no base set given" file)))
+			    (format nil "~A is invalid: no base set given"
+                                    file)))
       (t (number-list number)))))
 
 (defun read-operation-from-file (file operation-name base-set)
@@ -105,14 +111,16 @@
 	      ((and (null value)
 		    (not (null graph)))
 	       (error 'UACalc-interface-error :text
-		      (format nil "~A is invalid: malformed function definition" file)))
+		      (format nil "~A is invalid: malformed function definition"
+                              file)))
 	      ((null value) nil)
 	      (t (push (list argument value) graph))))
 	  finally (return graph))))
 
 (defun read-all-operations-from-file (file base-set)
   (loop for i = 0 then (1+ i)
-	for pair = (read-operation-from-file file (operation-symbol "F" i) base-set)
+	for pair = (read-operation-from-file file (operation-symbol "F" i)
+                                             base-set)
 	while pair
 	collect (list (first (first pair))
 		      (make-function (tuples base-set (second pair))
@@ -123,7 +131,8 @@
   (let ((rank-alphabet
 	  (loop for table in operations
 		collect (list (function-symbol-of table)
-			      (arity-of-function (implementing-function-of table))))))
+			      (arity-of-function (implementing-function-of
+                                                   table))))))
     (make-signature (mapcar #'first rank-alphabet) rank-alphabet)))
 
 (defun uacalc-read-algebra-from-file (file-name)

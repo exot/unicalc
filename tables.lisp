@@ -66,7 +66,8 @@ instead of value tables."
 
 (define-simple-condition malformed-table)
 
-(defun normalize-table-representation (base-set tables &key (equal-pred #'equal))
+(defun normalize-table-representation (base-set tables
+                                       &key (equal-pred #'equal))
   "Normalizes TABLEs (aka pairs of function symbols and implementing
 algebraic functions)."
   (declare (type standard-set base-set))
@@ -81,7 +82,7 @@ algebraic functions)."
   (declare (type standard-set base-set)
 	   (type function equal-pred))
   (cond
-    ((= (length interpretation) 1)
+    ((not (listp (first interpretation)))
      (let ((func (first interpretation)))
        (cond
 	 ((interpretation-function-p func)
@@ -93,11 +94,9 @@ algebraic functions)."
 		   (format nil "Non operation function ~A used as ~@
                                operation description"
 			   func))))))
-    ((listp interpretation)
-     (normalize-from-value-table interpretation base-set equal-pred))
-    (t (error 'malformed-table :text
-	      (format nil "~A is not a valid table for an algebra."
-		      interpretation)))))
+    (t
+     (normalize-from-value-table interpretation base-set equal-pred))))
+
 
 (defun normalize-from-interpretation-function (ifunc base-set equal-pred)
   (declare (type function equal-pred)

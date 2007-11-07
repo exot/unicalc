@@ -117,11 +117,12 @@
      t)
     ((<= recursion-depth 0)
      nil)
-    (t (dolist (eqn (all-possible-transformation term-algebra equation
-                                                 set-of-equations))
-         (when (weakly-dependent-p term-algebra eqn set-of-equations
-                                   (1- recursion-depth))
-           (return-from weakly-dependent-p t))))))
+    (t (let ((all-eqns (all-possible-transformation term-algebra equation
+						    set-of-equations)))
+	 (dolist (eqn all-eqns)
+	   (when (weakly-dependent-p term-algebra eqn set-of-equations
+				     (1- recursion-depth))
+	     (return-from weakly-dependent-p t)))))))
 
 (defun all-possible-transformation (term-algebra equation set-of-equations)
   "Returns all possible transformations of EQUATION in TERM-ALGEBRA under use
@@ -140,7 +141,8 @@
                             term-algebra
 			    transformation
                             equation)))
-          finally (return all-transformation))))
+          finally (return (remove-duplicates all-transformation
+					     :test #'equal)))))
 
 ;(declaim (ftype (function (term-algebra list standard-set) t) ...))
 (defun find-all-appliable-equations (term-algebra equation set-of-equations)

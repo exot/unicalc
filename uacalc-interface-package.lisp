@@ -5,7 +5,9 @@
    :fundamental-functions
    :universal-algebra
    :functions-and-relations
-   :subalgebras)
+   :subalgebras
+   :terms
+   :equations)
  (:export
 ;; uacalc-interface-io
    :uacalc-interface-error

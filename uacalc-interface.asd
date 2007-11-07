@@ -6,6 +6,8 @@
                "fundamental-functions"
                "universal-algebra"
                "subalgebras"
+	       "terms"
+	       "equations"
                "functions-and-relations")
   :components ((:file "uacalc-interface-package")
 	       (:file "uacalc-interface-io")

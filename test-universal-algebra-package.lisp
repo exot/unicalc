@@ -7,4 +7,5 @@
    :terms
    :subalgebras
    :equations
-   :functions-and-relations))
+   :functions-and-relations
+   :uacalc-interface))

@@ -2,9 +2,9 @@
 
 (define-simple-condition uacalc-interface-error)
 
-;;; uacalc-write-algebra-to-file
-
 (define-simple-condition uacalc-io-error)
+
+;;; uacalc-write-algebra-to-file
 
 (defun create-renaming-function (from-set to-set &key (equal #'equal))
   (cond
@@ -156,7 +156,8 @@
 (define-simple-condition uacalc-project-error)
 
 (defclass uacalc-project ()
-  ((pure-file-name :type string :accessor pure-file-name :initarg :file-name)))
+  ((pure-file-name :type string :accessor pure-file-name
+                   :initarg :pure-file-name)))
 
 (defmacro define-uacalc-file-accessor (name extension)
   "Defines acessor function NAME for a UACALC-PROJECT with EXTENSION"
@@ -213,5 +214,13 @@
     (format stream "~%")
     (loop for vector in vector-list
 	  do (write-vector-to-file stream vector))))
+
+;;;
+
+(define-uacalc-file-accessor command-file ".par")
+
+;;;
+
+(define-uacalc-file-accessor universe-file ".uni")
 
 ;;;

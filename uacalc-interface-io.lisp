@@ -159,6 +159,9 @@
   ((pure-file-name :type string :accessor pure-file-name
                    :initarg :pure-file-name)))
 
+(defun make-uacalc-project (pathname)
+  (make-instance 'uacalc-project :pure-file-name pathname))
+
 (defmacro define-uacalc-file-accessor (name extension)
   "Defines acessor function NAME for a UACALC-PROJECT with EXTENSION"
   `(progn

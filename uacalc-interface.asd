@@ -10,5 +10,6 @@
   :components ((:file "uacalc-interface-package")
 	       (:file "uacalc-interface-io")
                (:file "uacalc-interface-uab-standard")
+	       (:file "uacalc-interface-free-algebra")
 	       (:file "uacalc-interface"))
   :serial t)

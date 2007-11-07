@@ -69,7 +69,7 @@
   (let ((process (sb-ext:run-program "uab"
                                      (list par-pathname)
 				     :search t
-				     :output t)))
+				     :output *standard-output*)))
     (cond
       ((not (= (sb-ext:process-exit-code process) 0))
        (error 'uacalc-interface-uab-error :text

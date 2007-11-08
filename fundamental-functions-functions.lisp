@@ -26,7 +26,7 @@ GRAPH-OR-FUNCTION."))
 (defmethod make-function (source target (graph list) &key (equal-pred #'equal))
   (declare (type standard-set source target))
   (cond
-    ((function-graph-p graph source target)
+    ((function-graph-p graph source target :equal-pred equal-pred)
      (make-instance 'algebraic-function
                     :source nil
                     :target target
@@ -40,18 +40,22 @@ GRAPH-OR-FUNCTION."))
 (defmethod source ((func-or-rel algebraic-function))
   (mapcar #'first (graph func-or-rel)))
 
-(defun function-graph-p (graph A B)
+(defun function-graph-p (graph A B &key (equal-pred #'equal))
   "Returns non-NIL if GRAPH describes a function from A to B."
   (declare (type standard-set graph A B))
   (and (valid-graph-p graph A B)
-       (let ((graph-arguments (mapcar #'first (remove-duplicates graph :test #'equal))))
+       (let ((graph-arguments (mapcar #'first
+                                      (remove-duplicates graph
+                                                         :test equal-pred))))
          (and (= (length graph-arguments)
-                 (length (remove-duplicates graph-arguments :test #'equal)))
+                 (length (remove-duplicates graph-arguments :test equal-pred)))
               (set-equal A graph-arguments)))))
 
-(defmethod make-function (source target (function function) &key (equal-pred #'equal))
+(defmethod make-function (source target (function function)
+                          &key (equal-pred #'equal))
   (declare (type standard-set source target))
-  (make-function source target (function-to-graph source function) :equal-pred equal-pred))
+  (make-function source target (function-to-graph source function)
+                 :equal-pred equal-pred))
 
 (defun function-to-graph (source function)
   "Converts FUNCTION on SOURCE to a function graph."

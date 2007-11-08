@@ -14,6 +14,7 @@
                (vector-list-file-name output-project)
                size-of-algebra
                number-of-generators)
+;;; following is calculation of direct-subproduct --> factor out!!!
     (with-uab-command-to-file (stream (command-file algebra-project))
       (uab-commands-to-generate-subalgebra
                  stream (file-name algebra-project)
@@ -42,20 +43,16 @@
       (format stream "~%")
       (loop for chunks = (/ total-size size-of-algebra)
             then (/ chunks size-of-algebra)
-            for repeats = 1
-            then (* repeats size-of-algebra)
-            for i = 0
-            then (1+ i)
-            until (= i number-of-generators)
+            for i below number-of-generators
             do (write-vector-to-file stream
                                      (distributed-vector total-size
-                                                         chunks repeats))))))
+                                                         chunks
+                                                         size-of-algebra))))))
 
-(defun distributed-vector (size chunks repeats) ;; to be improved
-  (declare (type integer size chunks repeats))
+(defun distributed-vector (size chunks upper-limit) ;; to be improved
+  (declare (type integer size chunks upper-limit))
   "Computes the generating vectors."
-  (let ((vector (make-array size :initial-element 0))
-        (upper-limit (/ size chunks repeats)))
+  (let ((vector (make-array size :initial-element 0)))
     (loop for i from 0 to (1- size)
           for element = -1 then element
           when (zerop (mod i chunks))

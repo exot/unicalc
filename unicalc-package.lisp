@@ -63,5 +63,63 @@
    :forall-in-table
    :exists-in-table
    :define-operation
-;;
-))
+;; universal-algebra
+   :signature
+   :function-symbols-of
+   :arities-of
+   :malformed-rank-alphabet
+   :make-signature
+   :arity-of-function-symbol
+   :algebra
+   :equal-pred-of-algebra
+   :base-set-of
+   :signature-of
+   :interpretations-on
+   :make-algebra
+   :make-algebra-from-scratch
+   :malformed-interpretation
+   :apply-operation-in-algebra
+   :algebras-of-same-signature
+;; terms
+   :term-algebra
+   :variables-of
+   :make-term-algebra
+   :make-term-algebra-from-scratch
+   :variablep
+   :function-symbol-p
+   :arity-of-function-symbol
+   :term
+   :termp
+   :composed-term-p
+   :operation-symbol-of
+   :pprint-term
+   :pprint-term-list
+;; subalgebras
+   :subalgebra-error
+   :calculate-generating-elements
+   :elements-generate-algebra-p
+   :subalgebra-generated-by-elements
+   :homomorphism-from-assignment ;; experimental
+;; equations
+   :evalueta-term-in-algebra
+   :equation-holds-in-algebra-p
+   :models-p
+   :weakly-dependent-p
+   :remove-all-weakly-dependent-equations
+;; functions-and-relations
+   :homomorphism-p
+   :isomorphism-p
+   :quasi-homomorphism-p
+   :apply-quasihomomorphism-to-algebra
+   :no-quasihomomorphism
+   :all-isomorphisms
+   :isomorphic-p
+;; uacalc-interface
+   :uacalc-interface-error
+   :uacalc-io-error
+   :uacalc-write-algebra-to-file
+   :uacalc-read-algebra-form-file
+   :calculate-free-algebra
+   :symbolize-free-algebra
+   :extract-all-equations
+   :pprint-all-equations))

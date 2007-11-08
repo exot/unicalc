@@ -11,6 +11,7 @@
  (:export
 ;; uacalc-interface-io
    :uacalc-interface-error
+   :uacalc-io-error
    :uacalc-write-algebra-to-file
    :uacalc-read-algebra-from-file
 ;; uacalc-interface-uab-standard

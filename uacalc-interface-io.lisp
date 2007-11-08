@@ -49,10 +49,10 @@
                                 file))))
 
 (defgeneric uacalc-write-algebra-to-file (algebra file-name-or-project)
-  (declare (type algebra algebra))
   (:documentation "Writes ALGEBRA in UACalc format to FILE-NAME-OR-PROJECT."))
 
 (defmethod uacalc-write-algebra-to-file (algebra (file-name string))
+  (declare (type algebra algebra))
   (let ((numerized-algebra (numerize-algebra algebra)))
     (with-open-file (file file-name :direction :output :if-exists :error)
       (write-numerized-algebra-to-file numerized-algebra file))))
@@ -179,6 +179,7 @@
 (define-uacalc-file-accessor file-name ".alg")
 
 (defmethod uacalc-write-algebra-to-file (algebra (project uacalc-project))
+  (declare (type algebra algebra))
   (uacalc-write-algebra-to-file algebra (file-name project)))
 
 (defmethod uacalc-read-algebra-from-file ((project uacalc-project))

@@ -118,7 +118,7 @@
    :uacalc-interface-error
    :uacalc-io-error
    :uacalc-write-algebra-to-file
-   :uacalc-read-algebra-form-file
+   :uacalc-read-algebra-from-file
    :calculate-free-algebra
    :symbolize-free-algebra
    :extract-all-equations

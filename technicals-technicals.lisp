@@ -16,7 +16,12 @@
   (numbers n number))
 
 (defun pair (x y)
+  (declare (type t x y))
   (list x y))
+
+(defun toggle-pair (pair)
+  (declare (type list pair))
+  (list (second pair) (first pair)))
 
 (defun all-zero-except-n (list n)
   "Returns LIST with zeros except in position n"

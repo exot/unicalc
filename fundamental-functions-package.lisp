@@ -13,6 +13,20 @@
   :source
   :target
   :graph
+  :iterate-over-relation-graph
+  :value-of-element
+  :all-operands
+  :nth-operand
+;; basic-relations
+  :in-relation-p
+  :reflexiv-p
+  :symmetric-p
+  :anti-symmetric-p
+  :transitive-p
+  :equivalence-relation-p
+  :order-relation-p
+  :inverse-relation
+  :relation-product
 ;; functions
   :function-error
   :malformed-function-definition
@@ -23,9 +37,6 @@
   :function-graph-p
   :function-to-graph
   :iterate-over-function-graph
-  :value-of-element
-  :all-operands
-  :nth-operand
 ;; basic functions
   :apply-function-to-element
   :apply-function-to-tuple

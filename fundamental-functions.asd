@@ -5,6 +5,7 @@
   :depends-on ("technicals")
   :components ((:file "fundamental-functions-package")
                (:file "fundamental-functions-relations")
+	       (:file "fundamental-functions-basic-relations")
 	       (:file "fundamental-functions-functions")
 	       (:file "fundamental-functions-basic-functions")
 	       (:file "fundamental-functions-tables"))

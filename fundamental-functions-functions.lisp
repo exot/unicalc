@@ -5,8 +5,7 @@
 (define-simple-condition function-error)
 (define-simple-condition malformed-function-definition)
 
-(defclass algebraic-function (relation)
-  ((equal-pred :accessor equal-pred :initarg :equal-pred :initform #'equal)))
+(defclass algebraic-function (relation) ())
 
 (defgeneric algebraic-function-p (func)
   (:documentation "Tests whether FUNC is a ALGEBRAIC-FUNCTION or not."))
@@ -78,25 +77,4 @@ GRAPH-OR-FUNCTION."))
 
 (defmacro iterate-over-function-graph (function element &body body)
   "Iterates with ELEMENT over all elements in (GRAPH FUNCTION)"
-  (let ((graph (gensym "GRAPH"))
-        (pair (gensym "PAIR")))
-    `(let ((,graph (graph ,function)))
-      (loop for ,pair in ,graph
-            do (let ((,element ,pair))
-                 ,@body)))))
-
-(defun value-of-element (element)
-  "Returns value of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element))
-  (second element))
-
-(defun all-operands (element)
-  "Returns all operands of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element))
-  (first element))
-
-(defun nth-operand (element n)
-  "Returns nth operand of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element)
-	   (type integer n))
-  (nth n (all-operands element)))
+  `(iterate-over-relation-graph ,function ,element ,@body))

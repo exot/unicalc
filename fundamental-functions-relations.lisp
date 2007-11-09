@@ -2,10 +2,13 @@
 
 ;; relations
 
+; for the time being we only consider binary relations
 (defclass relation ()
   ((source :type standard-set :accessor source-of-relation :initarg :source)
    (target :type standard-set :accessor target-of-relation :initarg :target)
-   (graph  :type standard-set :accessor graph-of-relation  :initarg :graph )))
+   (graph  :type standard-set :accessor graph-of-relation  :initarg :graph )
+   (equal-pred :type function :accessor equal-pred         :initarg :equal-pred
+	       :initform #'equal)))
 
 (defmethod print-object ((obj relation) stream)
   (print-unreadable-object (obj stream :type t)
@@ -32,21 +35,25 @@ prints only 5 entries"
 	     (subseq (graph relation)
 		     0 max-print)))))
 
-(defun relation-p (rel A B)
+(defun relation-p (rel A B &key (equal-pred #'equal))
   "Returns non-NIL if REL is a relation on AxB."
   (declare (type relation rel)
 	   (type standard-set A B))
-  (and (subsetp (source-of-relation rel) A)
-       (subsetp (target-of-relation rel) B)
-       (valid-graph-p (graph-of-relation rel) A B)))
+  (and (subsetp (source-of-relation rel) A :test equal-pred)
+       (subsetp (target-of-relation rel) B :test equal-pred)
+       (valid-graph-p (graph-of-relation rel) A B :equal-pred equal-pred)))
 
-(defun valid-graph-p (graph A B)
+(defun valid-graph-p (graph A B &key (equal-pred #'equal))
   "Returns non-NIL if GRAPH is subset of AxB."
   (declare (type standard-set graph A B))
-  (and (subsetp (mapcar #'first graph) A :test #'set-equal)
-       (subsetp (mapcar #'second graph) B :test #'set-equal)))
+  (and (subsetp (mapcar #'first graph) A :test #'(lambda (x y)
+						   (set-equal x y :test
+							      equal-pred)))
+       (subsetp (mapcar #'second graph) B :test #'(lambda (x y)
+						    (set-equal x y :test
+							       equal-pred)))))
 
-(defun make-relation (source target graph)
+(defun make-relation (source target graph &key (equal-pred #'equal))
   "Creates RELATION out of SOURCE, TARGET and GRAPH."
   (declare (type standard-set source target graph))
   (cond
@@ -54,7 +61,8 @@ prints only 5 entries"
      (make-instance 'relation
                     :source source
                     :target target
-                    :graph  graph))
+                    :graph  graph
+		    :equal-pred equal-pred))
     (t (error 'malformed-relation-definition
               :text (format nil "~A is not a Graph on ~A times ~A"
                             graph source target)))))
@@ -78,3 +86,33 @@ prints only 5 entries"
 
 (defmethod graph (func-or-rel)
   (graph-of-relation func-or-rel))
+
+;;; iterating over relation graphs
+
+(defmacro iterate-over-relation-graph (relation element &body body)
+  "Iterates with ELEMENT over all elements in (GRAPH RELATION)"
+  (let ((graph (gensym "GRAPH"))
+        (pair (gensym "PAIR")))
+    `(let ((,graph (graph ,relation)))
+      (loop for ,pair in ,graph
+            do (destructuring-bind ,element ,pair
+		 ,(if (listp element)
+		      `(declare (ignorable ,@element))
+		      `(declare (ignorable ,element)))
+                 ,@body)))))
+
+(defun value-of-element (element)
+  "Returns value of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element))
+  (second element))
+
+(defun all-operands (element)
+  "Returns all operands of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element))
+  (first element))
+
+(defun nth-operand (element n)
+  "Returns nth operand of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element)
+	   (type integer n))
+  (nth n (all-operands element)))

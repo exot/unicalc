@@ -69,6 +69,10 @@ with no two elements being EQUAL"))
      (funcall test set1 set2))
     (t nil)))
 
+(defun set-equal-p (&optional (equal-pred #'equal))
+  #'(lambda (x y)
+      (set-equal x y :test equal-pred)))
+
 (defun tuple-equal (equal-pred x y)
   "Returns T if X and Y are lists with EQUAL-PRED elements at the same positions"
   (and (listp x)
@@ -76,6 +80,10 @@ with no two elements being EQUAL"))
        (= (length x)
           (length y))
        (every equal-pred x y)))
+
+(defun tuple-equal-p (&optional (equal-pred #'equal))
+  #'(lambda (x y)
+      (tuple-equal equal-pred x y)))
 
 (defun tuples (given-set power)
   (declare (type standard-set given-set)

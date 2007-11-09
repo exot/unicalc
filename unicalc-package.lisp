@@ -34,6 +34,19 @@
    :source
    :target
    :graph
+   :iterate-over-relation-graph
+   :value-of-element
+   :all-operands
+   :nth-operand
+   :in-relation-p
+   :reflexiv-p
+   :symmetric-p
+   :anti-symmetric-p
+   :transitive-p
+   :equivalence-relation-p
+   :order-relation-p
+   :inverse-relation
+   :relation-product
    :function-error
    :malformed-function-definition
    :algebraic-function
@@ -41,9 +54,6 @@
    :algebraic-function-p
    :make-function
    :iterate-over-function-graph
-   :value-of-element
-   :all-operands
-   :nth-operand
    :apply-function-to-element
    :apply-function-to-tuple
    :apply-function-to-set
@@ -119,6 +129,8 @@
    :uacalc-io-error
    :uacalc-write-algebra-to-file
    :uacalc-read-algebra-from-file
+   :calculate-direct-power-numerically
+   :calculate-direct-product-numerically
    :calculate-free-algebra
    :symbolize-free-algebra
    :extract-all-equations

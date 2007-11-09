@@ -6,6 +6,7 @@
    :numbers
    :symbols
    :pair
+   :toggle-pair
    :all-zero-except-n
    :positive-number-p
    :non-negative-number-p
@@ -21,7 +22,9 @@
    :card
    :emptyp
    :set-equal
+   :set-equal-p
    :tuple-equal
+   :tuple-equal-p
    :tuples
    :subsets
    :n-elemental-subsets

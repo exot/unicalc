@@ -7,6 +7,7 @@ use strict;
 
 my @filenames = qw/equations-equations.lisp
                    functions-and-relations-homomorphisms.lisp
+                   fundamental-functions-basic-relations.lisp
                    fundamental-functions-basic-functions.lisp
                    fundamental-functions-functions.lisp
                    fundamental-functions-relations.lisp
@@ -18,6 +19,7 @@ my @filenames = qw/equations-equations.lisp
                    technicals-test-cases.lisp
                    terms-terms.lisp
                    test-universal-algebra.lisp
+                   uacalc-interface-direct-product.lisp
                    uacalc-interface-free-algebra.lisp
                    uacalc-interface-io.lisp
                    uacalc-interface.lisp

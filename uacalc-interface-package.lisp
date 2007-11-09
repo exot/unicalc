@@ -15,6 +15,9 @@
    :uacalc-write-algebra-to-file
    :uacalc-read-algebra-from-file
 ;; uacalc-interface-uab-standard
+;; uacalc-interface-direct-product
+   :calculate-direct-power-numerically
+   :calculate-direct-product-numerically
 ;; uacalc-interface-free-algebra
    :calculate-free-algebra
    :symbolize-free-algebra

@@ -1,38 +1,11 @@
 (in-package :fundamental-functions)
 
-;;; iterating over function graphs (needed)
-
-(defmacro iterate-over-function-graph (function element &body body)
-  "Iterates with ELEMENT over all elements in (GRAPH FUNCTION)"
-  (let ((graph (gensym "GRAPH"))
-        (pair (gensym "PAIR")))
-    `(let ((,graph (graph ,function)))
-      (loop for ,pair in ,graph
-            do (let ((,element ,pair))
-                 ,@body)))))
-
-(defun value-of-element (element)
-  "Returns value of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element))
-  (second element))
-
-(defun all-operands (element)
-  "Returns all operands of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element))
-  (first element))
-
-(defun nth-operand (element n)
-  "Returns nth operand of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
-  (declare (type list element)
-	   (type integer n))
-  (nth n (all-operands element)))
-
 ;; doing something with functions
 
 (defun apply-function-to-element (function element)
   "Applies FUNCTION to ELEMENT."
   (declare (type algebraic-function function))
-  (or (second (assoc element (graph function) :test (equal-pred function)))
+  (or (value-of-function function element)
       (error 'function-error
              :text (format nil "Cannot apply ~A to ~A" function element))))
 
@@ -53,7 +26,8 @@
 (defun range (function)
   "Returns the range of FUNCTION."
   (declare (type algebraic-function function))
-  (remove-duplicates (mapcar #'second (graph function)) :test (equal-pred function)))
+  (remove-duplicates (mapcar #'second (graph function))
+		     :test (equal-pred function)))
 
 (defun surjective-p (function)
   "Tests whether FUNCTION is surjective or not."
@@ -116,7 +90,8 @@
   (flet ((calc-new-func-graph ()
             (let ((new-graph ()))
               (iterate-over-function-graph function element
-                (when (member (all-operands element) new-source :test (equal-pred function))
+                (when (member (all-operands element) new-source
+			      :test (equal-pred function))
                   (push element new-graph)))
              new-graph)))
     (let ((new-graph (calc-new-func-graph)))
@@ -125,7 +100,8 @@
                      new-graph))))
 
 (defun restrict-function-on-target (function new-target)
-  "Returns algebraic function begin FUNCTION with target restricted to NEW-TARGET"
+  "Returns algebraic function begin FUNCTION with target restricted to
+NEW-TARGET"
   (declare (type algebraic-function function)
 	   (type standard-set new-target))
   (make-function (source function)
@@ -136,12 +112,14 @@
   "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
   (declare (type algebraic-function function)
 	   (type standard-set new-source))
-  (restrict-function-on-source-and-traget function new-source (target function)))
+  (restrict-function-on-source-and-traget function new-source
+					  (target function)))
 
 ;;; for iteration over all assignments
 
 (defun next-assignment (value-set assignment)
-  "Returns next assignment in VALUE-SET after ASSIGNMENT being a tuple of pairs, or NIL if ASSIGNMENT is last."
+  "Returns next assignment in VALUE-SET after ASSIGNMENT being a tuple of
+pairs, or NIL if ASSIGNMENT is last."
   (declare (type standard-set value-set)
 	   (type list assignment))
   (let ((argument (mapcar #'second assignment))
@@ -151,7 +129,8 @@
         (mapcar #'(lambda (x y) (list x y)) elements next-argument)))))
 
 (defun all-assignments (variables value-set)
-  "Returns lazy set consiting of all assignments of VARIABLES to value from VALUE-SET."
+  "Returns lazy set consiting of all assignments of VARIABLES to value from
+VALUE-SET."
   (declare (type standard-set variables value-set))
   (let* ((first-assign (symbols (card variables) (first value-set)))
          (assign (mapcar #'pair variables first-assign)))
@@ -172,7 +151,8 @@
       (define-lazy-set #'next-function))))
 
 (defun all-functions-with-predicate (source target predicate)
-  "Returns lazy set of all function between SEOURCE and TARGET fulfilling PREDICATE."
+  "Returns lazy set of all function between SEOURCE and TARGET fulfilling
+PREDICATE."
   (declare (type standard-set source target)
 	   (type function predicate))
   (let ((functions (all-functions source target)))

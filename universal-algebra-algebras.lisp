@@ -6,7 +6,8 @@
   ((base-set        :accessor base-set-of           :initarg :base-set)
    (signature       :accessor signature-of          :initarg :signature)
    (interpretations :accessor interpretations-on    :initarg :interpretations)
-   (equal-pred      :accessor equal-pred-of-algebra :initarg :equal-pred :initform #'equal)))
+   (equal-pred      :accessor equal-pred-of-algebra :initarg :equal-pred
+		    :initform #'equal)))
 
 (defmethod print-object ((obj algebra) stream)
   (print-unreadable-object (obj stream :type t)

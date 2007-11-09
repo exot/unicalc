@@ -3,6 +3,10 @@
  (:export
 ;; relations
   :relation
+  :*relation-print-max-size*
+  :*relation-print-max-print*
+  :*relation-print-all*
+  :print-relation
   :relation-p
   :valid-graph-p
   :make-relation
@@ -18,11 +22,11 @@
   :make-function
   :function-graph-p
   :function-to-graph
-;; basic functions
   :iterate-over-function-graph
   :value-of-element
   :all-operands
   :nth-operand
+;; basic functions
   :apply-function-to-element
   :apply-function-to-tuple
   :apply-function-to-set

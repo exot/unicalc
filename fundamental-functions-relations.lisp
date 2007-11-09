@@ -9,7 +9,28 @@
 
 (defmethod print-object ((obj relation) stream)
   (print-unreadable-object (obj stream :type t)
-    (format stream "{~&~{~2:T~S~^,~&~I~}}" (graph obj))))
+    (print-relation obj stream)))
+
+(defparameter *relation-print-max-size* 10)
+(defparameter *relation-print-max-print* 5)
+(defparameter *relation-print-all* nil)
+
+(defun print-relation (relation stream
+		       &key (max-size *relation-print-max-size*)
+		       (max-print *relation-print-max-print*)
+		       (all *relation-print-all*))
+  (declare (type relation relation)
+	   (type stream stream)
+	   (type integer max-size max-print))
+  "Print all entries of RELATION if |RELATION| <= MAX-SIZE, otherwise
+prints only 5 entries"
+  (cond
+    ((or all (<= (card (graph relation)) max-size))
+     (format stream "{~&~{~2:T~S~^,~&~I~}}" (graph relation)))
+    (t
+     (format stream "{~&~{~2:T~S~^,~&~I~}}~&~2:T..."
+	     (subseq (graph relation)
+		     0 max-print)))))
 
 (defun relation-p (rel A B)
   "Returns non-NIL if REL is a relation on AxB."

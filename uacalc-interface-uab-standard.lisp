@@ -57,6 +57,30 @@
 					      algebras-pathname
 					      output-pathname)))
 
+(defun uab-commands-to-create-direct-power (stream
+					    algebra-pathname
+					    power
+					    output-pathname
+					    universe-pathname)
+  (write-uab-command stream "create_direct_product")
+  (write-uab-command stream "number" (princ-to-string power)) ;;; is ok
+  (loop repeat power
+	do (write-uab-command stream "algebra_file" algebra-pathname))
+  (write-uab-command stream "output_file" output-pathname)
+  (write-uab-command stream "output_file" universe-pathname))
+
+(defun uab-commands-to-create-direct-product (stream
+					      algebra-pathnames
+					      output-pathname
+					      universe-pathname)
+  (write-uab-command stream "create_direct_product")
+  (write-uab-command stream "number"
+		     (princ-to-string (length algebra-pathnames))) ;;; is ok
+  (loop for algebra-pathname in algebra-pathnames
+	do (write-uab-command stream "algebra_file" algebra-pathname))
+  (write-uab-command stream "output_file" output-pathname)
+  (write-uab-command stream "output_file" universe-pathname))
+
 ; to be continued
 
 ;;; run uab
@@ -83,3 +107,12 @@
 
 (defun generate-unique-pathname () ;;; FIXME!!!
   (concatenate 'string "/tmp/test" (string (gentemp))))
+
+(defun make-new-project ()
+  (make-uacalc-project (generate-unique-pathname)))
+
+(defun algebra-to-project (algebra)
+  (declare (type algebra algebra))
+  (let ((project (make-new-project)))
+    (uacalc-write-algebra-to-file algebra project)
+    project))

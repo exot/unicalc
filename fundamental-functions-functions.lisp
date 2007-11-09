@@ -63,6 +63,40 @@ GRAPH-OR-FUNCTION."))
 	   (type function function))
   (mapcar #'(lambda (x) (list x (funcall function x))) source))
 
-(defmethod make-function (source target (relation relation) &key (equal-pred #'equal))
+(defmethod make-function (source target (relation relation)
+			  &key (equal-pred #'equal))
   (declare (type standard-set source target))
-  (make-function source target (graph-of-relation relation) :equal-pred equal-pred))
+  (make-function source target (graph-of-relation relation)
+		 :equal-pred equal-pred))
+
+(defun value-of-function (function argument)
+  (declare (type algebraic-function function)
+	   (type t argument))
+  (second (assoc argument (graph function) :test (equal-pred function))))
+
+;;; iterating over function graphs (needed)
+
+(defmacro iterate-over-function-graph (function element &body body)
+  "Iterates with ELEMENT over all elements in (GRAPH FUNCTION)"
+  (let ((graph (gensym "GRAPH"))
+        (pair (gensym "PAIR")))
+    `(let ((,graph (graph ,function)))
+      (loop for ,pair in ,graph
+            do (let ((,element ,pair))
+                 ,@body)))))
+
+(defun value-of-element (element)
+  "Returns value of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element))
+  (second element))
+
+(defun all-operands (element)
+  "Returns all operands of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element))
+  (first element))
+
+(defun nth-operand (element n)
+  "Returns nth operand of ELEMENT when used in ITERATE-OVER-FUNCTION-GRAPH."
+  (declare (type list element)
+	   (type integer n))
+  (nth n (all-operands element)))

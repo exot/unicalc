@@ -1,3 +1,16 @@
-Just run
+; Just run
+
+ (asdf:oos 'asdf:load-op 'unicalc)
+
+; with your Lisp session started in the directory where the source files are
+; located and then maybe something like
+
+ (use-package 'unicalc)
+
+; . If you want some test cases just type
+
  (asdf:oos 'asdf:load-op 'test-universal-algebra)
-with your Lisp session started in the file where the source files are located.
+
+; If you have still no clue, then just LOAD this file via
+; (load "INSTALL")
+; where INSTALL is in the same directory where you started your Lisp session.

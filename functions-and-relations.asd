@@ -6,5 +6,6 @@
                "fundamental-functions"
                "universal-algebra")
   :components ((:file "functions-and-relations-package")
-               (:file "functions-and-relations-homomorphisms"))
+               (:file "functions-and-relations-homomorphisms")
+               (:file "functions-and-relations-congruences"))
   :serial t)

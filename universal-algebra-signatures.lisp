@@ -68,7 +68,8 @@ BODY should be an ALIST."
 
 (defgeneric arity-of-function-symbol (term-algebra-or-signature
 				      function-symbol)
-  (:documentation "Returns arity of FUNCTION-SYMBOL from TERM-ALGEBRA-OR-SIGNATURE"))
+  (:documentation "Returns arity of FUNCTION-SYMBOL from TERM-ALGEBRA-OR-SIGNATURE,
+NIL if FUNCTION-SYMBOL doesn't designate a operation in TERM-ALGEBRA-OR-SIGNATURE."))
 
 (defmethod arity-of-function-symbol ((source signature) function-symbol)
   (declare (type symbol function-symbol))

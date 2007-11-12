@@ -47,10 +47,11 @@
   "Expands to BODY with all SYMBOLS replaced with gensyms.
 Based on macro from 'Tutorial on Good Lisp Programming Style'
 by Norvig and Pitman. "
-  (sublis (mapcar #'(lambda (sym)
-		      (cons sym (gensym (string sym))))
-		  symbols)
-	  body))
+  `(progn
+    ,@(sublis (mapcar #'(lambda (sym)
+                          (cons sym (gensym (string sym))))
+                      symbols)
+              body)))
 
 (defun mapunion (fun list &key (test #'equal))
   (declare (type function fun)

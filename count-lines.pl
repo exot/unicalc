@@ -7,6 +7,7 @@ use strict;
 
 my @filenames = qw/equations-equations.lisp
                    functions-and-relations-homomorphisms.lisp
+                   functions-and-relations-congruences.lisp
                    fundamental-functions-basic-relations.lisp
                    fundamental-functions-basic-functions.lisp
                    fundamental-functions-functions.lisp

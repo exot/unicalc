@@ -132,3 +132,31 @@ with no two elements being EQUAL"))
                           shorter-subsets)))
          (make-set subsets :test
 		   #'(lambda (x y) (set-equal x y :test equal-pred)))))))
+
+(defun walk-with-element-through-partition (part element)
+  (declare (type standard-set part)
+           (type t element))
+  (let ((new-part (list (union (list (list element)) part))))
+    (labels ((add-to-part (head-set el tail-set)
+               (cond
+                 ((emptyp el) (mapcar #'(lambda (x) (remove-if #'null x)) new-part))
+                 (t (push (append head-set
+                                  (list (union el (list element)))
+                                  tail-set)
+                          new-part)
+                    (add-to-part (union head-set (list el))
+                                 (first tail-set)
+                                 (rest tail-set))))))
+      (add-to-part () (first part) (rest part)))))
+
+(defun all-partitions (set &key (equal-pred #'equal))
+  (declare (type standard-set set))
+  (declare (ignore equal-pred))
+  "Returns all partitions of SET."
+  (cond
+    ((emptyp set) {()})
+    (t (let ((minor-partitions (all-partitions (rest set)))
+             (first-element (first set)))
+         (reduce #'union
+                 (mapcar #'(lambda (part) (walk-with-element-through-partition part first-element))
+                         minor-partitions))))))

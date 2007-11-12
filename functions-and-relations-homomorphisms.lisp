@@ -102,6 +102,14 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 			   (make-set new-graph
                                      :test (equal-pred function)))))))
 
+(defun all-homomorphisms (algebra1 algebra2)
+  (declare (type algebra algebra1 algebra2))
+  "Returns lazy-set of all homomorphisms between ALGEBRA1 and ALGEBRA2."
+  (all-functions-with-predicate (base-set-of algebra1)
+                                (base-set-of algebra2)
+                                #'(lambda (x)
+                                    (homomorphism-p x algebra1 algebra2))))
+
 (defun all-isomorphisms (algebra1 algebra2)
   (declare (type algebra algebra1 algebra2))
   "Returns lazy set of all isomorphisms between ALGEBRA1 and ALGEBRA2."

@@ -166,7 +166,7 @@ with no two elements being EQUAL"))
   "Returns all partitions of SET."
   (cond
     ((emptyp set) (list nil))
-    (t (let ((minor-partitions (all-partitions (rest set)))
+    (t (let ((minor-partitions (partitions (rest set)))
              (first-element (first set)))
          (reduce #'(lambda (x y)
 		     (union x y :test equal-pred))

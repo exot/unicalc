@@ -62,6 +62,8 @@ with no two elements being EQUAL"))
   (declare (type standard-set set))
   (zerop (card set)))
 
+;;; much more needed to abstract sets !!!
+
 ;;; equal predicates
 
 (defun set-equal (set1 set2 &key (test #'equal))
@@ -141,7 +143,7 @@ with no two elements being EQUAL"))
          (make-set subsets :test
 		   #'(lambda (x y) (set-equal x y :test equal-pred)))))))
 
-(defun walk-with-element-through-partition (part element &key (equal-pred #'equal))
+(defun extend-partition (part element &key (equal-pred #'equal))
   (declare (type standard-set part)
            (type t element))
   (loop for head-set = ()          then (union head-set (list el))
@@ -160,11 +162,9 @@ with no two elements being EQUAL"))
     ((emptyp set) (list nil))
     (t (let ((minor-partitions (partitions (rest set)))
              (first-element (first set)))
-         (reduce #'(lambda (x y)
-		     (union x y :test equal-pred))
-                 (mapcar #'(lambda (part)
-			     (walk-with-element-through-partition part first-element))
-                         minor-partitions))))))
+         (mapunion #'(lambda (part)
+                       (extend-partition part first-element))
+                   minor-partitions :test equal-pred)))))
 
 (defun print-partition (part &optional (stream t))
   (format stream "~&~A" (first part))

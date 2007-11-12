@@ -11,6 +11,7 @@
    :positive-number-p
    :non-negative-number-p
    :with-gensyms
+   :mapunion
    :define-simple-condition
    :number-list
    :operation-symbol

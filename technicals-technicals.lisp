@@ -52,6 +52,14 @@ by Norvig and Pitman. "
 		  symbols)
 	  body))
 
+(defun mapunion (fun list &key (test #'equal))
+  (declare (type function fun)
+           (type list list))
+  "Maps fun to list and unions the result."
+  (reduce #'(lambda (x y)
+              (union x y :test test))
+          (mapcar fun list)))
+
 (defmacro define-simple-condition (name)
   `(progn
     (define-condition ,name ()

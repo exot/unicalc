@@ -2,6 +2,7 @@
  (:use :cl :technicals)
  (:export
 ;; relations
+  :relations-error
   :relation
   :*relation-print-max-size*
   :*relation-print-max-print*
@@ -24,6 +25,9 @@
   :anti-symmetric-p
   :transitive-p
   :equivalence-relation-p
+  :equivalence-relation-from-partition
+  :all-in-relation-to-element
+  :partition-from-equivalence-relation
   :order-relation-p
   :inverse-relation
   :relation-product

@@ -24,11 +24,14 @@
    :tuples
    :subsets
    :n-elemental-subsets
+   :partitions
+   :print-partitions
    :define-lazy-set
    :forall
    :exists
    :=>
 ;; fundamental-functions
+   :relation-error
    :relation
    :relation-p
    :source
@@ -44,6 +47,9 @@
    :anti-symmetric-p
    :transitive-p
    :equivalence-relation-p
+   :equivalence-relation-from-partition
+   :all-in-relation-to-element
+   :partition-from-equivalence-relation
    :order-relation-p
    :inverse-relation
    :relation-product
@@ -122,8 +128,11 @@
    :quasi-homomorphism-p
    :apply-quasihomomorphism-to-algebra
    :no-quasihomomorphism
+   :all-homomorphisms
    :all-isomorphisms
    :isomorphic-p
+   :congruence-relation-p
+   :all-congruences
 ;; uacalc-interface
    :uacalc-interface-error
    :uacalc-io-error

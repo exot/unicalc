@@ -2,6 +2,8 @@
 
 ;; relations
 
+(define-simple-condition relations-error)
+
 ; for the time being we only consider binary relations
 (defclass relation ()
   ((source :type standard-set :accessor source-of-relation :initarg :source)

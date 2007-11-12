@@ -7,9 +7,17 @@
   (declare (type (or null list) set))
   (remove-duplicates set :test test))
 
-(defun read-set (stream char)
-  (declare (ignore char))
-  `(make-set ',(read-delimited-list #\} stream t) :test #'equal))
+(let ((started nil))
+  (defun read-set (stream char)
+    (declare (ignore char))
+    (cond
+      ((not started)
+       (unwind-protect
+	 (progn
+	   (setf started t)
+	   `',(make-set (read-delimited-list #\} stream t)))
+	 (setf started nil)))
+      (t (read-delimited-list #\} stream t)))))
 
 (set-macro-character #\{ #'read-set)
 (set-macro-character #\} (get-macro-character #\)))
@@ -133,30 +141,42 @@ with no two elements being EQUAL"))
          (make-set subsets :test
 		   #'(lambda (x y) (set-equal x y :test equal-pred)))))))
 
-(defun walk-with-element-through-partition (part element)
+(defun walk-with-element-through-partition (part element &key (equal-pred #'equal))
   (declare (type standard-set part)
            (type t element))
   (let ((new-part (list (union (list (list element)) part))))
     (labels ((add-to-part (head-set el tail-set)
                (cond
-                 ((emptyp el) (mapcar #'(lambda (x) (remove-if #'null x)) new-part))
+                 ((emptyp el) (mapcar #'(lambda (x)
+					  (remove-if #'null x))
+				      new-part))
                  (t (push (append head-set
-                                  (list (union el (list element)))
+                                  (list (union el (list element)
+					       :test equal-pred))
                                   tail-set)
                           new-part)
-                    (add-to-part (union head-set (list el))
+                    (add-to-part (union head-set (list el)
+					:test equal-pred)
                                  (first tail-set)
                                  (rest tail-set))))))
       (add-to-part () (first part) (rest part)))))
 
-(defun all-partitions (set &key (equal-pred #'equal))
+(defun partitions (set &key (equal-pred #'equal))
   (declare (type standard-set set))
-  (declare (ignore equal-pred))
   "Returns all partitions of SET."
   (cond
-    ((emptyp set) {()})
+    ((emptyp set) (list nil))
     (t (let ((minor-partitions (all-partitions (rest set)))
              (first-element (first set)))
-         (reduce #'union
-                 (mapcar #'(lambda (part) (walk-with-element-through-partition part first-element))
+         (reduce #'(lambda (x y)
+		     (union x y :test equal-pred))
+                 (mapcar #'(lambda (part)
+			     (walk-with-element-through-partition part first-element))
                          minor-partitions))))))
+
+(defun print-partition (part &optional (stream t))
+  (format stream "~&~A" (first part))
+  (loop for sets in (rest part)
+	do (format stream "~A" sets))
+  (format stream "~%")
+  part)

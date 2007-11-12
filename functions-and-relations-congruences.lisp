@@ -28,3 +28,13 @@
   "Returns non-NIL if RELATION is a congruence relation on ALGEBRA."
   (and (equivalence-relation-p relation)
        (relation-is-compatible-with-all-operations-on-algebra-p relation algebra)))
+
+(defun all-congruences (algebra)
+  (declare (type algebra algebra))
+  "Returns set of all congruence relations on algebra."
+  (let ((all-congruences ()))
+    (loop for partition in (partitions (base-set-of algebra))
+	  do (let ((er (equivalence-relation-from-partition partition)))
+	       (when (congruence-relation-p er algebra)
+		 (push er all-congruences))))
+    all-congruences))

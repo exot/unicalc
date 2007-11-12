@@ -52,6 +52,46 @@
        (symmetric-p relation)
        (transitive-p relation)))
 
+(defun equivalent-elements-from-set (set)
+  (declare (type standard-set set))
+  "Returns full equivalence relation on set."
+  (let ((pairs (n-elemental-subsets set 2))
+	(self  (mapcar #'(lambda (x) (pair x x)) set)))
+    (append pairs (mapcar #'toggle-pair pairs) self)))
+
+(defun equivalence-relation-from-partition (partition)
+  (declare (type standard-set partition))
+  (let ((base-set (reduce #'union partition))
+	(new-graph ()))
+    (loop for part in partition
+	  do (setf new-graph
+		   (union new-graph
+			  (equivalent-elements-from-set part))))
+    (make-relation base-set base-set new-graph)))
+
+(defun all-in-relation-to-element (relation element)
+  (declare (type relation relation)
+	   (type t element))
+  "Returns all element ELT with ELEMENT RELATION ELT."
+  (loop for elt in (source relation)
+	when (in-relation-p relation element elt)
+	collect elt))
+
+(defun partition-from-equivalence-relation (relation)
+  (declare (type relation relation))
+  "Returns partition described by the equivalence relation RELATION."
+  (cond
+    ((not (equivalence-relation-p relation))
+     (error 'relations-error :text
+	    (format nil "Given relation ~A is not a equivalence relation."
+		    relation)))
+    (t (let ((new-part ()))
+	 (loop for element in (source relation)
+	       do (when (not (some #'(lambda (set) (member element set)) new-part))
+		    (push (all-in-relation-to-element relation element)
+			  new-part)))
+	 new-part))))
+
 (defun order-relation-p (relation)
   (and (relation-on-one-set-p relation)
        (reflexiv-p relation)

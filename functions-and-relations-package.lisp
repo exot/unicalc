@@ -12,4 +12,6 @@
    :no-quasihomomorphism
    :all-homomorphisms
    :all-isomorphisms
-   :isomorphic-p))
+   :isomorphic-p
+   :congruence-relation-p
+   :all-congruences))

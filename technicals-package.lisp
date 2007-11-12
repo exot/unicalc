@@ -28,6 +28,8 @@
    :tuples
    :subsets
    :n-elemental-subsets
+   :partitions
+   :print-partitions
 ;; math-like-notation.lisp
    :lazy-set
    :next

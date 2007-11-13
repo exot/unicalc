@@ -13,6 +13,7 @@
   :arity-of-function-symbol
 ;; algebras
   :algebra
+  :algebra-p
   :equal-pred-of-algebra
   :base-set-of
   :signature-of

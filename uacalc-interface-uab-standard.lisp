@@ -117,14 +117,23 @@
     (uacalc-write-algebra-to-file algebra project)
     project))
 
+(defun collect-input-algebras (input-algebras)
+  (declare (type list input-algebras))
+  (cond
+    ((every #'listp input-algebras)
+     (loop for algebra-pair in input-algebras
+           collect `(,(first algebra-pair)
+                     (algebra-to-project ,(second algebra-pair)))))
+    (t
+     `((,(first input-algebras)
+        (mapcar #'algebra-to-project ,(second input-algebras)))))))
+
 (defmacro with-algebras (input-algebras output-algebras &body body)
-  (let ((sym-input-algebras (loop for algebra-pair in input-algebras
-                                  collect `(,(first algebra-pair)
-                                            (algebra-to-project ,(second algebra-pair)))))
+  (let ((sym-input-algebras (collect-input-algebras input-algebras))
         (sym-output-algebras (loop for algebra in output-algebras
                                    collect `(,algebra
                                              (make-uacalc-project
                                               (generate-unique-pathname))))))
-    `(let (,@sym-input-algebras ,@sym-output-algebras)
+    `(let* (,@sym-input-algebras ,@sym-output-algebras)
       ,@body
       (values-list (mapcar #'uacalc-read-algebra-from-file (list ,@output-algebras))))))

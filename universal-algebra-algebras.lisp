@@ -15,6 +15,15 @@
     (format stream "~&~2:Tsignature: ~a" (signature-of obj))
     (format stream "~&~2:Tinterpretations: ~a" (interpretations-on obj))))
 
+(defgeneric algebra-p (algebra)
+  (:documentation "Tests whether ALGEBRA is an algebra."))
+
+(defmethod algebra-p ((anything t))
+  nil)
+
+(defmethod algebra-p ((algebra algebra))
+  t)
+
 (defun make-algebra (base-set signature interpretations
                      &key (equal-pred #'equal))
   (declare (type standard-set base-set)

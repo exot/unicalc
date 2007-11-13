@@ -1,24 +1,45 @@
 (in-package :functions-and-relations)
 
+(defun op-homomorphic-p (function operation algebra1 algebra2)
+  (declare (type algebra algebra1 algebra2)
+           (type algebraic-function function)
+           (type symbol operation))
+  (forall (x (tuples (base-set-of algebra1)
+                     (arity-of-function-symbol (signature-of algebra1)
+                                               operation)))
+             (equal (apply-function-to-element
+                     function
+                     (apply-operation-in-algebra operation x algebra1))
+                    (apply-operation-in-algebra
+                     operation
+                     (apply-function-to-tuple function x)
+                     algebra2))))
+
+(defun op-homomorphism-p (function operation algebra1 algebra2)
+  (declare (type algebra algebra1 algebra2)
+           (type algebraic-function function)
+           (type symbol operation))
+  "Returns non-NIL if FUNCTION is a OPERATION-homomorphism between ALGEBRA1 and ALGEBRA2."
+   (and (algebras-of-same-signature-p algebra1 algerba2)
+        (set-equal (source function) (base-set-of algebra1)
+                   :test (equal-pred-of-algebra algebra1))
+        (subsetp (target function) (base-set-of algebra2)
+                 :test (equal-pred-of-algebra function))
+        (op-homomorphic-p function operation algebra1 algebra2)))
+
 (defun homomorphism-p (function algebra1 algebra2)
   (declare (type algebraic-function function)
            (type algebra algebra1 algebra2))
   "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and
   ALGEBRA2."
   (and (algebras-of-same-signature-p algebra1 algebra2)
-       (set-equal (source function) (base-set-of algebra1))
-       (subsetp (target function) (base-set-of algebra2) :test #'equal)
+       (set-equal (source function) (base-set-of algebra1)
+                  :test (equal-pred-of-algebra algebra1))
+       (subsetp (target function) (base-set-of algebra2)
+                :test (equal-pred-of-algebra algebra2))
        (let ((signature (signature-of algebra1)))
 	       (forall (op (function-symbols-of signature))
-		 (forall (x (tuples (base-set-of algebra1)
-				    (arity-of-function-symbol signature op)))
-		   (equal (apply-function-to-element
-			   function
-			   (apply-operation-in-algebra op x algebra1))
-			  (apply-operation-in-algebra
-			   op
-			   (apply-function-to-tuple function x)
-			   algebra2)))))))
+                 (op-homomorphic-p function op algebra1 algebra2)))))
 
 (defun isomorphism-p (function algebra1 algebra2)
   (declare (type algebraic-function function)

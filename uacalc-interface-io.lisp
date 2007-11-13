@@ -230,3 +230,21 @@
 (define-uacalc-file-accessor universe-file ".uni")
 
 ;;;
+
+; all congruences
+(define-uacalc-file-accessor cong-file ".con")
+
+;; TODO: read/write .con files
+
+;;;
+
+;all principal congruences
+(define-uacalc-file-accessor princ-file ".pri")
+
+;;;
+
+;all meet-irreducibe congruences
+
+(define-uacalc-file-accessor meet-irr-file ".mir")
+
+;;;

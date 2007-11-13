@@ -14,5 +14,6 @@
                (:file "uacalc-interface-uab-standard")
 	       (:file "uacalc-interface-direct-product")
 	       (:file "uacalc-interface-free-algebra")
+               (:file "uacalc-interface-congruence-lattice")
 	       (:file "uacalc-interface"))
   :serial t)

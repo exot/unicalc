@@ -9,6 +9,13 @@
     ,@body
     (write-uab-end-command ,stream)))
 
+(defmacro uab-commands (stream &body body)
+  `(flet ((cmd (command &rest args)
+           (if args
+               (apply #'write-uab-command (append (list ,stream command) args))
+               (write-uab-command ,stream command))))
+      ,@body))
+
 (defun write-uab-command (stream command &optional (pathname nil path-given-p))
   (if path-given-p
       (format stream "~&\\~A{~A}~%" command (pathname pathname))
@@ -31,20 +38,22 @@
                                             algebra-pathname
                                             vectorlist-pathname
                                             output-pathname)
-  (write-uab-command stream "generate_subalgebra")
-  (write-uab-command stream "algebra_file" algebra-pathname)
-  (write-uab-command stream "vectorlist_file" vectorlist-pathname)
-  (write-uab-command stream "output_file" output-pathname))
+  (uab-commands stream
+    (cmd "generate_subalgebra")
+    (cmd "algebra_file"    algebra-pathname)
+    (cmd "vectorlist_file" vectorlist-pathname)
+    (cmd "output_file"     output-pathname)))
 
 (defun uab-commands-to-create-subproduct-algebra (stream
                                                   vectorlist-pathname
                                                   algebra-pathnames
                                                   output-pathname)
-  (write-uab-command stream "create_subproduct_algebra")
-  (write-uab-command stream "vectorlist_file" vectorlist-pathname)
-  (loop for algebra-pathname in algebra-pathnames
-        do (write-uab-command stream "algebra_file" algebra-pathname))
-  (write-uab-command stream "output_file" output-pathname))
+  (uab-commands stream
+    (cmd "create_subproduct_algebra")
+    (cmd "vectorlist_file" vectorlist-pathname)
+    (loop for algebra-pathname in algebra-pathnames
+          do (cmd "algebra_file" algebra-pathname))
+    (cmd "output_file" output-pathname)))
 
 (defun uab-commands-to-create-direct-subproduct-algebra (stream
 							vectorlist-pathname
@@ -62,24 +71,39 @@
 					    power
 					    output-pathname
 					    universe-pathname)
-  (write-uab-command stream "create_direct_product")
-  (write-uab-command stream "number" (princ-to-string power)) ;;; is ok
-  (loop repeat power
-	do (write-uab-command stream "algebra_file" algebra-pathname))
-  (write-uab-command stream "output_file" output-pathname)
-  (write-uab-command stream "output_file" universe-pathname))
+  (uab-commands stream
+    (cmd "create_direct_product")
+    (cmd "number" (princ-to-string power)) ;;; is ok
+    (loop repeat power
+          do (cmd "algebra_file" algebra-pathname))
+    (cmd "output_file" output-pathname)
+    (cmd "output_file" universe-pathname)))
 
 (defun uab-commands-to-create-direct-product (stream
 					      algebra-pathnames
 					      output-pathname
 					      universe-pathname)
-  (write-uab-command stream "create_direct_product")
-  (write-uab-command stream "number"
-		     (princ-to-string (length algebra-pathnames))) ;;; is ok
-  (loop for algebra-pathname in algebra-pathnames
-	do (write-uab-command stream "algebra_file" algebra-pathname))
-  (write-uab-command stream "output_file" output-pathname)
-  (write-uab-command stream "output_file" universe-pathname))
+  (uab-commands stream
+    (cmd "create_direct_product")
+    (cmd "number" (princ-to-string (length algebra-pathnames))) ;;; is ok
+    (loop for algebra-pathname in algebra-pathnames
+          do (cmd "algebra_file" algebra-pathname))
+    (cmd "output_file" output-pathname)
+    (cmd "output_file" universe-pathname)))
+
+(defun uab-commands-to-compute-congruence-lattice (stream
+                                                   algebra-pathname
+                                                   congruence-lattice-pathname
+                                                   congruences-pathname
+                                                   principal-congruences-pathname
+                                                   meet-irreducible-congruences-pathname)
+  (uab-commands stream
+    (cmd "compute_congruence_lattice")
+    (cmd "algebra_file" algebra-pathname)
+    (cmd "output_file" congruence-lattice-pathname)
+    (cmd "output_file" congruences-pathname)
+    (cmd "output_file" principal-congruences-pathname)
+    (cmd "output_file" meet-irreducible-congruences-pathname)))
 
 ; to be continued
 

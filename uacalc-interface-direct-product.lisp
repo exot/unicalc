@@ -16,7 +16,7 @@
 
 (defun calculate-direct-power-numerically (algebra power)
   "Calculates the POWERth direct power of ALGEBRA numerically with UACalc."
-  (with-algebras ((input-project algebra)) (output-project)
+  (with-algebras ((input-project algebra)) ((algebra-file-name output-project))
     (uab-calculate-direct-power input-project power output-project)))
 
 
@@ -39,5 +39,5 @@ UACalc."
 ;; 	(output-project (make-new-project)))
 ;;     (uab-calculate-direct-product input-projects output-project)
 ;;     (uacalc-read-algebra-from-file output-project)))
-  (with-algebras (input-projects algebras) (output-project)
+  (with-algebras (input-projects algebras) ((algebra-file-name output-project))
     (uab-calculate-direct-product input-projects output-project)))

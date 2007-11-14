@@ -20,7 +20,7 @@
            (type algebraic-function function)
            (type symbol operation))
   "Returns non-NIL if FUNCTION is a OPERATION-homomorphism between ALGEBRA1 and ALGEBRA2."
-   (and (algebras-of-same-signature-p algebra1 algerba2)
+   (and (algebras-of-same-signature-p algebra1 algebra2)
         (set-equal (source function) (base-set-of algebra1)
                    :test (equal-pred-of-algebra algebra1))
         (subsetp (target function) (base-set-of algebra2)

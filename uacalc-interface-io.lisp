@@ -151,7 +151,7 @@
 	   (signature (calculate-signature-from-operations operations)))
       (make-algebra base-set signature operations :equal-pred #'equal))))
 
-;;;
+;;; syntactic abstraction
 
 (define-simple-condition uacalc-project-error)
 
@@ -162,17 +162,37 @@
 (defun make-uacalc-project (pathname)
   (make-instance 'uacalc-project :pure-file-name pathname))
 
-(defmacro define-uacalc-file-accessor (name extension)
+(defgeneric read-from-uacalc-project (file-accessor project)
+  (declare (type uacalc-project project))
+  (:documentation "Reads anything from PROJECT."))
+
+(defgeneric write-to-uacalc-project (file-accessor what project)
+  (declare (type t what)
+           (type uacalc-project project))
+  (:documentation "Writes WHAT to PROJECT."))
+
+(defmacro define-uacalc-file-accessor (name extension &rest io-functions)
   "Defines acessor function NAME for a UACALC-PROJECT with EXTENSION"
   `(progn
      (defun ,name (project)
-;       ,@(concatenate 'string
-;                      "PURE-FILE-NAME of PROJECT appended with "
-;                      (string extension))
        (declare (type uacalc-project project))
        (the string (concatenate 'string
                                 (pure-file-name project)
-                                (string ,extension))))))
+                                (string ,extension))))
+
+       ,(let ((reader (assoc :reader io-functions)))
+          `(defmethod read-from-uacalc-project ((file-accessor (eql ',name)) project)
+             ,(if reader
+                  `(,(second reader) project)
+                  `(error 'uacalc-io-error :text
+                          (format nil "~&Read not defined for ~A" ',name)))))
+
+       ,(let ((writer (assoc :writer io-functions)))
+          `(defmethod write-to-uacalc-project ((file-accessor (eql ',name)) what project)
+             ,(if writer
+                  `(,(second writer) what project)
+                  `(error 'uacalc-io-error :text
+                          (format nil "~&Write not defined for ~A" ',name)))))))
 
 ;;; .alg files
 
@@ -185,9 +205,11 @@
 (defmethod uacalc-read-algebra-from-file ((project uacalc-project))
   (uacalc-read-algebra-from-file (file-name project)))
 
-;;; .vlf files
+(define-uacalc-file-accessor algebra-file-name ".alg"
+  (:reader uacalc-read-algebra-from-file)
+  (:writer uacalc-write-algebra-to-file))
 
-(define-uacalc-file-accessor vector-list-file-name ".vlf")
+;;; .vlf files
 
 (defun write-vector-to-file (file vector)
   (declare (type stream file)
@@ -198,18 +220,17 @@
 	do (format file ",~A" entry))
   (format file "~%"))
 
-(defgeneric uacalc-write-vector-list-to-file (file-name-or-project vector-list)
+(defgeneric uacalc-write-vector-list-to-file (vector-list file-name-or-project)
   (declare (type list vector-list)
 	   (type (or string uacalc-project) file-name-or-project))
   (:documentation "Writes VECTOR-LIST as a list of equal sized vectors
  to FILE-NAME-OR-PROJECT according to UACALC format rules"))
 
-(defmethod uacalc-write-vector-list-to-file ((project uacalc-project)
-					     vector-list)
+(defmethod uacalc-write-vector-list-to-file (vector-list (project uacalc-project))
   (uacalc-write-vector-list-to-file (vector-list-file-name project)
 				    vector-list))
 
-(defmethod uacalc-write-vector-list-to-file ((file-name string) vector-list)
+(defmethod uacalc-write-vector-list-to-file (vector-list (file-name string))
   (with-open-file (stream file-name :direction :output
 			  :if-exists :supersede)
     (write-vector-to-file stream
@@ -218,6 +239,9 @@
     (format stream "~%")
     (loop for vector in vector-list
 	  do (write-vector-to-file stream vector))))
+
+(define-uacalc-file-accessor vector-list-file-name ".vlf"
+  (:writer uacalc-write-vector-list-to-file))
 
 ;;;
 
@@ -231,10 +255,22 @@
 
 ;;;
 
-; all congruences
-(define-uacalc-file-accessor cong-file ".con")
-
 ;; TODO: read/write .con files
+
+(defgeneric uacalc-write-congruences-to-file (congruences file-name-or-project)
+  (declare (type (or string uacalc-project) file-name-or-project)
+           (type relation congruences))
+  (:documentation "Writer function to write CONGRUENCES to FILE-NAME-OR-PROJECT."))
+
+(defmethod uacalc-write-congruences-to-file (congruences (project uacalc-project))
+  (uacalc-write-congruences-to-file congruence (cong-file project)))
+
+(defmethod uacalc-write-congruences-to-file (congruences (file-name string))
+  (error "To be done"))
+
+; all congruences
+(define-uacalc-file-accessor cong-file ".con"
+  (:writer uacalc-write-congruence-to-file))
 
 ;;;
 

@@ -154,10 +154,12 @@
 
 (defmacro with-algebras (input-algebras output-algebras &body body)
   (let ((sym-input-algebras (collect-input-algebras input-algebras))
-        (sym-output-algebras (loop for algebra in output-algebras
+        (sym-output-algebras (loop for (file-accessor algebra) in output-algebras
                                    collect `(,algebra
                                              (make-uacalc-project
                                               (generate-unique-pathname))))))
     `(let* (,@sym-input-algebras ,@sym-output-algebras)
       ,@body
-      (values-list (mapcar #'uacalc-read-algebra-from-file (list ,@output-algebras))))))
+      (values ,@(mapcar #'(lambda (alg)
+                            `(read-from-uacalc-project ',(first alg) ,(second alg)))
+                        output-algebras)))))

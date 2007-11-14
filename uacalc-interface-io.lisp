@@ -257,6 +257,16 @@
 
 ;; TODO: read/write .con files
 
+(defun congruence-to-uacalc-congruence (congruence)
+  (declare (type relation congruence))
+  "Returns vector representing congruence in UACalc."
+  (error "To be done."))
+
+(defun uacalc-congruence-to-congruence (vector)
+  (declare (type vector vector))
+  "Returns congruence represented by VECTOR in UACalc congruence format."
+  (error "To be done."))
+
 (defgeneric uacalc-write-congruences-to-file (congruences file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project)
            (type relation congruences))

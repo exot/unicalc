@@ -16,6 +16,7 @@
    :number-list
    :operation-symbol
    :symbol-list
+   :split-by-predicate
 ;; sets.lisp
    :standard-set
    :make-set

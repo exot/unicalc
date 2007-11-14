@@ -98,3 +98,16 @@ by Norvig and Pitman. "
 		    (1- n)
 		    (cons (operation-symbol name n) list))))))
     (recursive-symbol-list (1- n) ())))
+
+(defun split-by-predicate (list pred)
+  (labels ((helper (original-list list1 list2)
+	     (cond
+	       ((null original-list) (values list1 list2))
+	       ((funcall pred (first original-list))
+		(helper (rest original-list)
+			(cons (first original-list) list1)
+			list2))
+	       (t (helper (rest original-list)
+			  list1
+			  (cons (first original-list) list2))))))
+    (helper list () ())))

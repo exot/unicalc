@@ -20,6 +20,7 @@ my @filenames = qw/equations-equations.lisp
                    technicals-test-cases.lisp
                    terms-terms.lisp
                    test-universal-algebra.lisp
+                   uacalc-interface-congruence-lattice.lisp
                    uacalc-interface-direct-product.lisp
                    uacalc-interface-free-algebra.lisp
                    uacalc-interface-io.lisp

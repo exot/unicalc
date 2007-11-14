@@ -211,10 +211,10 @@
 
 ;;; .vlf files
 
-(defun write-vector-to-file (file vector)
+(defun write-vector-to-file (file vector &optional (prefix "" prefix-p))
   (declare (type stream file)
 	   (type vector vector))
-  (format file "~&")
+  (format file "~&~:[~;~A~]" prefix-p prefix)
   (format file "~A" (elt vector 0))
   (loop for entry across (subseq vector 1)
 	do (format file ",~A" entry))
@@ -255,12 +255,26 @@
 
 ;;;
 
-;; TODO: read/write .con files
-
 (defun congruence-to-uacalc-congruence (congruence)
   (declare (type relation congruence))
   "Returns vector representing congruence in UACalc."
-  (error "To be done."))
+  (let ((enumerated-partition
+	 (enumerate-partition (partition-from-equivalence-relation congruence)))
+	(vector (make-array (card (source congruence)))))
+    (loop for (set number) in enumerated-partition
+	  do (loop for elt in set
+		   do (setf (elt vector elt) number))
+	  finally (return vector))))
+
+(defun enumerate-partition (partition)
+  (declare (type standard-set partition))
+  (let ((minimas (mapcar #'(lambda (set) (apply #'min set))
+			 partition)))
+    (mapcar #'(lambda (set number)
+		(let ((uppers (count-if #'(lambda (x) (< x number))
+					minimas)))
+		  (pair set uppers)))
+	    partition minimas)))
 
 (defun uacalc-congruence-to-congruence (vector)
   (declare (type vector vector))
@@ -269,14 +283,19 @@
 
 (defgeneric uacalc-write-congruences-to-file (congruences file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project)
-           (type relation congruences))
+           (type standard-set congruences))
   (:documentation "Writer function to write CONGRUENCES to FILE-NAME-OR-PROJECT."))
 
 (defmethod uacalc-write-congruences-to-file (congruences (project uacalc-project))
   (uacalc-write-congruences-to-file congruence (cong-file project)))
 
 (defmethod uacalc-write-congruences-to-file (congruences (file-name string))
-  (error "To be done"))
+  (let ((uacalc-congs (mapcar #'congruence-to-uacalc-congruence congruences)))
+    (with-open-file (stream file-name :direction :output
+			              :if-exists :supersede)
+      (write-vector-to-file stream (vector (card uacalc-congs) 0)) ;;; ???
+      (loop for cong in uacalc-congs do
+	    (write-vector-to-file stream cong ",")))))
 
 ; all congruences
 (define-uacalc-file-accessor cong-file ".con"

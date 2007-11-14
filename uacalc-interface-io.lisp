@@ -100,7 +100,7 @@
     (when arity
       (let ((graph (read-graph-from-file file arity base-set)))
 	   (when graph
-	     (list (cons operation-name graph) arity))))))
+	     (list operation-name graph arity))))))
 
 (defun read-arity-from-file (file)
   (read-next-number-from-file file))
@@ -109,8 +109,7 @@
   (let ((arguments (all-uacalc-arguments arity base-set))
 	(graph ()))
     (loop for argument = (funcall (next arguments))
-	  while argument
-	  do
+	  while argument do
 	  (let ((value (read-next-number-from-file file)))
 	    (cond
 	      ((and (null value)
@@ -125,13 +124,13 @@
 
 (defun read-all-operations-from-file (file base-set)
   (loop for i = 0 then (1+ i)
-	for pair = (read-operation-from-file file (operation-symbol "F" i)
-                                             base-set)
-	while pair
-	collect (list (first (first pair))
-		      (make-function (tuples base-set (second pair))
+	for (op-name graph arity)
+	     = (read-operation-from-file file (operation-symbol "F" i) base-set)
+	while op-name
+	collect (list op-name
+		      (make-function (tuples base-set arity)
 				     base-set
-				     (rest (first pair))))))
+				     graph))))
 
 (defun calculate-signature-from-operations (operations)
   (let ((rank-alphabet
@@ -287,7 +286,7 @@
   (:documentation "Writer function to write CONGRUENCES to FILE-NAME-OR-PROJECT."))
 
 (defmethod uacalc-write-congruences-to-file (congruences (project uacalc-project))
-  (uacalc-write-congruences-to-file congruence (cong-file project)))
+  (uacalc-write-congruences-to-file congruences (cong-file project)))
 
 (defmethod uacalc-write-congruences-to-file (congruences (file-name string))
   (let ((uacalc-congs (mapcar #'congruence-to-uacalc-congruence congruences)))
@@ -299,7 +298,7 @@
 
 ; all congruences
 (define-uacalc-file-accessor cong-file ".con"
-  (:writer uacalc-write-congruence-to-file))
+  (:writer uacalc-write-congruences-to-file))
 
 ;;;
 

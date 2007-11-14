@@ -278,7 +278,17 @@
 (defun uacalc-congruence-to-congruence (vector)
   (declare (type vector vector))
   "Returns congruence represented by VECTOR in UACalc congruence format."
-  (error "To be done."))
+  (labels ((helper (pairs number result-list)
+	     (cond
+	       ((null pairs) result-list)
+	       (t (multiple-value-bind (goods bads)
+		      (split-by-predicate pairs
+					  #'(lambda (x) (= (second x) number)))
+		    (helper bads (1+ number)
+			    (cons (mapcar #'first goods)
+				  result-list)))))))
+    (helper (map 'list #'pair (number-list (length vector)) vector)
+	    0 ())))
 
 (defgeneric uacalc-write-congruences-to-file (congruences file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project)
@@ -295,6 +305,17 @@
       (write-vector-to-file stream (vector (card uacalc-congs) 0)) ;;; ???
       (loop for cong in uacalc-congs do
 	    (write-vector-to-file stream cong ",")))))
+
+(defgeneric uacalc-read-congruences-from-file (file-name-or-project)
+  (declare (type (or string uacalc-project) file-name-or-project))
+  (:documentation "Reads all congruences from FILE-NAME-OR-PROJECT."))
+
+(defmethod uacalc-read-congruence-from-file ((project uacalc-project))
+  (uacalc-read-congruence-from-file (cong-file project)))
+
+(defmethod uacalc-read-congruence-from-file ((file-name string))
+  (error "To be done."))
+
 
 ; all congruences
 (define-uacalc-file-accessor cong-file ".con"

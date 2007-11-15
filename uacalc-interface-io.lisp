@@ -85,7 +85,20 @@
       (define-lazy-set #'next-element))))
 
 (defun read-next-number-from-file (file)
-  (read file nil))
+  (let ((num (read-preserving-whitespace file nil)))
+    (when (and num (not (numberp num)))
+      (error 'uacalc-io-error :text
+             (format nil "Got ~A where number was expected."
+                     num)))
+    num))
+
+(defun read-next-char-from-file (file &key (should-be "" sb-p))
+  (let ((char (read-char file nil)))
+    (when (and sb-p (not (equalp should-be char)))
+      (error 'uacalc-io-error :text
+             (format nil "Read character ~A should be ~A"
+                     char should-be)))
+    char))
 
 (defun read-base-set-from-file (file)
   (let ((number (read-next-number-from-file file)))
@@ -210,7 +223,7 @@
 
 ;;; .vlf files
 
-(defun write-vector-to-file (file vector &optional (prefix "" prefix-p))
+(defun write-vector-to-file (file vector &key (prefix "" prefix-p))
   (declare (type stream file)
 	   (type vector vector))
   (format file "~&~:[~;~A~]" prefix-p prefix)
@@ -238,6 +251,40 @@
     (format stream "~%")
     (loop for vector in vector-list
 	  do (write-vector-to-file stream vector))))
+
+;; read-vector-from-file
+
+(defun char-to-int (char)
+  (declare (type character char))
+  (case char
+    (#\0 0)    (#\1 1)
+    (#\2 2)    (#\3 3)
+    (#\4 4)    (#\5 5)
+    (#\6 6)    (#\7 7)
+    (#\8 8)    (#\9 9)
+    (otherwise (error 'uacalc-io-error :text
+                      (format nil "Number expected but '~C' found"
+                              char)))))
+
+(defun read-vector-entry-from-file (file)
+  (declare (type stream file))
+  (let ((num  (read-next-number-from-file file))
+        (char (read-next-char-from-file file)))
+    (cond
+      ((not (or (equalp char #\Newline)
+                (equalp char #\,)))
+       (error 'uacalc-io-error :text
+              (format nil "Expected #\\Newline of #\\, but got ~C"
+                      char)))
+      (t (list num char)))))
+
+(defun read-vector-from-file (file &key (prefix "" prefix-p))
+  (declare (type stream file))
+  (when prefix-p
+    (read-next-char-from-file file :should-be prefix))
+  (loop for (num char) = (read-vector-entry-from-file file)
+        collect num
+        until (equalp char #\Newline)))
 
 (define-uacalc-file-accessor vector-list-file-name ".vlf"
   (:writer uacalc-write-vector-list-to-file))
@@ -304,7 +351,7 @@
 			              :if-exists :supersede)
       (write-vector-to-file stream (vector (card uacalc-congs) 0)) ;;; ???
       (loop for cong in uacalc-congs do
-	    (write-vector-to-file stream cong ",")))))
+	    (write-vector-to-file stream cong :prefix ",")))))
 
 (defgeneric uacalc-read-congruences-from-file (file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project))

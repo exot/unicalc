@@ -70,6 +70,7 @@
    :kernel
    :inverse-image
    :inverse-image-of-element
+   :inverse-function
    :restrict-function-on-source-and-target
    :restrict-function-on-target
    :restrict-function-on-source
@@ -132,15 +133,17 @@
    :all-isomorphisms
    :isomorphic-p
    :congruence-relation-p
-   :all-congruences
+   :all-congruences-symbolically
 ;; uacalc-interface
    :uacalc-interface-error
    :uacalc-io-error
-   :uacalc-write-algebra-to-file
-   :uacalc-read-algebra-from-file
    :calculate-direct-power-numerically
    :calculate-direct-product-numerically
    :calculate-free-algebra
    :symbolize-free-algebra
    :extract-all-equations
-   :pprint-all-equations))
+   :pprint-all-equations
+   :compute-congruence-lattice-numerically
+   :all-congruences
+   :all-principal-congruences
+   :all-meet-irreducible-congruences))

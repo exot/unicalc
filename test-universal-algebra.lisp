@@ -282,3 +282,17 @@
 
 (defun test-case-1 ()
   (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
+
+;; tests from mike
+
+(define-operation f-impl-1 (x y)
+  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 2 0) (2 2 0 2)) x y))
+
+(define-operation g-impl-1 (x y)
+  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 3 0) (2 2 0 3)) x y))
+
+(defparameter *signature-4* (make-signature {f} {(f 2)}))
+
+(defparameter *4-f* (make-algebra {0 1 2 3} *signature-4* {(f f-impl-1)}))
+
+(defparameter *4-g* (make-algebra {0 1 2 3} *signature-4* {(f g-impl-1)}))

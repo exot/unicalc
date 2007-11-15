@@ -19,10 +19,11 @@
 		      :equal-pred equal))))
 
 (defun numerize-algebra (algebra)
-  (let ((numbers (number-list (card (base-set-of algebra)))))
-    (apply-quasihomomorphism-to-algebra
-      (create-renaming-function (base-set-of algebra) numbers)
-      algebra)))
+  (let* ((numbers (number-list (card (base-set-of algebra))))
+	 (rename-function (create-renaming-function (base-set-of algebra) numbers)))
+    (values
+     (apply-quasihomomorphism-to-algebra rename-function algebra)
+     rename-function)))
 
 (defun write-number-to-file (number file)
   (format file "~&~D~%" number))
@@ -396,7 +397,7 @@ is preceeded by PREFIX if given."
   (:documentation "Reads all congruences from FILE-NAME-OR-PROJECT."))
 
 (defmethod uacalc-read-congruences-from-file ((project uacalc-project))
-  (uacalc-read-congruence-from-file (cong-file project)))
+  (uacalc-read-congruences-from-file (cong-file project)))
 
 (defmethod uacalc-read-congruences-from-file ((file-name string))
   (with-open-file (stream file-name :direction :input
@@ -415,12 +416,16 @@ is preceeded by PREFIX if given."
 ;;;
 
 ;all principal congruences
-(define-uacalc-file-accessor princ-file ".pri")
+(define-uacalc-file-accessor princ-file ".pri"
+  (:writer uacalc-write-congruences-to-file)
+  (:reader uacalc-read-congruences-from-file))
 
 ;;;
 
 ;all meet-irreducibe congruences
 
-(define-uacalc-file-accessor meet-irr-file ".mir")
+(define-uacalc-file-accessor meet-irr-file ".mir"
+  (:writer uacalc-write-congruences-to-file)
+  (:reader uacalc-read-congruences-from-file))
 
 ;;;

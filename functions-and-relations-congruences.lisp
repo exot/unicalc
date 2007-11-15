@@ -29,7 +29,7 @@
   (and (equivalence-relation-p relation)
        (relation-is-compatible-with-all-operations-on-algebra-p relation algebra)))
 
-(defun all-congruences (algebra)
+(defun all-congruences-symbolically (algebra)
   (declare (type algebra algebra))
   "Returns set of all congruence relations on algebra."
   (let ((all-congruences ()))

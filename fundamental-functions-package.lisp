@@ -52,6 +52,7 @@
   :kernel
   :inverse-image
   :inverse-image-of-element
+  :inverse-function
   :restrict-function-on-source-and-target
   :restrict-function-on-target
   :restrict-function-on-source

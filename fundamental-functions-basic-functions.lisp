@@ -115,6 +115,17 @@ NEW-TARGET"
   (restrict-function-on-source-and-traget function new-source
 					  (target function)))
 
+(defun inverse-function (func)
+  (declare (type algebraic-function func))
+  (cond
+    ((not (bijective-p func))
+     (error 'function-error :text
+	    (format nil "Given function ~A is not bijective and cannot be inverted."
+		    func)))
+    (t (make-function (target func)
+		      (source func)
+		      (flip-graph (graph func))))))
+
 ;;; for iteration over all assignments
 
 (defun next-assignment (value-set assignment)

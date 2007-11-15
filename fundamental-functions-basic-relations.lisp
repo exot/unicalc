@@ -98,13 +98,13 @@
        (anti-symmetric-p relation)
        (transitive-p relation)))
 
+(defun flip-graph (graph)
+  (mapcar #'(lambda (pair) (toggle-pair pair)) graph))
+
 (defun inverse-relation (relation)
   (declare (type relation relation))
-  (let ((new-graph ()))
-    (iterate-over-relation-graph relation (x y)
-      (push (pair y x) new-graph))
-    (make-relation (target relation) (source relation) new-graph
-		   :equal-pred (equal-pred relation))))
+  (make-relation (target relation) (source relation) (flip-graph (graph relation))
+		 :equal-pred (equal-pred relation)))
 
 (defun relation-product (relation1 relation2)
   (declare (type relation relation1 relation2))

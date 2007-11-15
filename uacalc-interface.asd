@@ -10,10 +10,11 @@
 	       "equations"
                "functions-and-relations")
   :components ((:file "uacalc-interface-package")
+	       (:file "uacalc-interface-basic-io")
 	       (:file "uacalc-interface-io")
                (:file "uacalc-interface-uab-standard")
 	       (:file "uacalc-interface-direct-product")
 	       (:file "uacalc-interface-free-algebra")
-               (:file "uacalc-interface-congruence-lattice")
-	       (:file "uacalc-interface"))
+               (:file "uacalc-interface-congruence-lattice"))
+
   :serial t)

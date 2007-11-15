@@ -254,37 +254,25 @@
 
 ;; read-vector-from-file
 
-(defun char-to-int (char)
-  (declare (type character char))
-  (case char
-    (#\0 0)    (#\1 1)
-    (#\2 2)    (#\3 3)
-    (#\4 4)    (#\5 5)
-    (#\6 6)    (#\7 7)
-    (#\8 8)    (#\9 9)
-    (otherwise (error 'uacalc-io-error :text
-                      (format nil "Number expected but '~C' found"
-                              char)))))
-
-(defun read-vector-entry-from-file (file)
-  (declare (type stream file))
-  (let ((num  (read-next-number-from-file file))
-        (char (read-next-char-from-file file)))
-    (cond
-      ((not (or (equalp char #\Newline)
-                (equalp char #\,)))
-       (error 'uacalc-io-error :text
-              (format nil "Expected #\\Newline of #\\, but got ~C"
-                      char)))
-      (t (list num char)))))
-
-(defun read-vector-from-file (file &key (prefix "" prefix-p))
+(defun read-line-from-file (file &key (prefix "" prefix-p))
   (declare (type stream file))
   (when prefix-p
     (read-next-char-from-file file :should-be prefix))
-  (loop for (num char) = (read-vector-entry-from-file file)
-        collect num
-        until (equalp char #\Newline)))
+    (loop for line = (read-line file nil)
+	  while (and line (zerop (length line)))
+	  finally (return line)))
+
+(defun read-vector-from-file (file &key (prefix "" prefix-p))
+  (let ((line (if prefix-p
+		  (read-line-from-file file prefix)
+		  (read-line-from-file file))))
+    (cond
+      ((null line) nil)
+      (t
+       (with-input-from-string (stream (concatenate
+					'string "#("
+					(substitute #\Space #\, line) ")"))
+	 (read stream))))))
 
 (define-uacalc-file-accessor vector-list-file-name ".vlf"
   (:writer uacalc-write-vector-list-to-file))

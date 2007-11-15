@@ -94,7 +94,7 @@
 
 (defun read-next-char-from-file (file &key (should-be "" sb-p))
   (let ((char (read-char file nil)))
-    (when (and sb-p (not (equalp should-be char)))
+    (when (and sb-p char (not (equalp should-be char)))
       (error 'uacalc-io-error :text
              (format nil "Read character ~A should be ~A"
                      char should-be)))
@@ -254,17 +254,20 @@
 
 ;; read-vector-from-file
 
-(defun read-line-from-file (file &key (prefix "" prefix-p))
-  (declare (type stream file))
+(defun read-line-from-file (file &key (prefix #\. prefix-p))
+  (declare (type stream file)
+	   (type character prefix))
   (when prefix-p
     (read-next-char-from-file file :should-be prefix))
-    (loop for line = (read-line file nil)
-	  while (and line (zerop (length line)))
-	  finally (return line)))
+  (loop for line = (read-line file nil)
+	while (and line (zerop (length line)))
+	finally (return line)))
 
-(defun read-vector-from-file (file &key (prefix "" prefix-p))
+(defun read-vector-from-file (file &key (prefix #\. prefix-p))
+  (declare (type stream file)
+	   (type character prefix))
   (let ((line (if prefix-p
-		  (read-line-from-file file prefix)
+		  (read-line-from-file file :prefix prefix)
 		  (read-line-from-file file))))
     (cond
       ((null line) nil)
@@ -274,8 +277,55 @@
 					(substitute #\Space #\, line) ")"))
 	 (read stream))))))
 
+(defun read-all-vectors-from-file (file file-name &key (prefix #\. prefix-p)
+				                       (number-idx 0)
+				                       (length-idx 1))
+  (declare (type stream file)
+	   (type character prefix))
+  "Reads vector list from FILE given by FILE-NAME, where each vector (not the first one)
+is preceeded by PREFIX if given."
+  (let ((entries (read-vector-from-file file))
+	(all-vectors (loop for vector = (if prefix-p
+					    (read-vector-from-file file
+								   :prefix  prefix)
+					    (read-vector-from-file file))
+			   while vector
+			   collect vector)))
+    (cond
+      ((not (equal (length entries) 2))
+       (error 'uacalc-io-error :text
+	      (format nil "Malformed first line ~A in file ~A."
+		      entries file-name)))
+      (t (let ((total-number (elt entries number-idx))
+	       (total-length (elt entries length-idx)))
+	   (cond
+	     ((not (or (zerop total-number)
+		       (equal (length all-vectors) total-number)))
+	      (error 'uacalc-io-error :text
+		     (format nil "Incorrect number of vectors given in ~A"
+			     file-name)))
+	     ((not (every #'(lambda (vec) (equal (length vec) total-length))
+			  all-vectors))
+	      (error 'uacalc-io-error :text
+		     (format nil "There are vectors not of length ~A in ~A"
+			     total-length file-name)))
+	     (t all-vectors)))))))
+
+(defgeneric uacalc-read-vector-list-from-file (file-name-or-project)
+  (declare (type (or string uacalc-project) file-name-or-project))
+  (:documentation "Reads a vector list from FILE-NAME-OR-PROJECT."))
+
+(defmethod uacalc-read-vector-list-from-file ((project uacalc-project))
+  (uacalc-read-vector-list-from-file (vector-list-file-name project)))
+
+(defmethod uacalc-read-vector-list-from-file ((file-name string))
+  (with-open-file (stream file-name :direction :input
+			            :if-does-not-exist :error)
+    (read-all-vectors-from-file stream file-name)))
+
 (define-uacalc-file-accessor vector-list-file-name ".vlf"
-  (:writer uacalc-write-vector-list-to-file))
+  (:writer uacalc-write-vector-list-to-file)
+  (:reader uacalc-read-vector-list-from-file))
 
 ;;;
 
@@ -345,16 +395,22 @@
   (declare (type (or string uacalc-project) file-name-or-project))
   (:documentation "Reads all congruences from FILE-NAME-OR-PROJECT."))
 
-(defmethod uacalc-read-congruence-from-file ((project uacalc-project))
+(defmethod uacalc-read-congruences-from-file ((project uacalc-project))
   (uacalc-read-congruence-from-file (cong-file project)))
 
-(defmethod uacalc-read-congruence-from-file ((file-name string))
-  (error "To be done."))
-
+(defmethod uacalc-read-congruences-from-file ((file-name string))
+  (with-open-file (stream file-name :direction :input
+			            :if-does-not-exist :error)
+    (let ((vectors (read-all-vectors-from-file stream file-name
+					       :prefix #\,
+					       :number-idx 1
+					       :length-idx 0)))
+      (mapcar #'uacalc-congruence-to-congruence vectors))))
 
 ; all congruences
 (define-uacalc-file-accessor cong-file ".con"
-  (:writer uacalc-write-congruences-to-file))
+  (:writer uacalc-write-congruences-to-file)
+  (:reader uacalc-read-congruences-from-file))
 
 ;;;
 

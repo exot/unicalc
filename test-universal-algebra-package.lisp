@@ -2,10 +2,11 @@
   (:use 
    :cl
    :technicals
-   :fundamental-functions
-   :universal-algebra
-   :terms
-   :subalgebras
-   :equations
-   :functions-and-relations
-   :uacalc-interface))
+;   :fundamental-functions
+;   :universal-algebra
+;   :terms
+;   :subalgebras
+;   :equations
+;   :functions-and-relations
+;   :uacalc-interface
+   ))

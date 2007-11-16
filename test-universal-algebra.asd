@@ -3,13 +3,14 @@
 
 (defsystem test-universal-algebra
   :depends-on ("technicals" 
-               "fundamental-functions"
-               "universal-algebra"
-               "terms"
-               "subalgebras"
-               "functions-and-relations"
-	       "equations"
-               "uacalc-interface")
+;               "fundamental-functions"
+;               "universal-algebra"
+;               "terms"
+;               "subalgebras"
+;               "functions-and-relations"
+;	        "equations"
+;               "uacalc-interface"
+	       )
   :components ((:file "test-universal-algebra-package")
                (:file "test-universal-algebra" 
                 :depends-on ("test-universal-algebra-package"))))

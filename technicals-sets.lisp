@@ -38,9 +38,28 @@ equal by TEST."))
   (format stream "~{~A~^,~}" (contents obj))
   (format stream "}"))
 
-(defun read-set (stream char)
-  (declare (ignore char))
-  (make-set (read-delimited-list #\} stream t)))
+(defun %listify (tree)
+  (cond
+    ((or (null tree)
+	 (atom tree)) tree)
+    (t (cond
+	 ((or (eq (first tree) 'make-set)
+	      (eq (first tree) 'list))
+	  `(,(first tree) ,@(mapcar #'%listify (rest tree))))
+	 (t `(list ,@(mapcar #'%listify tree)))))))
+
+(let ((started nil))
+  (defun read-set (stream char)
+    (declare (ignore char))
+    (cond
+      (started
+       `(make-set ,(read-delimited-list #\} stream t)))
+      (t
+       (unwind-protect
+	    (progn
+	      (setf started t)
+	      `(make-set ,(%listify (read-delimited-list #\} stream t))))
+	 (setf started nil))))))
 
 (set-macro-character #\{ #'read-set)
 (set-macro-character #\} (get-macro-character #\)))
@@ -219,7 +238,7 @@ removed from left to right."
 (defun tuples (given-set power)
   (declare (type integer power))
   "Return all tuples over GIVEN-SET of length POWER."
-  (%tuples (contents (ensure-standard-set given-set)) power))
+  (make-set (%tuples (contents (ensure-standard-set given-set)) power)))
 
 (defun %tuples (given-set-list power)
   (declare (type list given-set-list)
@@ -268,7 +287,7 @@ removed from left to right."
   (declare (type standard-set part)
            (type t element))
   (cond
-    ((set-equal part (make-set (make-set '()))) ;; why not {{}} ??
+    ((set-equal part (make-set (make-set '())))
      (list (singelton-s (singelton-s element))))
     (t (let ((new-partitions ()))
 	 (loop-over-set elt part

@@ -26,21 +26,48 @@
 (define-test-case set-test-3 () t
   (set-equal {{3} {2 1} 4} {{1 2} 4 {3}}))
 
-;; (define-test-case set-test-1 () 512
-;;   (card (subsets (tuples {1 2 3} 2))))
+(define-test-case set-test-4 () 512
+  (card-s (subsets (tuples {1 2 3} 2))))
 
-;; (define-test-case set-test-2 () 64
-;;   (card (tuples (subsets {1 2 3}) 2)))
+(define-test-case set-test-5 () 64
+  (card-s (tuples (subsets {1 2 3}) 2)))
 
-;; (define-test-case set-test-3 () 10
-;;   (card (n-elemental-subsets {0 1 2 3 4} 3)))
+(define-test-case set-test-6 () 10
+  (card-s (n-elemental-subsets {0 1 2 3 4} 3)))
 
-(run-tests '(set-test-1 set-test-2 set-test-3))
+(define-test-case set-test-7 () 5
+  (card-s (partitions {0 1 2})))
 
-;; ;; functions and relations
+(define-test-case set-test-8 () 15
+  (card-s (partitions {0 1 2 3})))
 
-;; (defparameter *A* (make-set '(a b c d e)))
-;; (defparameter *B* (make-set '(1 2 3 4 5 6 7)))
+(define-test-case set-test-9 () 52
+  (card-s (partitions {0 1 2 3 4})))
+
+(run-tests '(set-test-1 set-test-2 set-test-3
+	     set-test-4 set-test-5 set-test-6
+	     set-test-7 set-test-8 set-test-9))
+
+;; math-like-notation
+
+(define-test-case math-test-1 () t
+  (forall (x (subsets {1 2 3}))
+    (<= 0 (card-s x))))
+
+(define-test-case math-test-2 () nil
+  (exists (x (tuples {0 1 2} 2))
+    (< 5 (length x))))
+
+(define-test-case math-test-3 () t
+  (forall (x '(a b 3 4 c))
+    (atom x)))
+
+(run-tests '(math-test-1 math-test-2 math-test-3))
+
+;; functions and relations
+
+(defparameter *A* {a b c d e})
+(defparameter *B* {1 2 3 4 5 6 7})
 
 ;; (defparameter *R* (make-relation *A* *B* '((a 1) (b 2) (c 3) (d 4) (e 7))))
 

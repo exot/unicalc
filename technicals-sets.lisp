@@ -6,6 +6,19 @@
    (equal-pred :type function :accessor equal-pred
 	       :initarg :equal-pred :initform #'set-equal)))
 
+(defun set-equal (set1 set2 &key (test #'equal))
+  "Returns T if SET1 and SET2 are equal in sense of sets. Does no recursive
+  check. Preserves ordering."
+   (cond
+     ((and (standard-set-p set1)
+	   (standard-set-p set2))
+      (and (subsetp-s set1 set2 :test (set-equal-p test))
+	   (subsetp-s set2 set1 :test (set-equal-p test))))
+     ((and (not (standard-set-p set1))
+	   (not (standard-set-p set2)))
+      (funcall test set1 set2))
+     (t nil)))
+
 (defgeneric make-set (set &key test)
   (:documentation "Makes set out of SET, i.e. removes all duplicates from set which are
 equal by TEST."))
@@ -79,18 +92,6 @@ equal by TEST."))
       ((null rest) *empty-set*)
       (t (make-set rest :test (equal-pred set))))))
 
-(defun set-equal (set1 set2 &key (test #'equal))
-  "Returns T if SET1 and SET2 are equal in sense of sets. Does no recursive
-  check. Preserves ordering."
-   (cond
-     ((and (standard-set-p set1)
-	   (standard-set-p set2))
-      (and (subsetp-s set1 set2 :test (set-equal-p test))
-	   (subsetp-s set2 set1 :test (set-equal-p test))))
-     ((and (not (standard-set-p set1))
-	   (not (standard-set-p set2)))
-      (funcall test set1 set2))
-     (t nil)))
 
 (defun set-equal-p (&optional (equal-pred #'equal))
   #'(lambda (x y)

@@ -19,12 +19,28 @@
    :split-by-predicate
 ;; sets.lisp
    :standard-set
-   :make-set
-   :next-argument
-   :card
-   :emptyp
    :set-equal
+   :make-set
+   :ensure-standard-set
+   :standard-set-p
+   :card-s
+   :emptyp-s
+   :first-s
+   :rest-s
    :set-equal-p
+   :set-member-s
+   :subsetp-s
+   :set-union-s
+   :add-element-s
+   :set-difference-s
+   :remove-element-s
+   :set-intersection-s
+   :map-on-elements
+   :mapunion-s
+   :singelton-s
+   :loop-over-set
+   :next-argument
+   :tuple-p
    :tuple-equal
    :tuple-equal-p
    :tuples

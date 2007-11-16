@@ -43,6 +43,9 @@
       (make-instance 'lazy-set
                      :next #'next-function))))
 
+(defmethod ensure-lazy-set ((set standard-set))
+  (ensure-lazy-set (contents set)))
+
 ;;; (defun next-tuple-from-lazy-set (lazy-set tuple)
 ;;;   "Returns next TUPLE with base-set being LAZY-SET."
 ;;;   (cond
@@ -83,11 +86,14 @@
   (next (define-lazy-set
 	    #'(lambda ()
 		(cond
-		  ((emptyp set) *end-of-set*)
+		  ((null set) *end-of-set*)
 		  (t (let ((result (first set)))
 		       (setf set (rest set))
 		       result))))
 	    *end-of-set*)))
+
+(defmethod next-function ((set standard-set))
+  (next-function (contents set)))
 
 (defmacro check-for-all (default-result test test-result-if-success (variable set)
 			 &body body)

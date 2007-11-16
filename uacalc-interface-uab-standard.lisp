@@ -129,8 +129,22 @@
 
 ;;;; uab commands
 
-(defun generate-unique-pathname () ;;; FIXME!!!
-  (concatenate 'string "/tmp/test" (string (gentemp))))
+(defun file-exists (pathname)
+  (declare (type string pathname)
+           (inline file-exists)
+           (optimize (speed 0))) ;; no warnings
+  #-sbcl(error "Function FILE-EXISTS not implemented.")
+  #+sbcl
+  (handler-case
+      (progn
+        (sb-posix:stat pathname)
+        t)
+    (sb-posix:syscall-error () nil)))
+
+(defun generate-unique-pathname ()
+  (loop for file-name = (concatenate 'string "/tmp/test" (string (gentemp)))
+        until (not (file-exists file-name))
+        finally (return file-name)))
 
 (defun make-new-project ()
   (make-uacalc-project (generate-unique-pathname)))

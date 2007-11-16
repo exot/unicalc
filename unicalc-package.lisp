@@ -77,8 +77,6 @@
    :all-functions
    :all-functions-with-predicate
    :all-bijective-functions
-   :forall-in-table
-   :exists-in-table
    :define-operation
 ;; universal-algebra
    :signature

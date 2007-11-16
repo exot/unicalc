@@ -32,11 +32,11 @@ of the operation in the specific algebra."
   (declare (type algebraic-function func))
   (length (first (source func))))
 
-(defmacro forall-in-table ((variable table) &body body)
-  `(forall (,variable (rest ,table)) ,@body))
+;; (defmacro forall-in-table ((variable table) &body body)
+;;   `(forall (,variable (rest ,table)) ,@body))
 
-(defmacro exists-in-table ((variable table) &body body)
-  `(exists (,variable (rest ,table)) ,@body))
+;; (defmacro exists-in-table ((variable table) &body body)
+;;   `(exists (,variable (rest ,table)) ,@body))
 
 ;;;; interpretations on algebras implemented as value tables
 

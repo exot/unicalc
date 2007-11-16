@@ -40,8 +40,6 @@
                (t (let ((result (first myset)))
                     (setf myset (rest myset))
                     result)))))
-           ;(reset-function ()
-           ;  (setf myset set))) ; not needed by now
       (make-instance 'lazy-set
                      :next #'next-function))))
 
@@ -75,19 +73,24 @@
 (defparameter *end-of-set* (gensym "END-OF-SET")
   "Unique symbol to signal the end of a set")
 
-(defun next-function (set)
-  (etypecase set
-    (lazy-set (next set))
-    (list     (next (define-lazy-set
-			#'(lambda ()
-			    (cond
-			      ((emptyp set) *end-of-set*)
-			      (t (let ((result (first set)))
-				   (setf set (rest set))
-				   result))))
-			*end-of-set*)))))
+(defgeneric next-function (set)
+  (:documentation "Defines a function giving the next argument in SET."))
 
-(defmacro check-for-all (default-result test test-result-if-success (variable set) &body body)
+(defmethod next-function ((set lazy-set))
+  (next set))
+
+(defmethod next-function ((set list))
+  (next (define-lazy-set
+	    #'(lambda ()
+		(cond
+		  ((emptyp set) *end-of-set*)
+		  (t (let ((result (first set)))
+		       (setf set (rest set))
+		       result))))
+	    *end-of-set*)))
+
+(defmacro check-for-all (default-result test test-result-if-success (variable set)
+			 &body body)
   "Returns non-NIL if BODY holds for all VARIABLE in SET."
   (let ((myset (gensym "MYSET"))
         (next-function (gensym "NEXT-FUNCTION"))
@@ -95,7 +98,7 @@
 	(element (gensym "ELEMENT"))
 	(valid (gensym "VALID")))
     `(let* ((,myset ,set)
-            (,next-function (technicals::next-function ,myset)))
+            (,next-function (next-function ,myset)))
       (labels ((,helper (argument end-of-set)
                  (cond
                    ((not end-of-set) ,default-result)

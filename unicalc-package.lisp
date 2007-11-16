@@ -137,6 +137,12 @@
 ;; uacalc-interface
    :uacalc-interface-error
    :uacalc-io-error
+   :uacalc-read-algebra-from-file
+   :uacalc-write-algebra-to-file
+   :uacalc-write-vector-list-to-file
+   :uacalc-read-vector-list-from-file
+   :uacalc-write-congruences-to-file
+   :uacalc-read-congruences-from-file
    :calculate-direct-power-numerically
    :calculate-direct-product-numerically
    :calculate-free-algebra

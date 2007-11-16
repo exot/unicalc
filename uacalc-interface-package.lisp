@@ -9,9 +9,16 @@
    :terms
    :equations)
  (:export
-;; uacalc-interface-io
+;; uacalc-interface-basic-io
    :uacalc-interface-error
    :uacalc-io-error
+;; uacalc-interface-io
+   :uacalc-read-algebra-from-file
+   :uacalc-write-algebra-to-file
+   :uacalc-write-vector-list-to-file
+   :uacalc-read-vector-list-from-file
+   :uacalc-write-congruences-to-file
+   :uacalc-read-congruences-from-file
 ;; uacalc-interface-uab-standard
 ;; uacalc-interface-direct-product
    :calculate-direct-power-numerically

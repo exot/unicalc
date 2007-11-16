@@ -15,284 +15,306 @@
   (run-tests (reverse *debugging-outputs*))
   (values))
 
-;; functions and relations
+;; sets
 
-(defparameter *A* (make-set '(a b c d e)))
-(defparameter *B* (make-set '(1 2 3 4 5 6 7)))
+(define-test-case set-test-1 () t
+  (set-equal {1} {1}))
 
-(defparameter *R* (make-relation *A* *B* '((a 1) (b 2) (c 3) (d 4) (e 7))))
+(define-test-case set-test-2 () nil
+  (set-equal {1} {{1}}))
 
-(defparameter *myfunc* (make-function *A* *B* *R*))
+(define-test-case set-test-3 () t
+  (set-equal {{3} {2 1} 4} {{1 2} 4 {3}}))
 
-(defparameter *C* (make-set '(1 2)))
-(defparameter *D* (make-set '(a b)))
+;; (define-test-case set-test-1 () 512
+;;   (card (subsets (tuples {1 2 3} 2))))
 
-(defparameter *identity* (make-function *C* *D* '((1 a) (2 b))))
+;; (define-test-case set-test-2 () 64
+;;   (card (tuples (subsets {1 2 3}) 2)))
 
-(defparameter *constantly-b* (make-function *C* '(b) '((1 b) (2 b))))
+;; (define-test-case set-test-3 () 10
+;;   (card (n-elemental-subsets {0 1 2 3 4} 3)))
 
-(defparameter *signature-3* (make-signature '(+ -) '((+ 2) (- 1))))
+(run-tests '(set-test-1 set-test-2 set-test-3))
 
-(defparameter *interpretation*  '((+
-				   ((1 1) 2)
-				   ((1 2) 2)
-				   ((2 1) 1)
-				   ((2 2) 2))
-				  (-
-				   ((1) 2)
-				   ((2) 1))))
+;; ;; functions and relations
 
-(defparameter *algebra-C* (make-algebra *C* *signature-3* *interpretation*))
+;; (defparameter *A* (make-set '(a b c d e)))
+;; (defparameter *B* (make-set '(1 2 3 4 5 6 7)))
 
-(defparameter *algebra-D* (make-algebra *D* *signature-3*
-					'((+
-					   ((a a) b)
-					   ((a b) b)
-					   ((b a) a)
-					   ((b b) b))
-					  (-
-					   ((a) b)
-					   ((b) a)))))
+;; (defparameter *R* (make-relation *A* *B* '((a 1) (b 2) (c 3) (d 4) (e 7))))
 
-(defparameter *base-set* (make-set '(0 1 2)))
+;; (defparameter *myfunc* (make-function *A* *B* *R*))
 
-(defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
+;; (defparameter *C* (make-set '(1 2)))
+;; (defparameter *D* (make-set '(a b)))
 
-(define-operation p-impl (a b)
-  (rem (+ a b) 3))
+;; (defparameter *identity* (make-function *C* *D* '((1 a) (2 b))))
 
-(defparameter *algebra* (make-algebra *base-set* *signature*
-				      '((+ ((0) 0) 
-					 ((1) 1)
-					 ((2) 2))
-					(^ ((0 0 0) 1)
-					 ((0 0 1) 2)
-					 ((0 0 2) 0)
-					 ((0 1 0) 1)
-					 ((0 1 1) 1)
-					 ((0 1 2) 0)
-					 ((0 2 0) 2)
-					 ((0 2 1) 2)
-					 ((0 2 2) 0)
-					 ((1 0 0) 0)
-					 ((1 0 1) 2)
-					 ((1 0 2) 0)
-					 ((1 1 0) 1)
-					 ((1 1 1) 2)
-					 ((1 1 2) 0)
-					 ((1 2 0) 0)
-					 ((1 2 1) 0)
-					 ((1 2 2) 1)
-					 ((2 0 0) 1)
-					 ((2 0 1) 1)
-					 ((2 0 2) 2)
-					 ((2 1 0) 0)
-					 ((2 1 1) 1)
-					 ((2 1 2) 1)
-					 ((2 2 0) 1)
-					 ((2 2 1) 0)
-					 ((2 2 2) 1))
-					(p p-impl))))
+;; (defparameter *constantly-b* (make-function *C* '(b) '((1 b) (2 b))))
 
-(define-output-test (print (interpretations-on *algebra*)))
-(define-output-test (print (signature-of *algebra*)))
-(define-output-test (print (base-set-of *algebra*)))
+;; (defparameter *signature-3* (make-signature '(+ -) '((+ 2) (- 1))))
 
-(define-operation NAND (x y)
-  (if (and (plusp x) (plusp y))
-        0
-        1))
+;; (defparameter *interpretation*  '((+
+;; 				   ((1 1) 2)
+;; 				   ((1 2) 2)
+;; 				   ((2 1) 1)
+;; 				   ((2 2) 2))
+;; 				  (-
+;; 				   ((1) 2)
+;; 				   ((2) 1))))
 
-(defparameter *boolean-algebra* 
-  (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
-    '((NAND NAND))))
+;; (defparameter *algebra-C* (make-algebra *C* *signature-3* *interpretation*))
 
-(define-output-test (print (interpretations-on *boolean-algebra*)))
+;; (defparameter *algebra-D* (make-algebra *D* *signature-3*
+;; 					'((+
+;; 					   ((a a) b)
+;; 					   ((a b) b)
+;; 					   ((b a) a)
+;; 					   ((b b) b))
+;; 					  (-
+;; 					   ((a) b)
+;; 					   ((b) a)))))
 
-;;; terms
+;; (defparameter *base-set* (make-set '(0 1 2)))
 
-(defparameter *global-term-algebra* 
-  (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
-                     *signature*))
+;; (defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
 
-(define-test-case var-test-1 () t
-  (true-value-p (variablep *global-term-algebra* 'v0)))
+;; (define-operation p-impl (a b)
+;;   (rem (+ a b) 3))
 
-(define-test-case var-test-2 () nil
-  (true-value-p (variablep *global-term-algebra* 'v9)))
+;; (defparameter *algebra* (make-algebra *base-set* *signature*
+;; 				      '((+ ((0) 0)
+;; 					 ((1) 1)
+;; 					 ((2) 2))
+;; 					(^ ((0 0 0) 1)
+;; 					 ((0 0 1) 2)
+;; 					 ((0 0 2) 0)
+;; 					 ((0 1 0) 1)
+;; 					 ((0 1 1) 1)
+;; 					 ((0 1 2) 0)
+;; 					 ((0 2 0) 2)
+;; 					 ((0 2 1) 2)
+;; 					 ((0 2 2) 0)
+;; 					 ((1 0 0) 0)
+;; 					 ((1 0 1) 2)
+;; 					 ((1 0 2) 0)
+;; 					 ((1 1 0) 1)
+;; 					 ((1 1 1) 2)
+;; 					 ((1 1 2) 0)
+;; 					 ((1 2 0) 0)
+;; 					 ((1 2 1) 0)
+;; 					 ((1 2 2) 1)
+;; 					 ((2 0 0) 1)
+;; 					 ((2 0 1) 1)
+;; 					 ((2 0 2) 2)
+;; 					 ((2 1 0) 0)
+;; 					 ((2 1 1) 1)
+;; 					 ((2 1 2) 1)
+;; 					 ((2 2 0) 1)
+;; 					 ((2 2 1) 0)
+;; 					 ((2 2 2) 1))
+;; 					(p p-impl))))
 
-(define-test-case var-test-3 () t
-  (true-value-p (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2))))))
+;; (define-output-test (print (interpretations-on *algebra*)))
+;; (define-output-test (print (signature-of *algebra*)))
+;; (define-output-test (print (base-set-of *algebra*)))
 
-(run-tests '(var-test-1 var-test-2 var-test-3))
+;; (define-operation NAND (x y)
+;;   (if (and (plusp x) (plusp y))
+;;         0
+;;         1))
 
-;; subalgebras
+;; (defparameter *boolean-algebra*
+;;   (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
+;;     '((NAND NAND))))
 
-(defparameter *signature-2* (make-signature '(+ -) '((+ 2) (- 2))))
+;; (define-output-test (print (interpretations-on *boolean-algebra*)))
 
-(defparameter *algebra-2* (make-algebra '(0 1 2) *signature-2*
-                                        '((+
-                                           ((0 0) 0)
-                                           ((1 0) 1)
-                                           ((0 1) 1)
-                                           ((0 2) 2)
-                                           ((1 1) 2)
-                                           ((2 0) 2)
-                                           ((1 2) 0)
-                                           ((2 1) 0)
-                                           ((2 2) 1))
-                                          (-
-                                           ((0 0) 0)
-                                           ((1 0) 0)
-                                           ((0 1) 0)
-                                           ((0 2) 0)
-                                           ((2 0) 0)
-                                           ((1 1) 0)
-                                           ((1 2) 0)
-                                           ((2 1) 0)
-                                           ((2 2) 0)))))
+;; ;;; terms
 
-(defparameter *signature-empty* (make-signature '(*) '((* 0))))
+;; (defparameter *global-term-algebra*
+;;   (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
+;;                      *signature*))
 
-(define-operation *-impl () 0) ; this is only a test, you may want to write this directly into the definition
+;; (define-test-case var-test-1 () t
+;;   (true-value-p (variablep *global-term-algebra* 'v0)))
 
-(defparameter *algebra-3* (make-algebra '(0 1 2) *signature-empty* '((* *-impl))))
+;; (define-test-case var-test-2 () nil
+;;   (true-value-p (variablep *global-term-algebra* 'v9)))
 
-(define-test-case calc-test () t
-  (set-equal (calculate-generating-elements *algebra-3*)
-	     {1 2}))
+;; (define-test-case var-test-3 () t
+;;   (true-value-p (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2))))))
 
-(define-test-case hom-test-1 () t
-  (homomorphism-p *identity* *algebra-C* *algebra-D*))
+;; (run-tests '(var-test-1 var-test-2 var-test-3))
 
-(define-test-case hom-test-2 () nil
-  (homomorphism-p *constantly-b* *algebra-C* *algebra-D*))
+;; ;; subalgebras
 
-(define-test-case quasi-hom-test () t
-  (quasi-homomorphism-p *constantly-b* *algebra-C*))
+;; (defparameter *signature-2* (make-signature '(+ -) '((+ 2) (- 2))))
 
-(defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
+;; (defparameter *algebra-2* (make-algebra '(0 1 2) *signature-2*
+;;                                         '((+
+;;                                            ((0 0) 0)
+;;                                            ((1 0) 1)
+;;                                            ((0 1) 1)
+;;                                            ((0 2) 2)
+;;                                            ((1 1) 2)
+;;                                            ((2 0) 2)
+;;                                            ((1 2) 0)
+;;                                            ((2 1) 0)
+;;                                            ((2 2) 1))
+;;                                           (-
+;;                                            ((0 0) 0)
+;;                                            ((1 0) 0)
+;;                                            ((0 1) 0)
+;;                                            ((0 2) 0)
+;;                                            ((2 0) 0)
+;;                                            ((1 1) 0)
+;;                                            ((1 2) 0)
+;;                                            ((2 1) 0)
+;;                                            ((2 2) 0)))))
 
-(define-test-case hom-test-3 () t
-  (homomorphism-p *constantly-b* *algebra-C* *image-under-c*))
+;; (defparameter *signature-empty* (make-signature '(*) '((* 0))))
 
-(defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
-                                                   '((0 1) (1 1) (2 2))))
+;; (define-operation *-impl () 0) ; this is only a test, you may want to write this directly into the definition
 
-(define-test-case hom-test-4 () nil
-  (quasi-homomorphism-p *non-quasi-homomorph* *algebra*))
+;; (defparameter *algebra-3* (make-algebra '(0 1 2) *signature-empty* '((* *-impl))))
 
-(run-tests '(hom-test-1 hom-test-2 quasi-hom-test hom-test-4 hom-test-4))
+;; (define-test-case calc-test () t
+;;   (set-equal (calculate-generating-elements *algebra-3*)
+;; 	     {1 2}))
 
-(define-output-test (print (subalgebra-generated-by-elements *algebra-3* {})))
+;; (define-test-case hom-test-1 () t
+;;   (homomorphism-p *identity* *algebra-C* *algebra-D*))
 
-;;; equations
+;; (define-test-case hom-test-2 () nil
+;;   (homomorphism-p *constantly-b* *algebra-C* *algebra-D*))
 
-(define-test-case eqn-test-1 () t
-  (equal 2 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 1) (y 2)))))
+;; (define-test-case quasi-hom-test () t
+;;   (quasi-homomorphism-p *constantly-b* *algebra-C*))
 
-(define-test-case eqn-test-2 () t
-  (equal 1 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 2) (y 1)))))
+;; (defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
 
-(run-tests '(eqn-test-1 eqn-test-2))
+;; (define-test-case hom-test-3 () t
+;;   (homomorphism-p *constantly-b* *algebra-C* *image-under-c*))
 
-;;; iterating over functions
+;; (defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
+;;                                                    '((0 1) (1 1) (2 2))))
 
-(define-output-test (forall (x (all-functions {1 2 3} {a b})) (print x)))
+;; (define-test-case hom-test-4 () nil
+;;   (quasi-homomorphism-p *non-quasi-homomorph* *algebra*))
 
-;;; isomorphics
+;; (run-tests '(hom-test-1 hom-test-2 quasi-hom-test hom-test-4 hom-test-4))
 
-(define-test-case iso-test-1 () t
-  (when (isomorphic-p *algebra-c* *algebra-d*)
-    t))
+;; (define-output-test (print (subalgebra-generated-by-elements *algebra-3* {})))
 
-(define-test-case iso-test-2 () nil
-  (isomorphic-p *algebra* *algebra-2*))
+;; ;;; equations
 
-(run-tests '(iso-test-1 iso-test-2))
+;; (define-test-case eqn-test-1 () t
+;;   (equal 2 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 1) (y 2)))))
 
-;;; assigment extension
+;; (define-test-case eqn-test-2 () t
+;;   (equal 1 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 2) (y 1)))))
 
-(defparameter *ganters-algebra*
-  (make-algebra {0 1 2 3 4}
-		(make-signature {+} {(+ 2)})
-		{(+
-		  ((0 0) 0)
-		  ((0 1) 0)
-		  ((0 2) 0)
-		  ((0 3) 0)
-		  ((0 4) 2)
-		  ((1 0) 0)
-		  ((1 1) 1)
-		  ((1 2) 1)
-		  ((1 3) 2)
-		  ((1 4) 4)
-		  ((2 0) 0)
-		  ((2 1) 1)
-		  ((2 2) 2)
-		  ((2 3) 3)
-		  ((2 4) 4)
-		  ((3 0) 0)
-		  ((3 1) 2)
-		  ((3 2) 3)
-		  ((3 3) 3)
-		  ((3 4) 4)
-		  ((4 0) 2)
-		  ((4 1) 4)
-		  ((4 2) 4)
-		  ((4 3) 4)
-		  ((4 4) 4))}))
+;; (run-tests '(eqn-test-1 eqn-test-2))
 
-(defparameter *free-algebra*
-  (make-algebra {0 1 2 3 4}
-		(make-signature {+} {(+ 2)})
-		{(+
-		  ((0 0) 0)
-		  ((0 1) 2)
-		  ((0 2) 3)
-		  ((0 3) 3)
-		  ((0 4) 2)
-		  ((1 0) 2)
-		  ((1 1) 1)
-		  ((1 2) 4)
-		  ((1 3) 2)
-		  ((1 4) 4)
-		  ((2 0) 3)
-		  ((2 1) 4)
-		  ((2 2) 2)
-		  ((2 3) 3)
-		  ((2 4) 4)
-		  ((3 0) 3)
-		  ((3 1) 2)
-		  ((3 2) 3)
-		  ((3 3) 3)
-		  ((3 4) 2)
-		  ((4 0) 2)
-		  ((4 1) 4)
-		  ((4 2) 4)
-		  ((4 3) 2)
-		  ((4 4) 4))}))
+;; ;;; iterating over functions
 
-(defparameter *symbolized-free-algebra*
-  (symbolize-free-algebra *free-algebra*))
+;; (define-output-test (forall (x (all-functions {1 2 3} {a b})) (print x)))
 
-(define-output-test (print *free-algebra*))
-(define-output-test (print *symbolized-free-algebra*))
-(define-output-test (print (extract-all-equations *symbolized-free-algebra*)))
+;; ;;; isomorphics
 
-(defun test-case-1 ()
-  (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
+;; (define-test-case iso-test-1 () t
+;;   (when (isomorphic-p *algebra-c* *algebra-d*)
+;;     t))
 
-;; tests from mike
+;; (define-test-case iso-test-2 () nil
+;;   (isomorphic-p *algebra* *algebra-2*))
 
-(define-operation f-impl-1 (x y)
-  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 2 0) (2 2 0 2)) x y))
+;; (run-tests '(iso-test-1 iso-test-2))
 
-(define-operation g-impl-1 (x y)
-  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 3 0) (2 2 0 3)) x y))
+;; ;;; assigment extension
 
-(defparameter *signature-4* (make-signature {f} {(f 2)}))
+;; (defparameter *ganters-algebra*
+;;   (make-algebra {0 1 2 3 4}
+;; 		(make-signature {+} {(+ 2)})
+;; 		{(+
+;; 		  ((0 0) 0)
+;; 		  ((0 1) 0)
+;; 		  ((0 2) 0)
+;; 		  ((0 3) 0)
+;; 		  ((0 4) 2)
+;; 		  ((1 0) 0)
+;; 		  ((1 1) 1)
+;; 		  ((1 2) 1)
+;; 		  ((1 3) 2)
+;; 		  ((1 4) 4)
+;; 		  ((2 0) 0)
+;; 		  ((2 1) 1)
+;; 		  ((2 2) 2)
+;; 		  ((2 3) 3)
+;; 		  ((2 4) 4)
+;; 		  ((3 0) 0)
+;; 		  ((3 1) 2)
+;; 		  ((3 2) 3)
+;; 		  ((3 3) 3)
+;; 		  ((3 4) 4)
+;; 		  ((4 0) 2)
+;; 		  ((4 1) 4)
+;; 		  ((4 2) 4)
+;; 		  ((4 3) 4)
+;; 		  ((4 4) 4))}))
 
-(defparameter *4-f* (make-algebra {0 1 2 3} *signature-4* {(f f-impl-1)}))
+;; (defparameter *free-algebra*
+;;   (make-algebra {0 1 2 3 4}
+;; 		(make-signature {+} {(+ 2)})
+;; 		{(+
+;; 		  ((0 0) 0)
+;; 		  ((0 1) 2)
+;; 		  ((0 2) 3)
+;; 		  ((0 3) 3)
+;; 		  ((0 4) 2)
+;; 		  ((1 0) 2)
+;; 		  ((1 1) 1)
+;; 		  ((1 2) 4)
+;; 		  ((1 3) 2)
+;; 		  ((1 4) 4)
+;; 		  ((2 0) 3)
+;; 		  ((2 1) 4)
+;; 		  ((2 2) 2)
+;; 		  ((2 3) 3)
+;; 		  ((2 4) 4)
+;; 		  ((3 0) 3)
+;; 		  ((3 1) 2)
+;; 		  ((3 2) 3)
+;; 		  ((3 3) 3)
+;; 		  ((3 4) 2)
+;; 		  ((4 0) 2)
+;; 		  ((4 1) 4)
+;; 		  ((4 2) 4)
+;; 		  ((4 3) 2)
+;; 		  ((4 4) 4))}))
 
-(defparameter *4-g* (make-algebra {0 1 2 3} *signature-4* {(f g-impl-1)}))
+;; (defparameter *symbolized-free-algebra*
+;;   (symbolize-free-algebra *free-algebra*))
+
+;; (define-output-test (print *free-algebra*))
+;; (define-output-test (print *symbolized-free-algebra*))
+;; (define-output-test (print (extract-all-equations *symbolized-free-algebra*)))
+
+;; (defun test-case-1 ()
+;;   (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
+
+;; ;; tests from mike
+
+;; (define-operation f-impl-1 (x y)
+;;   (aref #2A((0 1 3 1) (0 0 3 0) (1 1 2 0) (2 2 0 2)) x y))
+
+;; (define-operation g-impl-1 (x y)
+;;   (aref #2A((0 1 3 1) (0 0 3 0) (1 1 3 0) (2 2 0 3)) x y))
+
+;; (defparameter *signature-4* (make-signature {f} {(f 2)}))
+
+;; (defparameter *4-f* (make-algebra {0 1 2 3} *signature-4* {(f f-impl-1)}))
+
+;; (defparameter *4-g* (make-algebra {0 1 2 3} *signature-4* {(f g-impl-1)}))

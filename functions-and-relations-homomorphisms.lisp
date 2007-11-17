@@ -21,10 +21,8 @@
            (type symbol operation))
   "Returns non-NIL if FUNCTION is a OPERATION-homomorphism between ALGEBRA1 and ALGEBRA2."
    (and (algebras-of-same-signature-p algebra1 algebra2)
-        (set-equal (source function) (base-set-of algebra1)
-                   :test (equal-pred-of-algebra algebra1))
-        (subsetp (target function) (base-set-of algebra2)
-                 :test (equal-pred-of-algebra function))
+        (set-equal (source function) (base-set-of algebra1))
+        (subsetp-s (target function) (base-set-of algebra2))
         (op-homomorphic-p function operation algebra1 algebra2)))
 
 (defun homomorphism-p (function algebra1 algebra2)
@@ -33,10 +31,8 @@
   "Returns non-NIL if FUNCTION is a homomorphism between ALGEBRA1 and
   ALGEBRA2."
   (and (algebras-of-same-signature-p algebra1 algebra2)
-       (set-equal (source function) (base-set-of algebra1)
-                  :test (equal-pred-of-algebra algebra1))
-       (subsetp (target function) (base-set-of algebra2)
-                :test (equal-pred-of-algebra algebra2))
+       (set-equal (source function) (base-set-of algebra1))
+       (subsetp-s (target function) (base-set-of algebra2))
        (let ((signature (signature-of algebra1)))
 	       (forall (op (function-symbols-of signature))
                  (op-homomorphic-p function op algebra1 algebra2)))))
@@ -65,14 +61,14 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 	   (let ((arity (arity-of-function-symbol signature op)))
 	     (forall (x (tuples base-set arity))
 	       (forall (y (tuples base-set arity))
-		 (=> (equal (apply-function-to-tuple function x)
-			    (apply-function-to-tuple function y))
-		     (equal (apply-function-to-element
-			     function
-			     (apply-operation-in-algebra op x algebra))
-			    (apply-function-to-element
-			     function
-			     (apply-operation-in-algebra op y algebra)))))))))))
+		 (=> (set-equal (apply-function-to-tuple function x)
+				(apply-function-to-tuple function y))
+		     (set-equal (apply-function-to-element
+				 function
+				 (apply-operation-in-algebra op x algebra))
+				(apply-function-to-element
+				 function
+				 (apply-operation-in-algebra op y algebra)))))))))))
 
 (defun apply-quasihomomorphism-to-algebra (function algebra)
   (declare (type algebraic-function function)
@@ -80,7 +76,7 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
   "Applies the quasihomomorphism FUNCTION to ALGEBRA yielding the image
   algebra."
   (cond
-     ((not (quasi-homomorphism-p function algebra))
+    ((not (quasi-homomorphism-p function algebra))
       (error 'no-quasihomomorphism
              :text (format nil "~A is not a quasihomomorphis on ~A"
                            function algebra)))
@@ -99,7 +95,7 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
            (type standard-set interpretations))
   "Applies FUNCTION to INTERPRETATIONS consisting of pairs of function symbols
    and implementing functions."
-  (mapcar #'(lambda (table) (apply-function-to-table function table))
+  (mapset #'(lambda (table) (apply-function-to-table function table))
           interpretations))
 
 (defun apply-function-to-table (function table)
@@ -120,8 +116,7 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
           (new-target (apply-function-to-set function (source function))))
       (list (function-symbol-of table)
             (make-function new-source new-target
-			   (make-set new-graph
-                                     :test (equal-pred function)))))))
+			   (make-set new-graph))))))
 
 (defun all-homomorphisms (algebra1 algebra2)
   (declare (type algebra algebra1 algebra2))
@@ -143,8 +138,8 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
   (declare (type algebra algebra1 algebra2))
   "Returns isomorphmis between ALGEBRA1 and ALGEBRA2 if existent,
    NIL otherwise."
-  (when (and (= (card (base-set-of algebra1))
-		(card (base-set-of algebra2)))
+  (when (and (= (card-s (base-set-of algebra1))
+		(card-s (base-set-of algebra2)))
 	     (algebras-of-same-signature-p algebra1 algebra2))
     (let ((isos (all-isomorphisms algebra1 algebra2)))
       (funcall (next isos)))))

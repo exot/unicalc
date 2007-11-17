@@ -69,10 +69,48 @@
 (defparameter *A* {a b c d e})
 (defparameter *B* {1 2 3 4 5 6 7})
 
-(defparameter *R* (make-relation *A* *B* {(a 1) (b 2) (c 3) (d 4) (e 7)}))
+(defparameter *R* nil)
+
+(define-test-case-without-errors rel-test-1 ()
+  (setq *R* (make-relation *A* *B* {(a 1) (b 2) (c 3) (d 4) (e 7)})))
 
 (defparameter *C* {1 2})
 (defparameter *D* {a b})
+
+(define-test-case-with-errors rel-test-2 ()
+  (make-relation *A* *B* {(a 1) (b 2) (c 3 d)}))
+
+(define-test-case-with-errors rel-test-3 ()
+  (make-relation *A* *B* {(b 2) (1 a)}))
+
+(run-tests '(rel-test-1 rel-test-2 rel-test-3))
+
+(define-test-case rel-test-4 () nil
+  (reflexiv-p *R*))
+
+(define-test-case rel-test-5 () t
+  (anti-symmetric-p *R*))
+
+(define-test-case rel-test-6 () nil
+  (transitive-p *R*))
+
+(define-test-case rel-test-7 () t
+  (equivalence-relation-p (equivalence-relation-from-partition {{1 2} {3} {4 5}})))
+
+(define-test-case rel-test-8 () t
+  (set-equal (graph *R*)
+	     (graph (inverse-relation (inverse-relation *R*)))))
+
+(define-test-case rel-test-9 () t
+  (emptyp-s (graph (relation-product *R* *R*))))
+
+(define-test-case rel-test-a () t
+  (set-equal (source (relation-product *R* (inverse-relation *R*)))
+	     {a b c d e}))
+
+(run-tests '(rel-test-4 rel-test-5 rel-test-6
+	     rel-test-7 rel-test-8 rel-test-9
+	     rel-test-a))
 
 ;; functions
 
@@ -320,24 +358,22 @@
 
 (run-tests '(alg-test-8 alg-test-9 alg-test-a))
 
-;; ;;; terms
+;;; terms
 
-;; (defparameter *global-term-algebra*
-;;   (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
-;;                      *signature*))
+(defparameter *global-term-algebra*
+  (make-term-algebra '(v0 v1 v2 v3 v4 v5 v6)
+                      *signature*))
 
-;; (define-test-case var-test-1 () t
-;;   (true-value-p (variablep *global-term-algebra* 'v0)))
+(define-test-case var-test-1 () t
+  (true-value-p (variablep *global-term-algebra* 'v0)))
 
-;; (define-test-case var-test-2 () nil
-;;   (true-value-p (variablep *global-term-algebra* 'v9)))
+(define-test-case var-test-2 () nil
+  (true-value-p (variablep *global-term-algebra* 'v9)))
 
-;; (define-test-case var-test-3 () t
-;;   (true-value-p (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2))))))
+(define-test-case var-test-3 () t
+  (true-value-p (termp *global-term-algebra* '(+ (p v0 (^ v0 v1 v2))))))
 
-;; (run-tests '(var-test-1 var-test-2 var-test-3))
-
-;; ;; subalgebras
+(run-tests '(var-test-1 var-test-2 var-test-3))
 
 (defparameter *signature-2* (make-signature {+ -} {(+ 2) (- 2)}))
 
@@ -369,118 +405,152 @@
 
 (defparameter *algebra-3* (make-algebra {0 1 2} *signature-empty* '((* *-impl))))
 
-;; (define-test-case calc-test () t
-;;   (set-equal (calculate-generating-elements *algebra-3*)
-;; 	     {1 2}))
+;;; functions and relations
 
-;; (define-test-case hom-test-1 () t
-;;   (homomorphism-p *identity* *algebra-C* *algebra-D*))
+(define-test-case hom-test-1 () t
+  (homomorphism-p *identity* *algebra-C* *algebra-D*))
 
-;; (define-test-case hom-test-2 () nil
-;;   (homomorphism-p *constantly-b* *algebra-C* *algebra-D*))
+(define-test-case hom-test-2 () nil
+  (homomorphism-p *constantly-b* *algebra-C* *algebra-D*))
 
-;; (define-test-case quasi-hom-test () t
-;;   (quasi-homomorphism-p *constantly-b* *algebra-C*))
+(define-test-case quasi-hom-test () t
+  (quasi-homomorphism-p *constantly-b* *algebra-C*))
 
-;; (defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b* *algebra-c*))
+(defparameter *image-under-c* (apply-quasihomomorphism-to-algebra *constantly-b*
+								  *algebra-c*))
 
-;; (define-test-case hom-test-3 () t
-;;   (homomorphism-p *constantly-b* *algebra-C* *image-under-c*))
+(define-test-case hom-test-3 () t
+  (homomorphism-p *constantly-b* *algebra-C* *image-under-c*))
 
-;; (defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
-;;                                                    '((0 1) (1 1) (2 2))))
+(defparameter *non-quasi-homomorph* (make-function *base-set* *base-set*
+                                                   '((0 1) (1 1) (2 2))))
 
-;; (define-test-case hom-test-4 () nil
-;;   (quasi-homomorphism-p *non-quasi-homomorph* *algebra*))
+(define-test-case hom-test-4 () nil
+  (quasi-homomorphism-p *non-quasi-homomorph* *algebra*))
 
-;; (run-tests '(hom-test-1 hom-test-2 quasi-hom-test hom-test-4 hom-test-4))
+(run-tests '(hom-test-1 hom-test-2 quasi-hom-test hom-test-4 hom-test-4))
 
-;; (define-output-test (print (subalgebra-generated-by-elements *algebra-3* {})))
+(define-test-case iso-test-1 () t
+  (true-value-p (isomorphic-p *algebra-c* *algebra-d*)))
 
-;; ;;; equations
+(define-test-case iso-test-2 () nil
+  (isomorphic-p *algebra* *algebra-2*))
 
-;; (define-test-case eqn-test-1 () t
-;;   (equal 2 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 1) (y 2)))))
+(run-tests '(iso-test-1 iso-test-2))
 
-;; (define-test-case eqn-test-2 () t
-;;   (equal 1 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 2) (y 1)))))
+(define-test-case cong-test-1 () t
+  (let ((congruences (all-congruences-symbolically *algebra-3*)))
+    (and (= (length congruences) 5)
+	 (every #'(lambda (rel) (congruence-relation-p rel *algebra-3*))
+		congruences))))
 
-;; (run-tests '(eqn-test-1 eqn-test-2))
+(run-tests '(cong-test-1))
 
-;; ;;; iterating over functions
+;;; subalgebras
 
-;; ;;; isomorphics
+(define-test-case sub-test-1 () t
+  (set-equal (calculate-generating-elements *algebra*)
+	     {2}))
 
-;; (define-test-case iso-test-1 () t
-;;   (when (isomorphic-p *algebra-c* *algebra-d*)
-;;     t))
+(define-test-case sub-test-2 () t
+  (set-equal (calculate-generating-elements *algebra-d*)
+	     {b}))
 
-;; (define-test-case iso-test-2 () nil
-;;   (isomorphic-p *algebra* *algebra-2*))
+(define-test-case sub-test-3 () t
+  (set-equal (calculate-generating-elements *algebra-3*)
+	     {1 2}))
 
-;; (run-tests '(iso-test-1 iso-test-2))
+(define-test-case sub-test-4 () t
+  (set-equal (base-set-of (subalgebra-generated-by-elements *algebra-3* {}))
+	     {0}))
 
-;; ;;; assigment extension
+(define-test-case sub-test-5 () t
+  (set-equal (apply-function-to-element
+	      (homomorphism-from-assignment *algebra* {1}
+					    {(1 1)})
+	      0)
+	     '(^ 1 1 (^ 1 1 1))))
 
-;; (defparameter *ganters-algebra*
-;;   (make-algebra {0 1 2 3 4}
-;; 		(make-signature {+} {(+ 2)})
-;; 		{(+
-;; 		  ((0 0) 0)
-;; 		  ((0 1) 0)
-;; 		  ((0 2) 0)
-;; 		  ((0 3) 0)
-;; 		  ((0 4) 2)
-;; 		  ((1 0) 0)
-;; 		  ((1 1) 1)
-;; 		  ((1 2) 1)
-;; 		  ((1 3) 2)
-;; 		  ((1 4) 4)
-;; 		  ((2 0) 0)
-;; 		  ((2 1) 1)
-;; 		  ((2 2) 2)
-;; 		  ((2 3) 3)
-;; 		  ((2 4) 4)
-;; 		  ((3 0) 0)
-;; 		  ((3 1) 2)
-;; 		  ((3 2) 3)
-;; 		  ((3 3) 3)
-;; 		  ((3 4) 4)
-;; 		  ((4 0) 2)
-;; 		  ((4 1) 4)
-;; 		  ((4 2) 4)
-;; 		  ((4 3) 4)
-;; 		  ((4 4) 4))}))
+(run-tests '(sub-test-1 sub-test-2 sub-test-3
+	     sub-test-4 sub-test-5))
 
-;; (defparameter *free-algebra*
-;;   (make-algebra {0 1 2 3 4}
-;; 		(make-signature {+} {(+ 2)})
-;; 		{(+
-;; 		  ((0 0) 0)
-;; 		  ((0 1) 2)
-;; 		  ((0 2) 3)
-;; 		  ((0 3) 3)
-;; 		  ((0 4) 2)
-;; 		  ((1 0) 2)
-;; 		  ((1 1) 1)
-;; 		  ((1 2) 4)
-;; 		  ((1 3) 2)
-;; 		  ((1 4) 4)
-;; 		  ((2 0) 3)
-;; 		  ((2 1) 4)
-;; 		  ((2 2) 2)
-;; 		  ((2 3) 3)
-;; 		  ((2 4) 4)
-;; 		  ((3 0) 3)
-;; 		  ((3 1) 2)
-;; 		  ((3 2) 3)
-;; 		  ((3 3) 3)
-;; 		  ((3 4) 2)
-;; 		  ((4 0) 2)
-;; 		  ((4 1) 4)
-;; 		  ((4 2) 4)
-;; 		  ((4 3) 2)
-;; 		  ((4 4) 4))}))
+;;; equations
+
+(define-test-case eqn-test-1 () t
+  (equal 2 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 1) (y 2)))))
+
+(define-test-case eqn-test-2 () t
+  (equal 1 (evaluate-term-in-algebra *algebra-c* '(+ x y) '((x 2) (y 1)))))
+
+(define-test-case eqn-test-3 () nil
+  (equation-holds-in-algebra-p *algebra* {x} '((^ x x x) x)))
+
+(define-test-case eqn-test-4 () t
+  (equation-holds-in-algebra-p *algebra* {x y} '((p x y) (p y x))))
+
+(run-tests '(eqn-test-1 eqn-test-2 eqn-test-3 eqn-test-4))
+
+;;;
+
+(defparameter *ganters-algebra*
+  (make-algebra {0 1 2 3 4}
+		(make-signature {+} {(+ 2)})
+		{(+
+		  ((0 0) 0)
+		  ((0 1) 0)
+		  ((0 2) 0)
+		  ((0 3) 0)
+		  ((0 4) 2)
+		  ((1 0) 0)
+		  ((1 1) 1)
+		  ((1 2) 1)
+		  ((1 3) 2)
+		  ((1 4) 4)
+		  ((2 0) 0)
+		  ((2 1) 1)
+		  ((2 2) 2)
+		  ((2 3) 3)
+		  ((2 4) 4)
+		  ((3 0) 0)
+		  ((3 1) 2)
+		  ((3 2) 3)
+		  ((3 3) 3)
+		  ((3 4) 4)
+		  ((4 0) 2)
+		  ((4 1) 4)
+		  ((4 2) 4)
+		  ((4 3) 4)
+		  ((4 4) 4))}))
+
+(defparameter *free-algebra*
+  (make-algebra {0 1 2 3 4}
+		(make-signature {+} {(+ 2)})
+		{(+
+		  ((0 0) 0)
+		  ((0 1) 2)
+		  ((0 2) 3)
+		  ((0 3) 3)
+		  ((0 4) 2)
+		  ((1 0) 2)
+		  ((1 1) 1)
+		  ((1 2) 4)
+		  ((1 3) 2)
+		  ((1 4) 4)
+		  ((2 0) 3)
+		  ((2 1) 4)
+		  ((2 2) 2)
+		  ((2 3) 3)
+		  ((2 4) 4)
+		  ((3 0) 3)
+		  ((3 1) 2)
+		  ((3 2) 3)
+		  ((3 3) 3)
+		  ((3 4) 2)
+		  ((4 0) 2)
+		  ((4 1) 4)
+		  ((4 2) 4)
+		  ((4 3) 2)
+		  ((4 4) 4))}))
 
 ;; (defparameter *symbolized-free-algebra*
 ;;   (symbolize-free-algebra *free-algebra*))
@@ -492,16 +562,24 @@
 ;; (defun test-case-1 ()
 ;;   (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
 
-;; ;; tests from mike
+;;;; miscellaneous test cases
 
-;; (define-operation f-impl-1 (x y)
-;;   (aref #2A((0 1 3 1) (0 0 3 0) (1 1 2 0) (2 2 0 2)) x y))
+;; tests from mike
 
-;; (define-operation g-impl-1 (x y)
-;;   (aref #2A((0 1 3 1) (0 0 3 0) (1 1 3 0) (2 2 0 3)) x y))
+(define-operation f-impl-1 (x y)
+  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 2 0) (2 2 0 2)) x y))
 
-;; (defparameter *signature-4* (make-signature {f} {(f 2)}))
+(define-operation g-impl-1 (x y)
+  (aref #2A((0 1 3 1) (0 0 3 0) (1 1 3 0) (2 2 0 3)) x y))
 
-;; (defparameter *4-f* (make-algebra {0 1 2 3} *signature-4* {(f f-impl-1)}))
+(defparameter *signature-4* (make-signature {f} {(f 2)}))
 
-;; (defparameter *4-g* (make-algebra {0 1 2 3} *signature-4* {(f g-impl-1)}))
+(defparameter *4-f* (make-algebra {0 1 2 3} *signature-4* {(f f-impl-1)}))
+
+(defparameter *4-g* (make-algebra {0 1 2 3} *signature-4* {(f g-impl-1)}))
+
+(define-test-case misc-test-1 () t
+  (= (length (all-congruences-symbolically *4-f*))
+     (length (all-congruences-symbolically *4-g*))))
+
+(run-tests '(misc-test-1))

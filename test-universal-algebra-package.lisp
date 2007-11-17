@@ -4,9 +4,9 @@
    :technicals
    :fundamental-functions
    :universal-algebra
-;   :terms
-;   :subalgebras
-;   :equations
-;   :functions-and-relations
+   :terms
+   :functions-and-relations
+   :subalgebras
+   :equations
 ;   :uacalc-interface
    ))

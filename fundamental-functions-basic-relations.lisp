@@ -33,7 +33,7 @@
 
 (defun transitive-p (relation)
   (declare (type relation relation))
-  (and (relation-on-one-set-p relation)
+  (and (relation-on-one-set-p relation) ;; do we need this?
        (forall ((x y) (graph relation))
 	 (forall ((a b) (graph relation))
 	   (=> (set-equal y a :test (equal-pred (source relation)))

@@ -1,21 +1,22 @@
 (in-package :terms)
 
 (defclass term-algebra ()
-  ((variables :accessor variables-of :initarg :variables)
-   (signature :accessor signature-of :initarg :signature)))
+  ((variables :type standard-set :accessor variables-of :initarg :variables)
+   (signature :type signature    :accessor signature-of :initarg :signature)))
 
 (defun make-term-algebra (variables signature)
   "Returns TERM-ALGEBRA T_{signature}(variables)"
-  (declare (type standard-set variables)
+  (declare (type (or standard-set list) variables)
            (type signature signature))
   (make-instance 'term-algebra
-                 :variables variables
+                 :variables (ensure-standard-set variables)
                  :signature signature))
 
 (defun make-term-algebra-from-scratch (variables function-symbols
                                        rank-alphabet)
   "Returns TERM-ALGEBRA T_{(function-symbols,rank-alphabet)}(variables)"
-  (declare (type standard-set variables function-symbols rank-alphabet))
+  (declare (type (or standard-set list) variables)
+	   (type (or standard-set list) function-symbols rank-alphabet))
   (make-term-algebra variables (make-signature function-symbols
                                                rank-alphabet)))
 
@@ -24,7 +25,7 @@
   "Returns non-NIL if X designates a variable in TERM-ALGEBRA."
   (declare (type term-algebra term-algebra)
            (type t x))
-  (member x (variables-of term-algebra)))
+  (set-member-s x (variables-of term-algebra)))
 
 (declaim (inline function-symbol-p))
 (defun function-symbol-p (term-algebra f)
@@ -59,8 +60,6 @@
   (declare (type term-algebra term-algebra)
            (type t x))
   (and (termp term-algebra x) (listp x)))
-
-; (defun free-variables-of-term (...) ... )
 
 (defun operation-symbol-of (term-algebra x)
   (declare (type term-algebra term-algebra)

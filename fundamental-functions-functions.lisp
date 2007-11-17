@@ -22,6 +22,12 @@
   (:documentation "Returns ALGEBRAIC-FUNCTION object describing
 GRAPH-OR-FUNCTION."))
 
+(defmethod make-function ((source list) target graph-or-function)
+  (make-function (make-set source) target graph-or-function))
+
+(defmethod make-function (source (target list) graph-or-function)
+  (make-function source (make-set target) graph-or-function))
+
 (defmethod make-function (source target (graph standard-set))
   (declare (type standard-set source target))
   (cond

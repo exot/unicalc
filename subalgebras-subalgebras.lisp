@@ -5,8 +5,8 @@
 ;;; calculate generating elements
 
 (defun calculate-generating-elements (algebra)
-  "Returns list of generating elements of ALGEBRA of minimal length."
   (declare (type algebra algebra))
+  "Returns list of generating elements of ALGEBRA of minimal length."
   (labels ((check-incremental (n)
              (let ((elements (n-elements-generate-algebra algebra n)))
                (cond
@@ -15,20 +15,19 @@
     (check-incremental 0)))
 
 (defun n-elements-generate-algebra (algebra number-of-elements)
-  "Return list of NUMBER-OF-ELEMENTS elements of ALGEBRA if NUMBER-OF-ELEMENTS
-  elements in ALGEBRA exists which generate the whole ALGEBRA."
   (declare (type algebra algebra)
            (type integer number-of-elements))
+  "Return list of NUMBER-OF-ELEMENTS elements of ALGEBRA if NUMBER-OF-ELEMENTS
+  elements in ALGEBRA exists which generate the whole ALGEBRA."
   (labels ((check-first-subset-generates-algebra (subset)
              (cond
-               ((null subset) nil)
-               ((elements-generate-algebra-p (first subset) algebra)
-                (first subset))
-               (t (check-first-subset-generates-algebra (rest subset))))))
+               ((emptyp-s subset) nil)
+               ((elements-generate-algebra-p (first-s subset) algebra)
+                (first-s subset))
+               (t (check-first-subset-generates-algebra (rest-s subset))))))
     (check-first-subset-generates-algebra
       (n-elemental-subsets (base-set-of algebra)
-                            number-of-elements
-                           :equal-pred (equal-pred-of-algebra algebra)))))
+                            number-of-elements))))
 
 (defun elements-generate-algebra-p (elements algebra)
   "Return non-NIL if ELEMENTS generate ALGEBRA."
@@ -46,7 +45,7 @@
   (let ((new-element (next-reachable-element algebra elements)))
     (cond
       ((not new-element) elements)
-      (t (all-reachable-elements (cons new-element elements) algebra)))))
+      (t (all-reachable-elements (add-element-s new-element elements) algebra)))))
 
 (defun next-reachable-element (algebra reachable-elements)
   "Returns new element in ALGEBRAS which is reachable by elements
@@ -54,18 +53,16 @@
   (declare (type algebra algebra)
            (type standard-set reachable-elements))
   (let ((value-tables (interpretations-on algebra)))
-    (loop for table in value-tables
-          do (iterate-over-function-graph
-                 (implementing-function-of table) element
-               (when (and (subsetp (all-operands element) reachable-elements
-                                   :test (equal-pred-of-algebra algebra))
-                          (not (member (value-of-element element)
-                                       reachable-elements
-                                       :test (equal-pred-of-algebra algebra))))
-                 (return-from next-reachable-element
-                              (values (value-of-element element)
-                                      (all-operands element)
-                                      (function-symbol-of table))))))))
+    (loop-over-set table value-tables
+      (iterate-over-function-graph
+	  (implementing-function-of table) element
+	(when (and (subsetp-s (make-set (all-operands element)) reachable-elements)
+		   (not (set-member-s (value-of-element element)
+				      reachable-elements)))
+	  (return-from next-reachable-element
+	    (values (value-of-element element)
+		    (all-operands element)
+		    (function-symbol-of table))))))))
 
 ;;; here is still a lot todo
 
@@ -75,27 +72,26 @@
   (declare (type algebra algebra)
            (type standard-set elements))
   (cond
-    ((not (subsetp elements (base-set-of algebra)
-                   :test (equal-pred-of-algebra algebra)))
+    ((not (subsetp-s elements (base-set-of algebra)))
      (error 'subalgebra-error :text
             (format nil "Cannot generate algebra ~A from elements ~A~
                         ~%not being in the algebra." algebra elements)))
     (t (let ((new-base-set (all-reachable-elements elements algebra)))
          (cond
-           ((emptyp new-base-set)
+           ((emptyp-s new-base-set)
             (error 'subalgebra-error
                    :text "Cannot generate subalgebra from empty set."))
            (t (make-algebra new-base-set
                             (signature-of algebra)
                             (restrict-interpretations-to-set
-                              (interpretations-on algebra)
-                              new-base-set
-                              (signature-of algebra)))))))))
+			     (interpretations-on algebra)
+			     new-base-set
+			     (signature-of algebra)))))))))
 
 (defun restrict-interpretations-to-set (interpretations set signature)
   (declare (type standard-set interpretations set)
            (type signature signature))
-  (mapcar #'(lambda (interpre)
+  (mapset #'(lambda (interpre)
               (restrict-table-to-set interpre set signature))
           interpretations))
 
@@ -141,22 +137,20 @@
       (next-reachable-element algebra source)
     (cond
       ((null next-element)
-       (make-function (mapcar #'first graph)
-                      (mapcar #'second graph)
-                      graph
-                      :equal-pred (equal-pred-of-algebra algebra)))
+       (make-function (mapset #'first graph)
+                      (mapset #'second graph)
+                      graph))
       (t (let ((converted-operands
                  (mapcar
                    #'(lambda (x)
-                       (second (assoc x graph
-                                      :test (equal-pred-of-algebra algebra))))
+                       (second (assoc-s x graph)))
                    operands)))
            (extend-from-elements-into-termalgebra
              algebra
-             (cons next-element source)
-             (cons (list next-element
-                         (cons function-symbol converted-operands))
-                   graph)))))))
+             (add-element-s next-element source)
+             (add-element-s (list next-element
+				  (cons function-symbol converted-operands))
+			    graph)))))))
 
 (defun homomorphism-from-assignment (algebra elements graph)
   "Returns homomorphism extending GRAPH on ELEMENTS."
@@ -166,8 +160,7 @@
     ((not (elements-generate-algebra-p elements algebra))
      (error 'subalgebra-error :text
             (format nil "~A do not generate ~A" elements algebra)))
-    ((not (subsetp elements (mapcar #'first graph)
-                   :test (equal-pred-of-algebra algebra)))
+    ((not (subsetp-s elements (mapset #'first graph)))
      (error 'subalgebra-error :text
             (format nil "~A is not an assignment of ~A" graph elements)))
     (t (extend-from-elements-into-termalgebra algebra elements graph))))

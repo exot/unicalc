@@ -7,7 +7,7 @@
   "Returns non-NIL if RELATION is compatible with OPERATION on ALGEBRA."
   (let ((arity (arity-of-function-symbol (signature-of algebra) operation)))
     (and (not (null arity))
-         (forall (tuples (n-elemental-subsets (graph relation) arity))
+         (forall (tuples (tuples (graph relation) arity))
            (let ((first-arguments (mapcar #'first tuples))
                  (second-arguments (mapcar #'second tuples)))
              (in-relation-p relation
@@ -19,8 +19,8 @@
   (declare (type relation relation)
            (type algebra algebra))
   "Returns non-NIL if RELATION is compatible with all operations on ALGEBRA."
-  (every #'(lambda (op) (relation-is-compatible-with-operation-p relation op algebra))
-         (function-symbols-of (signature-of algebra))))
+  (forall (op (function-symbols-of (signature-of algebra)))
+    (relation-is-compatible-with-operation-p relation op algebra)))
 
 (defun congruence-relation-p (relation algebra)
   (declare (type relation relation)
@@ -31,10 +31,10 @@
 
 (defun all-congruences-symbolically (algebra)
   (declare (type algebra algebra))
-  "Returns set of all congruence relations on algebra."
+  "Returns list of all congruence relations on algebra."
   (let ((all-congruences ()))
-    (loop for partition in (partitions (base-set-of algebra))
-	  do (let ((er (equivalence-relation-from-partition partition)))
-	       (when (congruence-relation-p er algebra)
-		 (push er all-congruences))))
+    (loop-over-set partition (partitions (base-set-of algebra))
+      (let ((er (equivalence-relation-from-partition partition)))
+	(when (congruence-relation-p er algebra)
+	  (push er all-congruences))))
     all-congruences))

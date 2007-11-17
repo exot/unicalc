@@ -17,6 +17,9 @@
                   (mapcar #'second func-or-graph)
                   func-or-graph))
 
+(defmethod ensure-association ((func-or-graph standard-set))
+  (ensure-association (set-to-list func-or-graph)))
+
 (defun evaluate-term-in-algebra (algebra term association)
   "Evaluates TERM in ALGEBRA with given ASSOCIATION."
   (declare (type algebra algebra)
@@ -39,7 +42,9 @@
            (type algebraic-function association))
     (cond
       ((variablep term-algebra term)
-      (apply-function-to-element association term))
+       (apply-function-to-element association term))
+      ((set-member-s term (base-set-of algebra))
+       term)
       (t
        (apply-operation-in-algebra (first term)
                                    (mapcar #'(lambda (x)
@@ -58,11 +63,9 @@
   (declare (type algebra algebra)
            (type standard-set variables)
            (type list equation))
-  (let ((equal-pred (equal-pred-of-algebra algebra)))
-    (forall (assignment (all-assignments variables (base-set-of algebra)))
-      (funcall equal-pred
-               (evaluate-term-in-algebra algebra (first equation) assignment)
-               (evaluate-term-in-algebra algebra (second equation) assignment)))))
+  (forall (assignment (all-assignments variables (base-set-of algebra)))
+    (set-equal (evaluate-term-in-algebra algebra (first equation) assignment)
+               (evaluate-term-in-algebra algebra (second equation) assignment))))
 
 ; models-p (synonym for equation-holds-in-algebra-p)
 (declaim (inline models-p))
@@ -109,27 +112,27 @@
   more than RECURSION-DEPTH steps in TERM-ALGEBRA."
   (declare (type term-algebra term-algebra)
            (type list equation)
-           (type standard-set set-of-equations)
+           (type (or list standard-set) set-of-equations)
            (type integer recursion-depth))
   (cond
-    ((some #'(lambda (x) (implies-equation-p term-algebra x equation))
-           set-of-equations)
+    ((exists (x set-of-equations)
+       (implies-equation-p term-algebra x equation))
      t)
     ((<= recursion-depth 0)
      nil)
     (t (let ((all-eqns (all-possible-transformation term-algebra equation
-						    set-of-equations)))
-	 (dolist (eqn all-eqns)
-	   (when (weakly-dependent-p term-algebra eqn set-of-equations
-				     (1- recursion-depth))
-	     (return-from weakly-dependent-p t)))))))
+						    (set-to-list set-of-equations))))
+	 (loop for eqn in all-eqns
+	       do (when (weakly-dependent-p term-algebra eqn set-of-equations
+					    (1- recursion-depth))
+		    (return-from weakly-dependent-p t)))))))
 
 (defun all-possible-transformation (term-algebra equation set-of-equations)
   "Returns all possible transformations of EQUATION in TERM-ALGEBRA under use
   of equations in SET-OF-EQUATIONS (one step only)."
   (declare (type term-algebra term-algebra)
            (type list equation)
-           (type standard-set set-of-equations))
+           (type list set-of-equations))
   (let ((appliable-equations (find-all-appliable-equations term-algebra
 							   equation
 							   set-of-equations))
@@ -151,7 +154,7 @@
   (TERM1 TERM2) in TERM-ALGEBRA."
   (declare (type term-algebra term-algebra)
            (type list equation)
-           (type standard-set set-of-equations))
+           (type list set-of-equations))
   (let ((appliable-functions ()))
     (flet ((apply-equation (eqn equation)
              (let ((matches (matches-subterm term-algebra
@@ -216,7 +219,7 @@ EQUAL to (FIRST PAIR) by (SECOND PAIR)."
   (declare (type term-algebra term-algebra)
            (type standard-set equations)
            (type integer recursion-depth))
-  (let ((my-equations equations))
+  (let ((my-equations (copy-list (set-to-list equations))))
     (loop with substitutions = 0
           do
             (cond

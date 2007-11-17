@@ -14,4 +14,4 @@
    :all-isomorphisms
    :isomorphic-p
    :congruence-relation-p
-   :all-congruences))
+   :all-congruences-symbolically))

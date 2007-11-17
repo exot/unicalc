@@ -40,8 +40,8 @@ equal by TEST."))
 
 (defun %listify (tree)
   (cond
-    ((or (null tree)
-	 (atom tree)) tree)
+    ((null tree) tree)
+    ((atom tree) `(quote ,tree))
     (t (cond
 	 ((or (eq (first tree) 'make-set)
 	      (eq (first tree) 'list))
@@ -177,6 +177,13 @@ removed from left to right."
 	   (type list more-sets))
   (apply #'mapc pred (mapcar #'contents (cons set1 more-sets)))
   (values))
+
+(defun mapset (pred set1 &rest more-sets)
+  (declare (type function pred)
+	   (type standard-set set1)
+	   (type list more-sets))
+  (make-set (apply #'mapcar pred (mapcar #'contents (cons set1 more-sets)))
+	    :test (equal-pred set1)))
 
 (defun mapunion-s (fun set &key (test (equal-pred set)))
   (declare (type function fun)

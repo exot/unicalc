@@ -19,6 +19,7 @@
    :split-by-predicate
 ;; sets.lisp
    :standard-set
+   :equal-pred
    :set-equal
    :make-set
    :ensure-standard-set
@@ -36,6 +37,7 @@
    :remove-element-s
    :set-intersection-s
    :map-on-elements
+   :mapset
    :mapunion-s
    :singelton-s
    :loop-over-set

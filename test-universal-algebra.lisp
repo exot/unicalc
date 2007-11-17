@@ -64,17 +64,19 @@
 
 (run-tests '(math-test-1 math-test-2 math-test-3))
 
-;; functions and relations
+;; relations
 
 (defparameter *A* {a b c d e})
 (defparameter *B* {1 2 3 4 5 6 7})
 
-;; (defparameter *R* (make-relation *A* *B* '((a 1) (b 2) (c 3) (d 4) (e 7))))
+(defparameter *R* (make-relation *A* *B* {(a 1) (b 2) (c 3) (d 4) (e 7)}))
+
+(defparameter *C* {1 2})
+(defparameter *D* {a b})
+
+;; ;; functions
 
 ;; (defparameter *myfunc* (make-function *A* *B* *R*))
-
-;; (defparameter *C* (make-set '(1 2)))
-;; (defparameter *D* (make-set '(a b)))
 
 ;; (defparameter *identity* (make-function *C* *D* '((1 a) (2 b))))
 

@@ -3,17 +3,18 @@
 ;;; algebras
 
 (defclass algebra ()
-  ((base-set        :accessor base-set-of           :initarg :base-set)
-   (signature       :accessor signature-of          :initarg :signature)
-   (interpretations :accessor interpretations-on    :initarg :interpretations)
-   (equal-pred      :accessor equal-pred-of-algebra :initarg :equal-pred
-		    :initform #'equal)))
+  ((base-set        :type standard-set :accessor base-set-of
+		    :initarg :base-set)
+   (signature       :type signature    :accessor signature-of
+		    :initarg :signature)
+   (interpretations :type standard-set :accessor interpretations-on
+		    :initarg :interpretations)))
 
 (defmethod print-object ((obj algebra) stream)
   (print-unreadable-object (obj stream :type t)
-    (format stream "~&~2:Tbase set: {~{~a~^,~}}" (base-set-of obj))
+    (format stream "~&~2:Tbase set: {~{~a~^,~}}" (set-to-list (base-set-of obj)))
     (format stream "~&~2:Tsignature: ~a" (signature-of obj))
-    (format stream "~&~2:Tinterpretations: ~a" (interpretations-on obj))))
+    (format stream "~&~2:Tinterpretations: ~a" (set-to-list (interpretations-on obj)))))
 
 (defgeneric algebra-p (algebra)
   (:documentation "Tests whether ALGEBRA is an algebra."))
@@ -24,40 +25,31 @@
 (defmethod algebra-p ((algebra algebra))
   t)
 
-(defun make-algebra (base-set signature interpretations
-                     &key (equal-pred #'equal))
+(defun make-algebra (base-set signature interpretations)
   (declare (type standard-set base-set)
            (type signature signature)
-           (type standard-set interpretations))
+           (type (or standard-set list) interpretations))
   "Returns ALGEBRA object. INTERPRETATIONS shall be an alist of
-(SYMBOL INTERPRETATION) where INTERPRETATION is a value table of the given
-interpretation."
+(SYMBOL INTERPRETATION) where INTERPRETATION is a value table of the given interpretation."
   (make-instance 'algebra
-                 :base-set  (make-set base-set)
+                 :base-set  base-set
                  :signature signature
-                 :interpretations (make-interpretation base-set
-						       signature
-						       interpretations)
-                 :equal-pred equal-pred))
+                 :interpretations (make-interpretation
+                                    base-set
+				    signature
+				    (ensure-standard-set interpretations))))
 
 (defun make-algebra-from-scratch (base-set function-symbols arities
-                                  interpretations &key (equal-pred #'equal))
-  (declare (type standard-set base-set function-symbols
-                 arities interpretations))
+                                  interpretations)
+  (declare (type standard-set base-set  interpretations)
+	   (type (or standard-set list) arities function-symbols))
   "Returns ALGEBRA object given by BASE-SET, FUNCTION-SYMBOLS and ARITIES of
 FUNCTION-SYMBOLS (given as rank-alphabet or as arity-function)"
-  (let ((signature (make-signature function-symbols arities)))
-    (make-instance 'algebra
-                   :base-set  (make-set base-set)
-                   :signature signature
-                   :interpretations (make-interpretation base-set
-							 signature
-							 interpretations
-                                                         :equal-pred equal-pred)
-                   :equal-pred equal-pred)))
+  (let ((signature (make-signature (ensure-standard-set function-symbols)
+				   arities)))
+    (make-algebra base-set signature interpretations)))
 
-(defun make-interpretation (base-set signature interpretations
-                            &key (equal-pred #'equal))
+(defun make-interpretation (base-set signature interpretations)
   (declare (type standard-set base-set interpretations)
            (type signature signature))
   "Returns set of functions that represent INTERPRETATIONS in
@@ -67,50 +59,32 @@ a value table describing SYMBOL and FUNCTION should be an operation defined
 with DEFINE-OPERATION."
   (let ((normalized-interpretations (normalize-table-representation
 				     base-set
-				     interpretations
-                                     :equal-pred equal-pred)))
+				     interpretations)))
     (cond
-      ((valid-interpretations-in-algebra base-set signature
-                                         normalized-interpretations
-					 :equal-pred equal-pred)
+      ((valid-interpretations-in-algebra signature normalized-interpretations)
        normalized-interpretations)
       (t (error 'malformed-interpretation :text
 		"Invalid interpretation given")))))
 
 (define-simple-condition malformed-interpretation)
 
-(defun valid-interpretations-in-algebra (base-set signature interpretations
-                                         &key (equal-pred #'equal))
-  (declare (type standard-set base-set interpretations)
+(defun valid-interpretations-in-algebra (signature interpretations)
+  (declare (type standard-set interpretations)
            (type signature signature))
-  "Returns non-NIL if INTERPRETATIONS is valid in <BASE-SET,SIGNATURE>"
   (let ((rank-alphabet (arities-of signature)))
-    (check-interpretations base-set rank-alphabet interpretations
-			   :equal-pred equal-pred)))
+    (check-interpretations rank-alphabet interpretations)))
 
-(defun check-interpretations (base-set rank-alphabet interpretations
-			      &key (equal-pred #'equal))
-  (declare (type standard-set base-set rank-alphabet interpretations))
-  (and (= (length rank-alphabet) (length interpretations))
-       (every #'(lambda (interpretation)
-                  (let* ((function-symbol (function-symbol-of interpretation))
-                         (arity (get-arity-of-function-symbol function-symbol
-                                                              rank-alphabet)))
-                    (and (arity-correct-p arity interpretation)
-                         (defines-function-on-set-p base-set interpretation
-                           :equal-pred equal-pred))))
-              interpretations)))
+(defun check-interpretations (rank-alphabet interpretations)
+  (declare (type standard-set interpretations)
+	   (type list rank-alphabet))
+  (and (= (length rank-alphabet) (card-s interpretations))
+       (forall (interpretation interpretations)
+	 (let* ((function-symbol (function-symbol-of interpretation))
+		(arity (get-arity-of-function-symbol function-symbol
+						     rank-alphabet)))
+	   (arity-correct-p arity interpretation)))))
 
 (defun arity-correct-p (arity interpre)
   (declare (type integer arity)
            (type table interpre))
   (= arity (arity-of-function (implementing-function-of interpre))))
-
-(declaim (inline defines-function-on-set-p))
-(defun defines-function-on-set-p (base-set interpre &key (equal-pred #'equal))
-  (declare (type standard-set base-set)
-           (type table interpre)
-           (ignore base-set interpre equal-pred))
-;; we don't need to check anything here because it has been checked already
-;; by make-function in normalize-functions
-  t)

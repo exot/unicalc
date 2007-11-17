@@ -14,7 +14,6 @@
 ;; algebras
   :algebra
   :algebra-p
-  :equal-pred-of-algebra
   :base-set-of
   :signature-of
   :interpretations-on

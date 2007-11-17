@@ -179,10 +179,13 @@
 
 (run-tests '(func-test-p func-test-q))
 
+(define-output-test (forall (x (all-functions {1 2 3} {a b})) (print x)))
+
 ;; signatures
 
+(defparameter *signature-3* nil)
 (define-test-case-without-errors sig-test-1 ()
-  (defparameter *signature-3* (make-signature {+ -} {(+ 2) (- 1)})))
+  (setf *signature-3* (make-signature {+ -} {(+ 2) (- 1)})))
 
 (define-test-case sig-test-2 () nil
   (defparameter *bad-signature* (make-signature {+ -} {(+ 2)})))
@@ -204,17 +207,25 @@
 				  ((1) 2)
 				  ((2) 1))})
 
-;; (defparameter *algebra-C* (make-algebra *C* *signature-3* *interpretation*))
+(defparameter *algebra-C* nil)
 
-;; (defparameter *algebra-D* (make-algebra *D* *signature-3*
-;; 					'((+
-;; 					   ((a a) b)
-;; 					   ((a b) b)
-;; 					   ((b a) a)
-;; 					   ((b b) b))
-;; 					  (-
-;; 					   ((a) b)
-;; 					   ((b) a)))))
+(define-test-case-without-errors alg-test-1 ()
+  (setq *algebra-C* (make-algebra *C* *signature-3* *interpretation*)))
+
+(defparameter *algebra-D* nil)
+
+(define-test-case-without-errors alg-test-2 ()
+  (setq *algebra-D* (make-algebra *D* *signature-3*
+				  {(+
+				    ((a a) b)
+				    ((a b) b)
+				    ((b a) a)
+				    ((b b) b))
+				   (-
+				    ((a) b)
+				    ((b) a))})))
+
+(run-tests '(alg-test-1 alg-test-2))
 
 (defparameter *base-set* {0 1 2})
 
@@ -223,53 +234,91 @@
 (define-operation p-impl (a b)
   (rem (+ a b) 3))
 
-;; (defparameter *algebra* (make-algebra *base-set* *signature*
-;; 				      '((+ ((0) 0)
-;; 					 ((1) 1)
-;; 					 ((2) 2))
-;; 					(^ ((0 0 0) 1)
-;; 					 ((0 0 1) 2)
-;; 					 ((0 0 2) 0)
-;; 					 ((0 1 0) 1)
-;; 					 ((0 1 1) 1)
-;; 					 ((0 1 2) 0)
-;; 					 ((0 2 0) 2)
-;; 					 ((0 2 1) 2)
-;; 					 ((0 2 2) 0)
-;; 					 ((1 0 0) 0)
-;; 					 ((1 0 1) 2)
-;; 					 ((1 0 2) 0)
-;; 					 ((1 1 0) 1)
-;; 					 ((1 1 1) 2)
-;; 					 ((1 1 2) 0)
-;; 					 ((1 2 0) 0)
-;; 					 ((1 2 1) 0)
-;; 					 ((1 2 2) 1)
-;; 					 ((2 0 0) 1)
-;; 					 ((2 0 1) 1)
-;; 					 ((2 0 2) 2)
-;; 					 ((2 1 0) 0)
-;; 					 ((2 1 1) 1)
-;; 					 ((2 1 2) 1)
-;; 					 ((2 2 0) 1)
-;; 					 ((2 2 1) 0)
-;; 					 ((2 2 2) 1))
-;; 					(p p-impl))))
+(defparameter *algebra* (make-algebra *base-set* *signature*
+				      {(+ ((0) 0)
+					  ((1) 1)
+					  ((2) 2))
+				       (^ ((0 0 0) 1)
+					  ((0 0 1) 2)
+					  ((0 0 2) 0)
+					  ((0 1 0) 1)
+					  ((0 1 1) 1)
+					  ((0 1 2) 0)
+					  ((0 2 0) 2)
+					  ((0 2 1) 2)
+					  ((0 2 2) 0)
+					  ((1 0 0) 0)
+					  ((1 0 1) 2)
+					  ((1 0 2) 0)
+					  ((1 1 0) 1)
+					  ((1 1 1) 2)
+					  ((1 1 2) 0)
+					  ((1 2 0) 0)
+					  ((1 2 1) 0)
+					  ((1 2 2) 1)
+					  ((2 0 0) 1)
+					  ((2 0 1) 1)
+					  ((2 0 2) 2)
+					  ((2 1 0) 0)
+					  ((2 1 1) 1)
+					  ((2 1 2) 1)
+					  ((2 2 0) 1)
+					  ((2 2 1) 0)
+					  ((2 2 2) 1))
+				       (p p-impl)}))
 
-;; (define-output-test (print (interpretations-on *algebra*)))
-;; (define-output-test (print (signature-of *algebra*)))
-;; (define-output-test (print (base-set-of *algebra*)))
+(define-output-test (print (interpretations-on *algebra*)))
+(define-output-test (print (signature-of *algebra*)))
+(define-output-test (print (base-set-of *algebra*)))
 
-;; (define-operation NAND (x y)
-;;   (if (and (plusp x) (plusp y))
-;;         0
-;;         1))
+(define-operation NAND (x y)
+  (if (and (plusp x) (plusp y))
+        0
+        1))
 
-;; (defparameter *boolean-algebra*
-;;   (make-algebra-from-scratch '(0 1) '(NAND) '((NAND 2))
-;;     '((NAND NAND))))
+(defparameter *boolean-algebra*
+  (make-algebra-from-scratch {0 1} {NAND} {(NAND 2)}
+    {(NAND NAND)}))
 
-;; (define-output-test (print (interpretations-on *boolean-algebra*)))
+(define-output-test (print (interpretations-on *boolean-algebra*)))
+
+(define-test-case-with-errors alg-test-3 ()
+  (make-algebra {0 1} *signature* *interpretation*))
+
+(define-test-case-with-errors alg-test-4 ()
+  (make-algebra *C* *signature-3*
+		{(+
+		  ((a a) b)
+		  ((a b) b)
+		  ((b a) a)
+		  ((b b) b))
+		(-
+		 ((a) b)
+		 ((b) a))}))
+
+(run-tests '(alg-test-3 alg-test-4))
+
+(define-test-case alg-test-5 () t
+  (algebras-of-same-signature-p *algebra-c* *algebra-d*))
+
+(define-test-case alg-test-6 () nil
+  (algebras-of-same-signature-p *algebra* *algebra-c*))
+
+(run-tests '(alg-test-5 alg-test-6))
+
+(define-test-case alg-test-7 () 0
+  (apply-operation-in-algebra 'p '(1 2) *algebra*))
+
+(define-test-case alg-test-8 () 2
+  (apply-operation-in-algebra '+ '(1 2) *algebra-c*))
+
+(define-test-case-with-errors alg-test-9 ()
+  (apply-operation-in-algebra '+ '(1 2 3) *algebra-c*))
+
+(define-test-case-with-errors alg-test-a ()
+  (apply-operation-in-algebra '* '(1 2) *algebra-c*))
+
+(run-tests '(alg-test-8 alg-test-9 alg-test-a))
 
 ;; ;;; terms
 
@@ -290,35 +339,35 @@
 
 ;; ;; subalgebras
 
-;; (defparameter *signature-2* (make-signature '(+ -) '((+ 2) (- 2))))
+(defparameter *signature-2* (make-signature {+ -} {(+ 2) (- 2)}))
 
-;; (defparameter *algebra-2* (make-algebra '(0 1 2) *signature-2*
-;;                                         '((+
-;;                                            ((0 0) 0)
-;;                                            ((1 0) 1)
-;;                                            ((0 1) 1)
-;;                                            ((0 2) 2)
-;;                                            ((1 1) 2)
-;;                                            ((2 0) 2)
-;;                                            ((1 2) 0)
-;;                                            ((2 1) 0)
-;;                                            ((2 2) 1))
-;;                                           (-
-;;                                            ((0 0) 0)
-;;                                            ((1 0) 0)
-;;                                            ((0 1) 0)
-;;                                            ((0 2) 0)
-;;                                            ((2 0) 0)
-;;                                            ((1 1) 0)
-;;                                            ((1 2) 0)
-;;                                            ((2 1) 0)
-;;                                            ((2 2) 0)))))
+(defparameter *algebra-2* (make-algebra {0 1 2} *signature-2*
+                                        {(+
+					  ((0 0) 0)
+					  ((1 0) 1)
+					  ((0 1) 1)
+					  ((0 2) 2)
+					  ((1 1) 2)
+					  ((2 0) 2)
+					  ((1 2) 0)
+					  ((2 1) 0)
+					  ((2 2) 1))
+					 (-
+					  ((0 0) 0)
+					  ((1 0) 0)
+					  ((0 1) 0)
+					  ((0 2) 0)
+					  ((2 0) 0)
+					  ((1 1) 0)
+					  ((1 2) 0)
+					  ((2 1) 0)
+					  ((2 2) 0))}))
 
-;; (defparameter *signature-empty* (make-signature '(*) '((* 0))))
+(defparameter *signature-empty* (make-signature {*} {(* 0)}))
 
-;; (define-operation *-impl () 0) ; this is only a test, you may want to write this directly into the definition
+(define-operation *-impl () 0) ; this is only a test, you may want to write this directly into the definition
 
-;; (defparameter *algebra-3* (make-algebra '(0 1 2) *signature-empty* '((* *-impl))))
+(defparameter *algebra-3* (make-algebra {0 1 2} *signature-empty* '((* *-impl))))
 
 ;; (define-test-case calc-test () t
 ;;   (set-equal (calculate-generating-elements *algebra-3*)
@@ -359,8 +408,6 @@
 ;; (run-tests '(eqn-test-1 eqn-test-2))
 
 ;; ;;; iterating over functions
-
-;; (define-output-test (forall (x (all-functions {1 2 3} {a b})) (print x)))
 
 ;; ;;; isomorphics
 

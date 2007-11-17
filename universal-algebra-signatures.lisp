@@ -68,7 +68,7 @@ BODY should be an ALIST."
 (defun get-arity-of-function-symbol (func alphabet)
   "Return arity of FUNC in ALPHABET, NIL if not there"
   (declare (type symbol func)
-	   (type standard-set alphabet))
+	   (type list alphabet))
   (second (find-if #'(lambda (x) (equal (first x) func)) (set-to-list alphabet))))
 
 (defgeneric arity-of-function-symbol (term-algebra-or-signature

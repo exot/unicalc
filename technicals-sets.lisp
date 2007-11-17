@@ -6,9 +6,13 @@
    (equal-pred :type function :accessor equal-pred
 	       :initarg :equal-pred :initform #'set-equal)))
 
-(defun set-to-list (set)
-  (declare (type standard-set set))
-  "Returns contents of SET as a list"
+(defgeneric set-to-list (set)
+  (:documentation "Returns contents of SET as a list"))
+
+(defmethod set-to-list ((set list))
+  set)
+
+(defmethod set-to-list ((set standard-set))
   (contents set))
 
 (defun set-equal (set1 set2 &key (test #'equal))
@@ -213,7 +217,7 @@ removed from left to right."
 (defun assoc-s (elt set)
   (declare (type t elt)
 	   (type standard-set set))
-  (assoc elt (contents set)))
+  (assoc elt (contents set) :test (equal-pred set)))
 
 (defun singelton-s (elt)
   (declare (type t elt))

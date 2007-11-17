@@ -39,7 +39,7 @@ prints only 5 entries"
            for elt = (first-s rest)
 	   for i below max-print
 	   do (format stream "~&~2:T~S" elt))
-     (format stream "}"))))
+     (format stream "...}"))))
 
 (defun relation-p (rel A B)
   "Returns non-NIL if REL is a relation on AxB."

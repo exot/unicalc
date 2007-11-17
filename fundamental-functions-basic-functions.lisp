@@ -109,7 +109,7 @@ NEW-TARGET"
   "Returns algebraic functions as FUNCTION restricted to NEW-SOURCE."
   (declare (type algebraic-function function)
 	   (type standard-set new-source))
-  (restrict-function-on-source-and-traget function new-source
+  (restrict-function-on-source-and-target function new-source
 					  (target function)))
 
 (defun inverse-function (func)

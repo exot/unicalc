@@ -206,8 +206,8 @@
 
 ;; (defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
 
-;; (define-operation p-impl (a b)
-;;   (rem (+ a b) 3))
+(define-operation p-impl (a b)
+  (rem (+ a b) 3))
 
 ;; (defparameter *algebra* (make-algebra *base-set* *signature*
 ;; 				      '((+ ((0) 0)

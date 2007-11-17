@@ -66,7 +66,5 @@
   :implementing-function-of
   :get-arity-of-table
   :arity-of-function
-;;  :forall-in-table
-;;  :exists-in-table
   :define-operation
   :normalize-table-representation))

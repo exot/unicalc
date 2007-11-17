@@ -9,6 +9,5 @@
 ;	       (:file "fundamental-functions-cayley-tables")
 	       (:file "fundamental-functions-functions")
 	       (:file "fundamental-functions-basic-functions")
-;	       (:file "fundamental-functions-tables")
-	       )
+	       (:file "fundamental-functions-tables"))
   :serial t)

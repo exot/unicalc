@@ -6,6 +6,11 @@
    (equal-pred :type function :accessor equal-pred
 	       :initarg :equal-pred :initform #'set-equal)))
 
+(defun set-to-list (set)
+  (declare (type standard-set set))
+  "Returns contents of SET as a list"
+  (contents set))
+
 (defun set-equal (set1 set2 &key (test #'equal))
   "Returns T if SET1 and SET2 are equal in sense of sets. Does no recursive
   check. Preserves ordering."

@@ -179,7 +179,21 @@
 
 (run-tests '(func-test-p func-test-q))
 
-;; (defparameter *signature-3* (make-signature '(+ -) '((+ 2) (- 1))))
+;; signatures
+
+(define-test-case-without-errors sig-test-1 ()
+  (defparameter *signature-3* (make-signature {+ -} {(+ 2) (- 1)})))
+
+(define-test-case sig-test-2 () nil
+  (defparameter *bad-signature* (make-signature {+ -} {(+ 2)})))
+
+(define-test-case sig-test-3 () nil
+  (defparameter *bad-signature* (make-signature {+ -} {(+ 2) (+ 3) (- 1)})))
+
+(define-test-case sig-test-4 () nil
+  (defparameter *bad-signature* (make-signature {+ -} {(+ 2) (- 1) (p 2)})))
+
+(run-tests '(sig-test-1 sig-test-2 sig-test-3 sig-test-4))
 
 (defparameter *interpretation*  {(+
 				  ((1 1) 2)
@@ -204,7 +218,7 @@
 
 (defparameter *base-set* {0 1 2})
 
-;; (defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
+(defparameter *signature* (make-signature {+ ^ p} {(+ 1) (^ 3) (p 2)}))
 
 (define-operation p-impl (a b)
   (rem (+ a b) 3))

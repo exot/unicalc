@@ -4,7 +4,7 @@
 (defsystem test-universal-algebra
   :depends-on ("technicals" 
                "fundamental-functions"
-;               "universal-algebra"
+               "universal-algebra"
 ;               "terms"
 ;               "subalgebras"
 ;               "functions-and-relations"

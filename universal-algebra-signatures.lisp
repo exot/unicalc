@@ -1,8 +1,8 @@
 (in-package :universal-algebra)
 
 (defclass signature ()
-  ((function-symbols :initarg :function-symbols :accessor function-symbols-of)
-   (arities          :initarg :arities          :accessor arities-of)))
+  ((function-symbols :type list :initarg :function-symbols :accessor function-symbols-of)
+   (arities          :type list :initarg :arities          :accessor arities-of)))
 
 (defmethod print-object ((obj signature) stream)
   (print-unreadable-object (obj stream :type t)
@@ -12,12 +12,13 @@
 (defun create-signature-from-arity-function (function-symbols arity-function)
   "Returns SIGNATURE with FUNCTION-SYMBOLS and corresponding
 arities given by ARITY-FUNCTION"
-  (declare (type list function-symbols)
+  (declare (type standard-set function-symbols)
 	   (type function arity-function))
-  (make-instance 'signature
-                 :function-symbols function-symbols
+  (let ((func-symbols (set-to-list function-symbols)))
+    (make-instance 'signature
+                 :function-symbols func-symbols
                  :arities (make-rank-alphabet-from-arity-function
-			    function-symbols arity-function)))
+			    func-symbols arity-function))))
 
 (defun make-rank-alphabet-from-arity-function (symbols func)
   "Converts arity-function FUNC on SYMBOLS to a rank alphabet"
@@ -55,16 +56,20 @@ BODY should be an ALIST."
 (define-simple-condition malformed-rank-alphabet)
 
 (defun make-signature (function-symbols arities)
-  (declare (type list function-symbols))
+  (declare (type standard-set function-symbols))
   (etypecase arities
-    (function (create-signature-from-arity-function function-symbols arities))
-    (list     (create-signature-from-rank-alphabet  function-symbols arities))))
+    (function (create-signature-from-arity-function (set-to-list function-symbols)
+						    arities))
+    (list     (create-signature-from-rank-alphabet  (set-to-list function-symbols)
+						    arities))
+    (standard-set (create-signature-from-rank-alphabet (set-to-list function-symbols)
+						       (set-to-list arities)))))
 
 (defun get-arity-of-function-symbol (func alphabet)
   "Return arity of FUNC in ALPHABET, NIL if not there"
   (declare (type symbol func)
-	   (type list alphabet))
-  (second (find-if #'(lambda (x) (equal (first x) func)) alphabet)))
+	   (type standard-set alphabet))
+  (second (find-if #'(lambda (x) (equal (first x) func)) (set-to-list alphabet))))
 
 (defgeneric arity-of-function-symbol (term-algebra-or-signature
 				      function-symbol)

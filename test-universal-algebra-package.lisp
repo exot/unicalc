@@ -3,7 +3,7 @@
    :cl
    :technicals
    :fundamental-functions
-;   :universal-algebra
+   :universal-algebra
 ;   :terms
 ;   :subalgebras
 ;   :equations

@@ -6,6 +6,8 @@
                "fundamental-functions")
   :components ((:file "universal-algebra-package")
 	       (:file "universal-algebra-signatures")
-	       (:file "universal-algebra-algebras")
-	       (:file "universal-algebra-basic-algebras"))
+;	       (:file "universal-algebra-algebras")
+;	       (:file "universal-algebra-basic-algebras")
+	      )
   :serial t)
+

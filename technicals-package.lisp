@@ -19,6 +19,7 @@
    :split-by-predicate
 ;; sets.lisp
    :standard-set
+   :set-to-list
    :equal-pred
    :set-equal
    :make-set

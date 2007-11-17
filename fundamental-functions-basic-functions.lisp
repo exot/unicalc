@@ -21,26 +21,24 @@
   "Applies FUNCTION to elements of SET."
   (declare (type algebraic-function function)
 	   (type standard-set set))
-  (make-set (apply-function-to-tuple function set)))
+  (mapset #'(lambda (x) (apply-function-to-element function x)) set))
 
 (defun range (function)
   "Returns the range of FUNCTION."
   (declare (type algebraic-function function))
-  (remove-duplicates (mapcar #'second (graph function))
-		     :test (equal-pred function)))
+  (mapset #'second (graph function)))
 
 (defun surjective-p (function)
   "Tests whether FUNCTION is surjective or not."
   (declare (type algebraic-function function))
   (set-equal (target function)
-             (range function)
-	     :test (equal-pred function)))
+             (range function)))
 
 (defun injective-p (function)
   "Tests whether FUNCTION is injective or not."
   (declare (type algebraic-function function))
-  (= (length (source function))
-     (length (range function))))
+  (= (card-s (source function))
+     (card-s (range function))))
 
 (defun bijective-p (function)
   "Tests whether FUNCTION is bijective or not."
@@ -56,42 +54,41 @@
                (cond
                  ((null pair) pairs)
                  (t (if (set-equal (apply-function-to-element function
-                                                              (first pair));!!!
+                                                              (first pair))
                                    (apply-function-to-element function
                                                               (second pair)))
                       (kernel-element (next-argument base-set pair)
                                       (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
       (make-relation base-set base-set
-                     (kernel-element (symbols 2 (first base-set)) ())))))
+                     (make-set (kernel-element (symbols 2 (first-s base-set)) ()))))))
 
-(defun inverse-image (function set &key (equal-pred #'equal))
+(defun inverse-image (function set)
   "Returns the inverse image of SET under FUNCTION."
   (declare (type algebraic-function function)
 	   (type standard-set set))
   (cond
-    ((not (subsetp set (target function) :test (equal-pred function)))
+    ((not (subsetp-s set (target function)))
      (error 'function-error
             :text (format nil "~A is not a subset of ~A" set function)))
-    (t (make-set
-	 (loop for element in (source function)
-	       when (member (apply-function-to-element function element) set
-			    :test equal-pred)
-	       collect element)))))
+    (t (let ((new-set ()))
+	 (loop-over-set element (source function)
+	   (when (set-member-s (apply-function-to-element function element) set)
+	     (push element new-set)))
+	 (make-set new-set)))))
 
-(defun inverse-image-of-element (function element &key (equal-pred #'equal))
+(defun inverse-image-of-element (function element)
   (declare (type algebraic-function function))
-  (inverse-image function (make-set element) :equal-pred equal-pred))
+  (inverse-image function (singelton-s element)))
 
-(defun restrict-function-on-source-and-traget (function new-source new-target)
+(defun restrict-function-on-source-and-target (function new-source new-target)
   "Restricts FUNCTION being a function on NEW-SOURCE\\times NEW-TARGET."
   (declare (type algebraic-function function)
 	   (type standard-set new-source new-target))
   (flet ((calc-new-func-graph ()
             (let ((new-graph ()))
               (iterate-over-function-graph function element
-                (when (member (all-operands element) new-source
-			      :test (equal-pred function))
+                (when (set-member-s (all-operands element) new-source)
                   (push element new-graph)))
              new-graph)))
     (let ((new-graph (calc-new-func-graph)))
@@ -143,8 +140,11 @@ pairs, or NIL if ASSIGNMENT is last."
   "Returns lazy set consiting of all assignments of VARIABLES to value from
 VALUE-SET."
   (declare (type standard-set variables value-set))
-  (let* ((first-assign (symbols (card variables) (first value-set)))
-         (assign (mapcar #'pair variables first-assign)))
+  (let* ((first-assign (symbols (card-s variables) (first-s value-set)))
+	 (variable-list (let ((list ()))
+			  (map-on-elements #'(lambda (x) (push x list)) variables)
+			  list))
+         (assign (mapcar #'pair variable-list first-assign)))
     (flet ((new-assignment ()
              (let ((current-assign assign))
                (setf assign (next-assignment value-set assign))

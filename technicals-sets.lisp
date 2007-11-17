@@ -193,6 +193,23 @@ removed from left to right."
 	      (set-union-s x y :test test))
 	  (mapcar fun (contents set))))
 
+(defun position-s (elt set)
+  (declare (type t elt)
+	   (type standard-set set))
+  "Returns 'position' of ELT in SET."
+  (position elt (contents set) :test (equal-pred set)))
+
+(defun elt-at-position-s (pos set)
+  (declare (type integer pos)
+	   (type standard-set set))
+  "Returns element in SET at 'position' POS."
+  (nth pos (contents set)))
+
+(defun assoc-s (elt set)
+  (declare (type t elt)
+	   (type standard-set set))
+  (assoc elt (contents set)))
+
 (defun singelton-s (elt)
   (declare (type t elt))
   "Returns singelton set {ELT}."
@@ -201,7 +218,7 @@ removed from left to right."
 (defmacro loop-over-set (element set &body body)
   (with-gensyms (elt)
     `(loop for elt in (contents ,set)
-           do (let ((,element elt))
+           do (destructuring-bind (,element) (list elt)
 		,@body))))
 
 ;;; next functions

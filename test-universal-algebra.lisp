@@ -74,24 +74,121 @@
 (defparameter *C* {1 2})
 (defparameter *D* {a b})
 
-;; ;; functions
+;; functions
 
-;; (defparameter *myfunc* (make-function *A* *B* *R*))
+(defparameter *myfunc* (make-function *A* *B* *R*))
 
-;; (defparameter *identity* (make-function *C* *D* '((1 a) (2 b))))
+(defparameter *identity* (make-function *C* *D* '((1 a) (2 b))))
 
-;; (defparameter *constantly-b* (make-function *C* '(b) '((1 b) (2 b))))
+(defparameter *constantly-b* (make-function *C* {b} '((1 b) (2 b))))
+
+(define-test-case func-test-1 () t
+  (set-equal (target *constantly-b*) {b}))
+
+(define-test-case func-test-2 () t
+  (set-equal (source *identity*) *C*))
+
+(define-test-case func-test-3 () nil
+  (defparameter *bad-func* (make-function {a b} {c} {(a d)})))
+
+(define-test-case func-test-4 () nil
+  (defparameter *bad-func* (make-function {a b} {1} {(2)})))
+
+(define-test-case func-test-5 () 'a
+  (apply-function-to-element *identity* 1))
+
+(define-test-case func-test-6 () 4
+  (apply-function-to-element *myfunc* 'd))
+
+(define-test-case func-test-7 () '(b b b)
+  (apply-function-to-tuple *constantly-b* '(1 2 2)))
+
+(define-test-case func-test-8 () nil
+  (apply-function-to-set *myfunc* {2 2 4 2 2 4}))
+
+(define-test-case func-test-9 () t
+  (set-equal {2 4} (apply-function-to-set *myfunc* {b b d b b d})))
+
+(define-test-case func-test-a () t
+  (set-equal {b} (range *constantly-b*)))
+
+(define-test-case func-test-b () t
+  (surjective-p *constantly-b*))
+
+(define-test-case func-test-c () t
+  (surjective-p *identity*))
+
+(define-test-case func-test-d () t
+  (injective-p *myfunc*))
+
+(define-test-case func-test-e () t
+  (bijective-p *identity*))
+
+(define-test-case func-test-f () nil
+  (bijective-p *myfunc*))
+
+(run-tests '(func-test-1 func-test-2 func-test-3
+	     func-test-4 func-test-5 func-test-6
+	     func-test-7 func-test-8 func-test-9
+	     func-test-a func-test-b func-test-c
+	     func-test-d func-test-e func-test-f))
+
+(define-test-case func-test-g () 4
+  (card-s (graph (kernel *constantly-b*))))
+
+(define-test-case func-test-h () 2
+  (card-s (graph (kernel *identity*))))
+
+(define-test-case func-test-i () t
+  (set-equal {1 2} (inverse-image *constantly-b* {b})))
+
+(define-test-case func-test-j () t
+  (set-equal {} (inverse-image *constantly-b* {})))
+
+(define-test-case func-test-k () t
+  (set-equal (source *myfunc*) (inverse-image *myfunc* (range *myfunc*))))
+
+(define-test-case func-test-l () t
+  (set-equal (inverse-image *constantly-b* {b})
+	     (inverse-image-of-element *constantly-b* 'b)))
+
+(define-test-case func-test-m () t
+  (set-equal {}
+	     (inverse-image (restrict-function-on-source-and-target
+			      *constantly-b*
+			      (source *constantly-b*)
+			      {b c})
+			    {c})))
+
+(define-test-case func-test-n () nil
+  (inverse-function *constantly-b*))
+
+(define-test-case func-test-o () t
+  (set-equal (range *identity*)
+	     (source (inverse-function *identity*))))
+
+(run-tests '(func-test-g func-test-h func-test-i
+	     func-test-j func-test-k func-test-l
+	     func-test-m func-test-n func-test-o))
+
+(define-test-case func-test-p () t
+  (= 4 (card-s (ensure-standard-set (all-functions {1 2} {3 4})))))
+
+(define-test-case func-test-q () t
+  (= 2 (card-s (ensure-standard-set (all-bijective-functions {1 2} {3 4})))))
+
+(run-tests '(func-test-p func-test-q))
 
 ;; (defparameter *signature-3* (make-signature '(+ -) '((+ 2) (- 1))))
 
-;; (defparameter *interpretation*  '((+
-;; 				   ((1 1) 2)
-;; 				   ((1 2) 2)
-;; 				   ((2 1) 1)
-;; 				   ((2 2) 2))
-;; 				  (-
-;; 				   ((1) 2)
-;; 				   ((2) 1))))
+(defparameter *interpretation*  {(+
+				  ((1 1) 2)
+				  ((1 2) 2)
+				  ((2 1) 1)
+				  ((2 2) 2))
+	                         (-
+				  ((1) 2)
+				  ((2) 1))})
 
 ;; (defparameter *algebra-C* (make-algebra *C* *signature-3* *interpretation*))
 
@@ -105,7 +202,7 @@
 ;; 					   ((a) b)
 ;; 					   ((b) a)))))
 
-;; (defparameter *base-set* (make-set '(0 1 2)))
+(defparameter *base-set* {0 1 2})
 
 ;; (defparameter *signature* (make-signature '(+ ^ p) '((+ 1) (^ 3) (p 2))))
 

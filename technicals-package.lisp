@@ -39,6 +39,9 @@
    :map-on-elements
    :mapset
    :mapunion-s
+   :position-s
+   :elt-at-position-s
+   :assoc-s
    :singelton-s
    :loop-over-set
    :next-argument

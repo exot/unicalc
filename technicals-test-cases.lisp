@@ -11,11 +11,11 @@
     `(defun ,name ,arguments
       (let ((,real-result (handler-case
 			      ,@body
-			    (simple-condition (v)
+			    (t (v)
                               (format t "~A" v)
                               nil))))
 	(cond
-	  ((not (equal ,real-result ,result))
+	  ((not (set-equal ,real-result ,result))
 	   (print ,real-result)
 	   (print ,result)
 	   (raise-error (format nil "~&Test case failed: ~A~%" ',name)))

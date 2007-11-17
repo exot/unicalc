@@ -2,7 +2,7 @@
   (:use 
    :cl
    :technicals
-;   :fundamental-functions
+   :fundamental-functions
 ;   :universal-algebra
 ;   :terms
 ;   :subalgebras

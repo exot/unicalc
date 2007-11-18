@@ -69,25 +69,25 @@
 				    file)))))
 
 ;; this is a copy of next-argument to ensure correctness
-(defun next-uacalc-tuple (base-set tuple)
-  (declare (type standard-set base-set)
+(defun next-uacalc-tuple (base-list tuple)
+  (declare (type list base-list)
 	   (type list tuple))
   (cond
     ((null tuple) nil)
-    (t (let ((rest (rest-s (set-member-s (first tuple) base-set))))
+    (t (let ((rest (rest (member (first tuple) base-list))))
 	 (cond
-	   ((emptyp-s rest)
-	    (let ((next (next-argument base-set (rest tuple))))
+	   ((null rest)
+	    (let ((next (next-uacalc-tuple base-list (rest tuple))))
 	      (when next
-		(cons (first-s base-set) next))))
-	   (t (cons (first-s rest) (rest tuple))))))))
+		(cons (first base-list) next))))
+	   (t (cons (first rest) (rest tuple))))))))
 
 (defun all-uacalc-arguments (n base-set)
   (declare (type integer n)
 	   (type standard-set base-set))
   "Returns lazy set for all arguments of a N-ary function on BASE-SET in order
   used by UACalc. BASE-SET has to be of the form {0 1 .. }"
-  (let ((set base-set)
+  (let ((set (set-to-list base-set))
 	(start (numbers n 0)))
     (flet ((next-element ()
 	     (let ((current start))

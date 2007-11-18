@@ -43,9 +43,7 @@ equal by TEST."))
 (defparameter *empty-set* (make-set ()))
 
 (defmethod print-object ((obj standard-set) stream)
-  (format stream "{")
-  (format stream "~{~A~^,~&~:T~}" (contents obj))
-  (format stream "}"))
+  (format stream "~<{~;~:I~{~S~^,~:_~}~;}~:>" (list (contents obj))))
 
 (defun %listify (tree)
   (cond
@@ -240,23 +238,18 @@ removed from left to right."
 
 ;;; next functions
 
-(defun next-argument (base-set argument)
-  "Returns next ARGUMENT in BASE-SET of length (LENGTH ARGUMENT)"
-  (declare (type standard-set base-set)
-	   (type (or list null) argument))
-  (%next-argument (contents base-set) argument))
-
-(defun %next-argument (base-set-list argument)
-  (declare (type list base-set-list)
+(defun next-argument (list argument)
+  "Returns next ARGUMENT in LIST of length (LENGTH ARGUMENT)"
+  (declare (type list list)
 	   (type list argument))
   (cond
     ((null argument) nil)
-    (t (let ((rest (rest (member (first argument) base-set-list))))
+    (t (let ((rest (rest (member (first argument) list))))
 	 (cond
 	   ((null rest) ; increment next position
-	    (let ((next (%next-argument base-set-list (rest argument))))
+	    (let ((next (next-argument list (rest argument))))
 	      (when next
-		(cons (first base-set-list) next)))) ; and start with first element again
+		(cons (first list) next)))) ; and start with first element again
 	   (t (cons (first rest) (rest argument))))))))
 
 ;;; equal predicates
@@ -291,7 +284,7 @@ removed from left to right."
     (t (let ((mylist given-set-list)
 	     (mypower power))
 	 (loop for tuple = (technicals::symbols mypower (first mylist))
-	       then (technicals::%next-argument mylist tuple)
+	       then (technicals::next-argument mylist tuple)
 	       until (null tuple)
 	       collect tuple)))))
 

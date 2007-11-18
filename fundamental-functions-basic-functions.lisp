@@ -49,7 +49,7 @@
 (defun kernel (function)
   "Returns kernel of FUNCTION."
   (declare (type algebraic-function function))
-  (let ((base-set (source function)))
+  (let ((base-set (set-to-list (source function))))
     (labels ((kernel-element (pair pairs)
                (cond
                  ((null pair) pairs)
@@ -60,8 +60,9 @@
                       (kernel-element (next-argument base-set pair)
                                       (cons pair pairs))
                       (kernel-element (next-argument base-set pair) pairs))))))
-      (make-relation base-set base-set
-                     (make-set (kernel-element (symbols 2 (first-s base-set)) ()))))))
+      (make-relation (make-set base-set)
+		     (make-set base-set)
+                     (make-set (kernel-element (symbols 2 (first base-set)) ()))))))
 
 (defun inverse-image (function set)
   "Returns the inverse image of SET under FUNCTION."
@@ -125,14 +126,14 @@ NEW-TARGET"
 
 ;;; for iteration over all assignments
 
-(defun next-assignment (value-set assignment)
+(defun next-assignment (value-list assignment)
   "Returns next assignment in VALUE-SET after ASSIGNMENT being a tuple of
 pairs, or NIL if ASSIGNMENT is last."
-  (declare (type standard-set value-set)
+  (declare (type list value-list)
 	   (type list assignment))
   (let ((argument (mapcar #'second assignment))
         (elements (mapcar #'first assignment)))
-    (let ((next-argument (next-argument value-set argument)))
+    (let ((next-argument (next-argument value-list argument)))
       (when next-argument
         (mapcar #'(lambda (x y) (list x y)) elements next-argument)))))
 
@@ -144,10 +145,11 @@ VALUE-SET."
 	 (variable-list (let ((list ()))
 			  (map-on-elements #'(lambda (x) (push x list)) variables)
 			  list))
-         (assign (mapcar #'pair variable-list first-assign)))
+         (assign (mapcar #'pair variable-list first-assign))
+	 (value-list (set-to-list value-set)))
     (flet ((new-assignment ()
              (let ((current-assign assign))
-               (setf assign (next-assignment value-set assign))
+               (setf assign (next-assignment value-list assign))
                current-assign)))
       (define-lazy-set #'new-assignment))))
 

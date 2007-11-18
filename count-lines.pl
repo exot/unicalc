@@ -10,6 +10,7 @@ my @filenames = qw/equations-equations.lisp
                    functions-and-relations-congruences.lisp
                    fundamental-functions-basic-relations.lisp
                    fundamental-functions-basic-functions.lisp
+                   fundamental-functions-cayley-tables.lisp
                    fundamental-functions-functions.lisp
                    fundamental-functions-relations.lisp
                    fundamental-functions-tables.lisp

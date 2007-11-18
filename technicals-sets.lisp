@@ -44,7 +44,7 @@ equal by TEST."))
 
 (defmethod print-object ((obj standard-set) stream)
   (format stream "{")
-  (format stream "~{~A~^,~}" (contents obj))
+  (format stream "~{~A~^,~&~:T~}" (contents obj))
   (format stream "}"))
 
 (defun %listify (tree)
@@ -223,6 +223,14 @@ removed from left to right."
   (declare (type t elt))
   "Returns singelton set {ELT}."
   (make-set (list elt)))
+
+(defun min-s (set)
+  (declare (type standard-set set))
+  (apply #'min (contents set)))
+
+(defun max-s (set)
+  (declare (type standard-set set))
+  (apply #'max (contents set)))
 
 (defmacro loop-over-set (element set &body body)
   (with-gensyms (elt)

@@ -18,20 +18,21 @@
   (declare (ignore func))
   nil)
 
-(defgeneric make-function (source target graph-or-function)
+(defgeneric make-function (source target graph-or-function &key untested)
   (:documentation "Returns ALGEBRAIC-FUNCTION object describing
 GRAPH-OR-FUNCTION."))
 
-(defmethod make-function ((source list) target graph-or-function)
-  (make-function (make-set source) target graph-or-function))
+(defmethod make-function ((source list) target graph-or-function &key (untested nil))
+  (make-function (make-set source) target graph-or-function :untested untested))
 
-(defmethod make-function (source (target list) graph-or-function)
-  (make-function source (make-set target) graph-or-function))
+(defmethod make-function (source (target list) graph-or-function &key (untested nil))
+  (make-function source (make-set target) graph-or-function :untested untested))
 
-(defmethod make-function (source target (graph standard-set))
+(defmethod make-function (source target (graph standard-set) &key (untested nil))
   (declare (type standard-set source target))
   (cond
-    ((function-graph-p graph source target)
+    ((or untested
+	 (function-graph-p graph source target))
      (make-instance 'algebraic-function
                     :source nil
                     :target target
@@ -41,8 +42,8 @@ GRAPH-OR-FUNCTION."))
                                  source ~A and target ~A."
                             graph source target)))))
 
-(defmethod make-function (source target (graph list))
-  (make-function source target (make-set graph)))
+(defmethod make-function (source target (graph list) &key (untested nil))
+  (make-function source target (make-set graph) :untested untested))
 
 (defmethod source ((func-or-rel algebraic-function))
   (mapset #'first (graph func-or-rel)))
@@ -56,9 +57,10 @@ GRAPH-OR-FUNCTION."))
 		 (card-s A))
 	      (set-equal A graph-arguments)))))
 
-(defmethod make-function (source target (function function))
+(defmethod make-function (source target (function function) &key (untested nil))
   (declare (type standard-set source target))
-  (make-function source target (function-to-graph source function)))
+  (make-function source target (function-to-graph source function)
+		 :untested untested))
 
 (defun function-to-graph (source function)
   "Converts FUNCTION on SOURCE to a function graph."
@@ -66,9 +68,10 @@ GRAPH-OR-FUNCTION."))
 	   (type function function))
   (mapset #'(lambda (x) (list x (funcall function x))) source))
 
-(defmethod make-function (source target (relation relation))
+(defmethod make-function (source target (relation relation) &key (untested nil))
   (declare (type standard-set source target))
-  (make-function source target (graph-of-relation relation)))
+  (make-function source target (graph-of-relation relation)
+		 :untested untested))
 
 (defun value-of-function (function argument)
   (declare (type algebraic-function function)

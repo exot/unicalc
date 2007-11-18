@@ -11,10 +11,8 @@
 
 (defmacro uab-commands (stream &body body)
   `(flet ((cmd (command &rest args)
-           (if args
-               (apply #'write-uab-command (append (list ,stream command) args))
-               (write-uab-command ,stream command))))
-      ,@body))
+	   (apply #'write-uab-command ,stream command args)))
+    ,@body))
 
 (defun write-uab-command (stream command &optional (pathname nil path-given-p))
   (if path-given-p
@@ -51,7 +49,7 @@
   (uab-commands stream
     (cmd "create_subproduct_algebra")
     (cmd "vectorlist_file" vectorlist-pathname)
-    (loop for algebra-pathname in algebra-pathnames
+    (loop for algebra-pathname in (set-to-list algebra-pathnames)
           do (cmd "algebra_file" algebra-pathname))
     (cmd "output_file" output-pathname)))
 
@@ -86,7 +84,7 @@
   (uab-commands stream
     (cmd "create_direct_product")
     (cmd "number" (princ-to-string (length algebra-pathnames))) ;;; is ok
-    (loop for algebra-pathname in algebra-pathnames
+    (loop for algebra-pathname in (set-to-list algebra-pathnames)
           do (cmd "algebra_file" algebra-pathname))
     (cmd "output_file" output-pathname)
     (cmd "output_file" universe-pathname)))
@@ -111,13 +109,22 @@
 
 (define-simple-condition uacalc-interface-uab-error)
 
+(defparameter *uab-output* t)
+
+(defun show-uab-output (yes-or-no)
+  (setf *uab-output* yes-or-no))
+
 (defun run-uab (par-pathname)
   "Runs UAB with pathname PAR-PATHNAME as argument."
   #+sbcl
-  (let ((process (sb-ext:run-program "uab"
-                                     (list par-pathname)
-				     :search t
-				     :output *standard-output*)))
+  (let ((process (if *uab-output*
+		     (sb-ext:run-program "uab"
+					 (list par-pathname)
+					 :search t
+					 :output *standard-output*)
+		     (sb-ext:run-program "uab"
+					 (list par-pathname)
+					 :search t))))
     (cond
       ((not (= (sb-ext:process-exit-code process) 0))
        (error 'uacalc-interface-uab-error :text
@@ -143,7 +150,8 @@
 
 (defun generate-unique-pathname ()
   (loop for file-name = (concatenate 'string "/tmp/test" (string (gentemp)))
-        until (not (file-exists file-name))
+        until (and (not (file-exists (concatenate 'string file-name ".alg")))
+		   (not (file-exists (concatenate 'string file-name ".con"))))
         finally (return file-name)))
 
 (defun make-new-project ()

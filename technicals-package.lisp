@@ -44,6 +44,8 @@
    :elt-at-position-s
    :assoc-s
    :singelton-s
+   :min-s
+   :max-s
    :loop-over-set
    :next-argument
    :tuple-p

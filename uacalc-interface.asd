@@ -16,5 +16,4 @@
 	       (:file "uacalc-interface-direct-product")
 	       (:file "uacalc-interface-free-algebra")
                (:file "uacalc-interface-congruence-lattice"))
-
   :serial t)

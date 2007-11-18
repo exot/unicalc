@@ -25,7 +25,6 @@ my @filenames = qw/equations-equations.lisp
                    uacalc-interface-free-algebra.lisp
                    uacalc-interface-basic-io.lisp
                    uacalc-interface-io.lisp
-                   uacalc-interface.lisp
                    uacalc-interface-uab-standard.lisp
                    universal-algebra-algebras.lisp
                    universal-algebra-basic-algebras.lisp

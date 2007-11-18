@@ -19,7 +19,6 @@
   (with-algebras ((input-project algebra)) ((algebra-file-name output-project))
     (uab-calculate-direct-power input-project power output-project)))
 
-
 (defun uab-calculate-direct-product (input-projects output-project)
   (declare (type list input-projects)
 	   (type uacalc-project output-project))
@@ -35,9 +34,5 @@
   (declare (type list algebras))
   "Calculates the direct product of the list of ALGEBRAS numerically with
 UACalc."
-;;   (let ((input-projects (mapcar #'algebra-to-project algebras))
-;; 	(output-project (make-new-project)))
-;;     (uab-calculate-direct-product input-projects output-project)
-;;     (uacalc-read-algebra-from-file output-project)))
   (with-algebras (input-projects algebras) ((algebra-file-name output-project))
     (uab-calculate-direct-product input-projects output-project)))

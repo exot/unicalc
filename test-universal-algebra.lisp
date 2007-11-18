@@ -552,15 +552,28 @@
 		  ((4 3) 2)
 		  ((4 4) 4))}))
 
-;; (defparameter *symbolized-free-algebra*
-;;   (symbolize-free-algebra *free-algebra*))
+(defparameter *symbolized-free-algebra*
+  (symbolize-free-algebra *free-algebra*))
 
-;; (define-output-test (print *free-algebra*))
-;; (define-output-test (print *symbolized-free-algebra*))
-;; (define-output-test (print (extract-all-equations *symbolized-free-algebra*)))
+(define-output-test (print *free-algebra*))
+(define-output-test (print *symbolized-free-algebra*))
+(define-output-test (print (extract-all-equations *symbolized-free-algebra*)))
 
-;; (defun test-case-1 ()
-;;   (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
+(defun test-case-1 ()
+  (pprint-all-equations (symbolize-free-algebra *free-algebra*)))
+
+(define-test-case free-test-1 () t
+  (= (card-s (base-set-of *free-algebra*))
+     (card-s (base-set-of (calculate-free-algebra *ganters-algebra* 2)))))
+
+(define-test-case prod-test-1 () t
+  (= (card-s (base-set-of
+	      (calculate-direct-product-numerically (list *ganters-algebra*
+							    *ganters-algebra*))))
+     (card-s (base-set-of
+	      (calculate-direct-power-numerically *ganters-algebra* 2)))))
+
+(run-tests '(free-test-1 prod-test-1))
 
 ;;;; miscellaneous test cases
 

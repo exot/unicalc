@@ -9,15 +9,16 @@
     (with-open-file (file file-name :direction :output :if-exists :error)
       (write-numerized-algebra-to-file numerized-algebra file))))
 
-(defgeneric uacalc-read-algebra-from-file (file-name-or-project)
+(defgeneric uacalc-read-algebra-from-file (file-name-or-project &key untested)
   (:documentation "Reads algebra from file-name begin a UACalc algebra file."))
 
-(defmethod uacalc-read-algebra-from-file ((file-name string))
+(defmethod uacalc-read-algebra-from-file ((file-name string) &key (untested nil))
   (with-open-file (file file-name :direction :input :if-does-not-exist :error)
     (let* ((base-set (read-base-set-from-file file))
-	   (operations (read-all-operations-from-file file base-set))
+	   (operations (read-all-operations-from-file file base-set
+						      :untested untested))
 	   (signature (calculate-signature-from-operations operations)))
-      (make-algebra base-set signature operations :equal-pred #'equal))))
+      (make-algebra base-set signature operations))))
 
 ;;; syntactic abstraction
 
@@ -70,11 +71,12 @@
   (declare (type algebra algebra))
   (uacalc-write-algebra-to-file algebra (file-name project)))
 
-(defmethod uacalc-read-algebra-from-file ((project uacalc-project))
-  (uacalc-read-algebra-from-file (file-name project)))
+(defmethod uacalc-read-algebra-from-file ((project uacalc-project) &key (untested nil))
+  (uacalc-read-algebra-from-file (file-name project) :untested untested))
 
 (define-uacalc-file-accessor algebra-file-name ".alg"
-  (:reader uacalc-read-algebra-from-file)
+  (:reader (lambda (file-name-or-project)
+	     (uacalc-read-algebra-from-file file-name-or-project :untested t))) ;!!!
   (:writer uacalc-write-algebra-to-file))
 
 ;;; .vlf files
@@ -92,12 +94,20 @@
 (defmethod uacalc-write-vector-list-to-file (vector-list (file-name string))
   (with-open-file (stream file-name :direction :output
 			  :if-exists :supersede)
-    (write-vector-to-file stream
-			  (vector (length vector-list)
-			          (length (first vector-list))))
-    (format stream "~%")
-    (loop for vector in vector-list
-	  do (write-vector-to-file stream vector))))
+    (cond
+      ((not (every #'(lambda (x) (= (length (first vector-list))
+				    (length x)))
+		   vector-list))
+       (error 'uacalc-io-error :text
+	      (format nil "Vector list ~A contains vectors of different length"
+		      vector-list)))
+      (t
+       (write-vector-to-file stream
+			     (vector (length vector-list)
+				     (length (first vector-list))))
+       (format stream "~%")
+       (loop for vector in vector-list
+	     do (write-vector-to-file stream vector))))))
 
 (defgeneric uacalc-read-vector-list-from-file (file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project))
@@ -136,12 +146,12 @@
   (uacalc-write-congruences-to-file congruences (cong-file project)))
 
 (defmethod uacalc-write-congruences-to-file (congruences (file-name string))
-  (let ((uacalc-congs (mapcar #'congruence-to-uacalc-congruence congruences)))
+  (let ((uacalc-congs (mapset #'congruence-to-uacalc-congruence congruences)))
     (with-open-file (stream file-name :direction :output
 			              :if-exists :supersede)
-      (write-vector-to-file stream (vector (card uacalc-congs) 0)) ;;; ???
-      (loop for cong in uacalc-congs do
-	    (write-vector-to-file stream cong :prefix ",")))))
+      (write-vector-to-file stream (vector (card-s uacalc-congs) 0)) ;;; ???
+      (loop-over-set cong uacalc-congs
+	(write-vector-to-file stream cong :prefix ",")))))
 
 (defgeneric uacalc-read-congruences-from-file (file-name-or-project)
   (declare (type (or string uacalc-project) file-name-or-project))
@@ -155,9 +165,9 @@
 			            :if-does-not-exist :error)
     (let ((vectors (read-all-vectors-from-file stream file-name
 					       :prefix #\,
-					       :number-idx 1
-					       :length-idx 0)))
-      (mapcar #'uacalc-congruence-to-congruence vectors))))
+					       :number-idx 0
+					       :length-idx 1)))
+      (make-set (mapcar #'uacalc-congruence-to-congruence vectors)))))
 
 ; all congruences
 (define-uacalc-file-accessor cong-file ".con"

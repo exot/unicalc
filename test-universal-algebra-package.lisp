@@ -8,5 +8,4 @@
    :functions-and-relations
    :subalgebras
    :equations
-;   :uacalc-interface
-   ))
+   :uacalc-interface))

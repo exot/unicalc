@@ -1,4 +1,4 @@
-(defpackage :UACalc-interface
+(defpackage :uacalc-interface
  (:use
    :cl
    :technicals
@@ -13,6 +13,8 @@
    :uacalc-interface-error
    :uacalc-io-error
 ;; uacalc-interface-io
+   :read-from-uacalc-project
+   :write-to-uacalc-project
    :uacalc-read-algebra-from-file
    :uacalc-write-algebra-to-file
    :uacalc-write-vector-list-to-file
@@ -20,6 +22,7 @@
    :uacalc-write-congruences-to-file
    :uacalc-read-congruences-from-file
 ;; uacalc-interface-uab-standard
+   :show-uab-output
 ;; uacalc-interface-direct-product
    :calculate-direct-power-numerically
    :calculate-direct-product-numerically

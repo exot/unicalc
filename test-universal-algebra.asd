@@ -9,8 +9,7 @@
                "functions-and-relations"
                "subalgebras"
                "equations"
-;               "uacalc-interface"
-	       )
+               "uacalc-interface")
   :components ((:file "test-universal-algebra-package")
                (:file "test-universal-algebra" 
                 :depends-on ("test-universal-algebra-package"))))

@@ -32,17 +32,18 @@
   `(multiple-value-bind (numerized-algebra renaming-function)
        (numerize-algebra ,algebra)
      (let ((all-congs-num (compute-part-of-congruences numerized-algebra ,what)))
-       (mapcar #'equivalence-relation-from-partition
+       (mapset #'equivalence-relation-from-partition
 	(apply-function-to-numbers (inverse-function renaming-function)
 				   all-congs-num))))))
 
 (defun apply-function-to-numbers (func list)
   (declare (type algebraic-function func)
-	   (type (or integer list) list))
+	   (type (or integer standard-set) list))
   (cond
-    ((null list) list)
-    ((atom list) (apply-function-to-element func list))
-    (t (mapcar #'(lambda (x) (apply-function-to-numbers func x))
+    ((not (standard-set-p list))
+     (apply-function-to-element func list))
+    ((emptyp-s list) list)
+    (t (mapset #'(lambda (x) (apply-function-to-numbers func x))
 	       list))))
 
 (defun all-congruences (algebra)

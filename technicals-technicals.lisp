@@ -111,3 +111,21 @@ by Norvig and Pitman. "
 			  list1
 			  (cons (first original-list) list2))))))
     (helper list () ())))
+
+;;; from en.wikipedia.org
+(defun nth-permutation (num list)
+  (declare (type integer num)
+	   (type list list))
+  (let ((sequence (coerce (copy-list list) 'vector)))
+    (loop for factorial = 1 then (* factorial j)
+	  for j from 1 below (length list)
+	  do (rotatef (aref sequence (- j (mod (truncate (/ num factorial)) (1+ j))))
+		      (aref sequence j))
+	  finally (return (coerce sequence 'list)))))
+
+(defun factorial (n)
+  (labels ((fac-hlper (n result)
+	     (cond
+	       ((>= 0 n) result)
+	       (t (fac-hlper (1- n) (* result n))))))
+    (fac-hlper n 1)))

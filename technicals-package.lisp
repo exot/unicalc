@@ -17,6 +17,8 @@
    :operation-symbol
    :symbol-list
    :split-by-predicate
+   :nth-permutation
+   :factorial
 ;; sets.lisp
    :standard-set
    :set-to-list

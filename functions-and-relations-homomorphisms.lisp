@@ -129,10 +129,16 @@ That is: f is named quasi-homomorph on algebra A iff for all operations op on
 (defun all-isomorphisms (algebra1 algebra2)
   (declare (type algebra algebra1 algebra2))
   "Returns lazy set of all isomorphisms between ALGEBRA1 and ALGEBRA2."
-  (all-functions-with-predicate (base-set-of algebra1)
-				(base-set-of algebra2)
-				#'(lambda (x)
-                                    (isomorphism-p x algebra1 algebra2))))
+  (let ((all-bijective-functions (all-bijective-functions (base-set-of algebra1)
+							  (base-set-of algebra2))))
+    (labels ((next-function ()
+	       (let ((next (funcall (next all-bijective-functions))))
+		 (cond
+		   ((not next) nil)
+		   ((not (homomorphism-p next algebra1 algebra2))
+		    (next-function))
+		   (t next)))))
+      (define-lazy-set #'next-function))))
 
 (defun isomorphic-p (algebra1 algebra2)
   (declare (type algebra algebra1 algebra2))

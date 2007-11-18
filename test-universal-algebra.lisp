@@ -567,11 +567,11 @@
      (card-s (base-set-of (calculate-free-algebra *ganters-algebra* 2)))))
 
 (define-test-case prod-test-1 () t
-  (= (card-s (base-set-of
-	      (calculate-direct-product-numerically (list *ganters-algebra*
-							    *ganters-algebra*))))
-     (card-s (base-set-of
-	      (calculate-direct-power-numerically *ganters-algebra* 2)))))
+  (true-value-p
+   (isomorphic-p
+    (calculate-direct-product-numerically (list *ganters-algebra*
+						*ganters-algebra*))
+    (calculate-direct-power-numerically *ganters-algebra* 2))))
 
 (run-tests '(free-test-1 prod-test-1))
 

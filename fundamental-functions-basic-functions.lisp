@@ -176,7 +176,33 @@ PREDICATE."
 		   (t (next-function))))))
       (define-lazy-set #'next-function))))
 
-(defun all-bijective-functions (source target)
-  "Returns LAZY-SET of all bijective functions between SOURCE and TARGET."
+(defun all-bijective-assignments (source target)
   (declare (type standard-set source target))
-  (all-functions-with-predicate source target #'bijective-p))
+  (cond
+    ((not (= (card-s source)
+	     (card-s target)))
+     (define-lazy-set (constantly nil)))
+    (t (let ((counter 0)
+	     (all (factorial (card-s source)))
+	     (source-elt-list (set-to-list source))
+	     (target-elt-list (set-to-list target)))
+	 (flet ((next-permutation ()
+		  (cond
+		    ((>= counter all) nil)
+		    (t (incf counter)
+		       (let ((nth-permutation (nth-permutation (1- counter)
+							       source-elt-list)))
+			 (mapcar #'pair nth-permutation target-elt-list))))))
+	   (define-lazy-set #'next-permutation))))))
+
+(defun all-bijective-functions (source target)
+  (declare (type standard-set source target))
+  "Returns LAZY-SET of all bijective functions between SOURCE and TARGET."
+  (let ((all-assigns (all-bijective-assignments source target)))
+    (flet ((next-function ()
+	     (let ((next (funcall (next all-assigns))))
+	       (cond
+		 ((not next) nil)
+		 (t (make-function source target (make-set next)
+				   :untested t))))))
+      (define-lazy-set #'next-function))))

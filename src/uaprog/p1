@@ -1,0 +1,17 @@
+#!/bin/sh
+if test -z "$1"; then
+	echo "?? p1 A [log_level or 'p'] computes unary polynomials"
+	echo "   (needs A.alg, creates A.p1, A.p1e).";
+else
+	echo \\begin_command > $1.par
+	echo \\unary_polynomials >> $1.par
+	echo \\algebra_file{$1.alg} >> $1.par
+	echo \\output_file{$1.p1} >> $1.par
+	echo \\output_file{$1.p1e} >> $1.par
+	echo \\end_command >> $1.par
+	if test "$2" = "p"; then
+		echo $1.par created.;
+	else
+		uab $1 $2;
+	fi;
+fi

@@ -1,0 +1,26 @@
+#!/bin/sh
+if test -z "$1"; then
+	echo "?? typ A [log_level or 'p'] labels Con(A)"
+	echo "   (needs A.alg, creates A.lat,con,pri,mi,typ).";
+else
+	echo \\begin_command > $1.par
+	echo \\compute_congruence_lattice >> $1.par
+	echo \\algebra_file{$1.alg} >> $1.par
+	echo \\output_file{$1.lat} >> $1.par
+	echo \\output_file{$1.con} >> $1.par
+	echo \\output_file{$1.pri} >> $1.par
+	echo \\output_file{$1.mi} >> $1.par
+	echo \\end_command >> $1.par
+	echo %% >> $1.par
+	echo \\begin_command >> $1.par
+	echo \\label_congruence_lattice >> $1.par
+	echo \\algebra_file{$1.alg} >> $1.par
+	echo \\conlist_file{$1.con} >> $1.par
+	echo \\output_file{$1.typ} >> $1.par
+	echo \\end_command >> $1.par
+	if test "$2" = "p"; then
+		echo $1.par created.;
+	else
+		uab $1 $2;
+	fi;
+fi

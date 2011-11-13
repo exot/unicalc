@@ -1,0 +1,20 @@
+#!/bin/sh
+if test -z "$1" -o -z "$2" -o -z "$3"; then
+	echo "?? min A n m [log_level or 'p'] prepares M_A(n,m)"
+	echo "   (needs A.alg, A.con, creates A.min).";
+else
+	echo \\begin_command > $1.par
+	echo \\compute_min_sets >> $1.par
+	echo \\algebra_file{$1.alg} >> $1.par
+	echo \\congruence{\\conlist_file{$1.con}\\number{$2}} >> $1.par
+	echo \\congruence{\\conlist_file{$1.con}\\number{$3}} >> $1.par
+	echo \\output_file{$1.min} >> $1.par
+	echo \\end_command >> $1.par
+	if test "$4" = "p"; then
+		echo $1.par created.;
+	else
+		uab $1 $4;
+	fi;
+fi
+
+

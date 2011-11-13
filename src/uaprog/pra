@@ -1,0 +1,19 @@
+#!/bin/sh
+if test -z "$1" -o -z "$2" -o -z "$3"; then
+	echo "?? pra A B P [log_level or 'p'] prepares P=AxB"
+	echo "   (needs A.alg, B.alg, creates P.alg).";
+else
+	echo \\begin_command > $1.par
+	echo \\create_direct_product >> $1.par
+	echo \\number{2} >> $1.par
+	echo \\algebra_file{$1.alg} >> $1.par
+	echo \\algebra_file{$2.alg} >> $1.par
+	echo \\output_file{$3.alg} >> $1.par
+	echo \\output_file{$3.uni} >> $1.par
+	echo \\end_command >> $1.par
+	if test "$4" = "p"; then
+		echo $1.par created.;
+	else
+		uab $1 $4;
+	fi;
+fi

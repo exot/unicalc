@@ -1,0 +1,43 @@
+#!/bin/sh
+if ! test "$1" = "n" -o "$1" = "w" -o "$1" = "s" -o "$1" = "r" ||\
+	test -z "$2" -o -z "$3" -o -z "$4" -o -z "$5"; then
+	echo "?? centr t A n m k [log_level or 'p'] decides if Ct(n,m;k) holds in A,"
+	echo "   where t=n(ormal),w(eak),s(trong),r(ectangular);"
+	echo "   n, m is a number or 'one'; k is a number, 'zero', or 'all'"
+	echo "   (needs A.alg, A.con).";
+else
+	echo \\begin_command > $2.par
+	if test "$1" = "n"; then
+		echo \\centrality >> $2.par;
+	elif test "$1" = "w"; then
+		echo \\weak_centrality >> $2.par;
+	elif test "$1" = "s"; then
+		echo \\strong_centrality >> $2.par;
+	else # "$1" = "r"
+		echo \\rectangular_centrality >> $2.par;
+	fi
+	echo \\algebra_file{$2.alg} >> $2.par
+	if test "$3" = "one"; then
+		echo \\bin_rel{\\congruence{\\one_congruence{}}} >> $2.par;
+	else
+		echo \\bin_rel{\\congruence{\\conlist_file{$2.con}\\number{$3}}} >> $2.par;
+	fi
+	if test "$4" = "one"; then
+		echo \\bin_rel{\\congruence{\\one_congruence{}}} >> $2.par;
+	else
+		echo \\bin_rel{\\congruence{\\conlist_file{$2.con}\\number{$4}}} >> $2.par;
+	fi
+	if test "$5" = "all"; then
+		echo \\conlist_file{$2.con} >> $2.par;
+	elif test "$5" = "zero"; then
+		echo \\congruence{\\zero_congruence{}} >> $2.par;
+	else
+		echo \\congruence{\\conlist_file{$2.con}\\number{$5}} >> $2.par;
+	fi
+	echo \\end_command >> $2.par
+	if test "$6" = "p"; then
+		echo "$2.par created.";
+	else
+		uab $2 $6;
+	fi;
+fi

@@ -8,7 +8,7 @@
   :version "0.0.0"
   :license "see LICENSE"
   :description "A Universal Algebra Calculator"
-  :components ((:file "unicalc-package"
+  :components ((:file "unicalc"
                 :depends-on (technicals
                              fundamental-functions
                              universal-algebra
@@ -87,6 +87,7 @@
                              terms
                              equations
                              functions-and-relations)
+                :pathname "src/"
                 :components ((:file "uacalc-interface-package")
                              (:file "uacalc-interface-basic-io")
                              (:file "uacalc-interface-io")

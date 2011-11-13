@@ -837,9 +837,6 @@ vprint_dev( int dev, char *fmt, va_list marker)
    twice on the screen.
  */
 {
-    char guibuf[1024];
-/* Should be enough, we only write one line at a time */
-
     int sr;
 
     if( ((dev & LOG_DEV) || (dev & ERR_DEV)) && (log_file_p != 0) ) {

@@ -1,0 +1,6 @@
+UniCalc -- Universal Algebra Calculator
+=======================================
+
+A Universal Algebra Calculator, wrapping uacalc and written in Common Lisp.
+
+Status: Pratically unusable...

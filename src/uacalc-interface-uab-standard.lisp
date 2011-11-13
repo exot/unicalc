@@ -127,9 +127,9 @@
 					 :search t))))
     (cond
       ((not (= (sb-ext:process-exit-code process) 0))
-       (error 'uacalc-interface-uab-error :text
-              (format nil "~&UAB return ~A~%"
-		      (sb-ext:process-exit-code process))))
+       (error 'uacalc-interface-uab-error
+              :text (format nil "~&UAB return ~A~%"
+                            (sb-ext:process-exit-code process))))
       (t t)))
   #-sbcl
   (error "run-uab not implemented on this lisp version"))
@@ -139,14 +139,8 @@
 (defun file-exists (pathname)
   (declare (type string pathname)
            (inline file-exists)
-           (optimize (speed 0))) ;; no warnings
-  #-sbcl(error "Function FILE-EXISTS not implemented.")
-  #+sbcl
-  (handler-case
-      (progn
-        (sb-posix:stat pathname)
-        t)
-    (sb-posix:syscall-error () nil)))
+           (optimize (speed 0)))
+  (probe-file pathname))
 
 (defun generate-unique-pathname ()
   (loop for file-name = (concatenate 'string "/tmp/test" (string (gentemp)))

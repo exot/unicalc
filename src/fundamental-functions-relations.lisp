@@ -96,7 +96,7 @@ prints only 5 entries"
   (with-gensyms (relation-graph pair)
     `(let ((relation-graph (graph ,relation)))
       (loop-over-set pair relation-graph
-	(destructuring-bind ,element pair
+	(destructuring-bind (,element) (list pair)
 	  ,(if (listp element)
 	       `(declare (ignorable ,@element))
 	       `(declare (ignorable ,element)))

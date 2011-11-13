@@ -1,4 +1,4 @@
-(in-package :test-universal-algebra)
+(in-package :test-unicalc)
 
 (set-error-handling 'error)
 

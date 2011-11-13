@@ -1,4 +1,4 @@
-(defpackage :test-universal-algebra
+(defpackage :test-unicalc
   (:use 
    :cl
    :technicals

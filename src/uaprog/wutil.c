@@ -837,6 +837,9 @@ vprint_dev( int dev, char *fmt, va_list marker)
    twice on the screen.
  */
 {
+    char guibuf[1024];
+/* Should be enough, we only write one line at a time */
+
     int sr;
 
     if( ((dev & LOG_DEV) || (dev & ERR_DEV)) && (log_file_p != 0) ) {
@@ -853,21 +856,32 @@ vprint_dev( int dev, char *fmt, va_list marker)
 	    print_derr("Error writing result file.");
 	}
     }
-
-    if(isatty(fileno(stdout))!=0 && isatty(fileno(stderr))!=0 ) {
-        /* stdout=console=stderr */
-        if( (dev & PROC_PROGR_DEV) || (dev & RUN_PROGR_DEV)
-    	|| (dev & ERR_DEV) || (dev & RESULT_DEV) ) {
-    	vprintf( fmt, marker );  /* write ONLY to stdout */
-        }
+    if( GUI_mode == YES ) {
+	if( (dev & RESULT_DEV)  ) {
+	    vsprintf( guibuf, fmt, marker );
+	//    C_ResultLogAppend(guibuf);
+	}
+	if( (dev & ERR_DEV) || (dev & RUN_PROGR_DEV) || 
+	    (dev & PROC_PROGR_DEV)) {
+	    vsprintf( guibuf, fmt, marker );
+	//    C_ProgressLogAppend(guibuf);
+	}
     } else {
-        if( (dev & PROC_PROGR_DEV) || (dev & RESULT_DEV) ) {
-    	vprintf( fmt, marker );
-        }
-        if( dev & ERR_DEV ) {
-    	vfprintf( stderr, fmt, marker );
-        }
-    }
+        if(isatty(fileno(stdout))!=0 && isatty(fileno(stderr))!=0 ) {
+	    /* stdout=console=stderr */
+	    if( (dev & PROC_PROGR_DEV) || (dev & RUN_PROGR_DEV)
+		|| (dev & ERR_DEV) || (dev & RESULT_DEV) ) {
+		vfprintf( stdout, fmt, marker );  /* write ONLY to stdout */
+	    }
+	} else {
+	    if( (dev & PROC_PROGR_DEV) || (dev & RESULT_DEV) ) {
+		vfprintf( stdout, fmt, marker );
+	    }
+	    if( dev & ERR_DEV ) {
+		vfprintf( stderr, fmt, marker );
+	    }
+	}
+    } /* GUI_mode */
 }
 
 static void

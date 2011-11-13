@@ -3,7 +3,8 @@ PROJ = uab
 CC  = gcc
 CFLAGS_G  = -Wall -DRUN_PROGRESS -DTIME_DIAG -DBIG_INT -DUNIX -O2\
 -I$(JDK_ROOT)/include\
--I$(JDK_ROOT)/include/linux -fPIC
+-I$(JDK_ROOT)/include/linux -fPIC\
+-ggdb
 LFLAGS_G  = -lm
 LINKER	= gcc
 

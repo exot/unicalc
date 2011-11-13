@@ -935,23 +935,6 @@ set_pres_device( )
     return(dev);
 }
 
-#if 0
-/* Not needed at the moment */
-static void
-print_proc( char *fmt,... )
-/* general printing routine for proc progress messages */
-{
-  int dev;
-  va_list marker;
-
-  dev = set_proc_device();
-  va_start( marker, fmt );
-  vprint_dev(dev, fmt, marker);
-  va_end( marker );
-  return;
-}
-#endif
-
 static void
 print_pres( char *fmt,... )
 /* general printing routine for result messages */
@@ -970,12 +953,12 @@ static void
 vprint_proc( char *prompt, char *fmt, va_list marker )
 /* general printing routine for proc progress messages */
 {
-  int dev;
+//  int dev;
 
-  dev = set_proc_device();
-  print_indent( dev, log_level );
-  print_dev( dev, "%s", prompt);
-  vprint_dev( dev, fmt, marker );
+//  dev = set_proc_device();
+//  print_indent( dev, log_level );
+//  print_dev( dev, "%s", prompt);
+//  vprint_dev( dev, fmt, marker );
   return;
 }
 
